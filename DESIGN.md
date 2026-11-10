@@ -55,6 +55,18 @@ array views with an exclusive end. Missing indexes retain strict/optional
 semantics. Slice output has no unique source-array path; diagnostics for literal
 indexes retain their sign. Retaining stages clone borrowed slice children.
 
+`map(array, body)` and `filter(array, predicate)` are scalar array functions.
+The array is evaluated once in the caller's context, then the body is evaluated
+with each item as the current value. Each nested call restores its caller's
+context, preserves order, and returns one array. Mapping requires a nonmissing
+value; filtering requires a boolean and retains original matching items. Empty
+arrays do not evaluate their bodies. Source paths follow actual item indexes
+during body evaluation; computed arrays have no invented input provenance.
+Result array slots and body temporaries use the expression-stage arena. Borrowed
+children stay valid until synchronous downstream consumers finish, and retaining
+stages clone them. These functions materialize arrays; their temporary allocation
+is separate from the retention budget and the input-size limit.
+
 Execution uses a persistent session spanning all input records. A projection
 produces one value, a filter passes or drops it, and `each` invokes downstream
 stages once per array element. `count` maintains a checked u64 counter; `collect`

@@ -21,6 +21,11 @@ pub const Index = struct {
 pub const Slice = struct { start: ?Index, end: ?Index };
 pub const Key = union(enum) { field: []const u8, index: Index, slice: Slice };
 pub const Field = struct { name: []const u8, value: *const Node };
+pub const Transform = struct {
+    kind: enum { map, filter },
+    array: *const Node,
+    body: *const Node,
+};
 pub const Node = struct {
     offset: usize,
     height: usize,
@@ -36,6 +41,7 @@ pub const Node = struct {
         exists: *const Node,
         length: *const Node,
         keys: *const Node,
+        transform: Transform,
         matches: struct { value: *const Node, pattern: usize },
     },
 };
@@ -341,13 +347,21 @@ pub const Parser = struct {
                 const matches = self.word("matches");
                 const length = self.word("length");
                 const keys = self.word("keys");
-                if (!exists and !matches and !length and !keys) return self.fail(offset, "unknown expression; fields start with .");
+                const mapping = self.word("map");
+                const filtering = self.word("filter");
+                if (!exists and !matches and !length and !keys and !mapping and !filtering) return self.fail(offset, "unknown expression; fields start with .");
                 try self.advance();
                 try self.expect(.lparen, "expected ( after function name");
                 const value = try self.expression(0);
                 if (exists or length or keys) {
                     try self.expect(.rparen, "expected ) after function argument");
                     return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else .{ .keys = value }, value.height + 1);
+                }
+                if (mapping or filtering) {
+                    try self.expect(.comma, "map/filter expects an array and a per-element expression");
+                    const body = try self.expression(0);
+                    try self.expect(.rparen, "expected ) after per-element expression");
+                    return self.make(offset, .{ .transform = .{ .kind = if (mapping) .map else .filter, .array = value, .body = body } }, @max(value.height, body.height) + 1);
                 }
                 try self.expect(.comma, "matches expects a value and a constant JSON string pattern");
                 if (self.token.tag != .string) return self.fail(self.token.start, "regex pattern must be a constant JSON string");

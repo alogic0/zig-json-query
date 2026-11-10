@@ -194,6 +194,26 @@ pub const Evaluator = struct {
                 }
                 break :blk Value{ .array = array };
             },
+            .transform => |transform| blk: {
+                const source = try self.evalRequired(allocator, transform.array, input);
+                if (source != .array) return self.typeFailure(node, transform.array, "map/filter expects an array");
+                var result = std.json.Array.init(allocator);
+                try result.ensureTotalCapacity(source.array.items.len);
+                const caller_path = self.path;
+                defer self.path = caller_path;
+                const array_path = self.pathFor(transform.array);
+                for (source.array.items, 0..) |item, index| {
+                    self.path = array_path;
+                    if (self.path.len != 0) self.path.index(index);
+                    switch (transform.kind) {
+                        .map => result.appendAssumeCapacity(try self.evalRequired(allocator, transform.body, item)),
+                        .filter => if (try self.booleanAt(try self.eval(allocator, transform.body, item), transform.body)) {
+                            result.appendAssumeCapacity(item);
+                        },
+                    }
+                }
+                break :blk Value{ .array = result };
+            },
             .matches => |match| blk: {
                 const value = try self.evalRequired(allocator, match.value, input);
                 if (value != .string) {

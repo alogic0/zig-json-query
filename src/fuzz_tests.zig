@@ -3,10 +3,12 @@ const query = @import("root.zig");
 const t = std.testing;
 
 const sources = [_][]const u8{
-    ".",             ".x? ?? 0",              "each | take(2) | collect",        "each | sum",
-    "sort_by(.x)",   "group_by(.) | collect", "[.,.]",                           ".+1",
-    "1/.",           "matches(., \"^a+$\")",  "collect | each | sort | collect", "where(. == .) | count",
-    "take(0) | sum", "exists(.x?)",
+    ".",                                 ".x? ?? 0",                     "each | take(2) | collect",        "each | sum",
+    "sort_by(.x)",                       "group_by(.) | collect",        "[.,.]",                           ".+1",
+    "1/.",                               "matches(., \"^a+$\")",         "collect | each | sort | collect", "where(. == .) | count",
+    "take(0) | sum",                     "exists(.x?)",                  "length(.)",                       "keys(.)",
+    "{x: .x? ?? null, fields: keys(.)}", ".[-1]? ?? null",               ".[-3:]",                          "map(., {value: ., size: length(.)})",
+    "filter(., . == null)",              "map(filter(., . != null), .)",
 };
 
 fn input(smith: *t.Smith, buffer: []u8) []const u8 {
@@ -61,9 +63,9 @@ fn evaluatorOne(_: void, smith: *t.Smith) !void {
 }
 
 test "fuzz parser" {
-    try t.fuzz({}, parserOne, .{ .corpus = &.{ ".", "1-2*3", "sort_by(.x) | group_by(.)", "take(0) | sum", "matches(., \"(?i)^a\")", "{x:.x? ?? 0}", "", "[", "-" } });
+    try t.fuzz({}, parserOne, .{ .corpus = &.{ ".", "1-2*3", "sort_by(.x) | group_by(.)", "take(0) | sum", "matches(., \"(?i)^a\")", "{x:.x? ?? 0}", "{passed, count: length(.http), fields: keys(.)}", ".[-3:][0]?", "map(filter(.rows, .ok), {name})", ".[-18446744073709551615:]", "filter(.,)", "", "[", "-" } });
 }
 
 test "fuzz evaluator" {
-    try t.fuzz({}, evaluatorOne, .{ .corpus = &.{ "\x00null", "\x01{}", "\x02[1,2,3]", "\x03[1,2,3]", "\x04{\"x\":1}", "\x05{\"a\":1}", "\x07-170141183460469231731687303715884105728", "\x080", "\x09\"aaa\"", "\x0a2", "\x0b1e999", "\x0c{bad}", "\x0d{}" } });
+    try t.fuzz({}, evaluatorOne, .{ .corpus = &.{ "\x00null", "\x01{}", "\x02[1,2,3]", "\x03[1,2,3]", "\x04{\"x\":1}", "\x05{\"a\":1}", "\x07-170141183460469231731687303715884105728", "\x080", "\x09\"aaa\"", "\x0a2", "\x0b1e999", "\x0c{bad}", "\x0d{}", "\x0e\"é😀\"", "\x0f{\"z\":1,\"a\":2}", "\x10{}", "\x11[]", "\x12[1,2,3]", "\x13[\"é\",\"abc\"]", "\x14[null,1,null]", "\x15[null,false,9007199254740993]" } });
 }

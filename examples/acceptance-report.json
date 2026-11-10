@@ -1,0 +1,14 @@
+{
+  "suite": "compiler-acceptance",
+  "passed": false,
+  "cleanup_passed": true,
+  "http": [
+    {"method": "GET", "path": "/health", "status": 200},
+    {"method": "POST", "path": "/compile", "status": 500}
+  ],
+  "fixtures": [
+    {"case": "parse", "result": {"code": 0}},
+    {"case": "compile", "result": {"code": 0}},
+    {"case": "link", "result": {"code": 1, "message": "missing symbol"}}
+  ]
+}

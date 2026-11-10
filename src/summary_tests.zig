@@ -157,3 +157,133 @@ test "summary slice views and computed key arrays survive downstream retention" 
     try stream.finish();
     try t.expectEqualStrings("[{\"values\":[\"one\",\"two\"],\"indexes\":[0,1]},{\"values\":[\"three\"],\"indexes\":[0]}]\n", output.written());
 }
+
+test "summary map returns one ordered array of scalar object and array results" {
+    try expectOutput("map(., .)", "[false,null,9007199254740993,1.2300e-4,{\"a\":1},[2]]", "[false,null,9007199254740993,1.2300e-4,{\"a\":1},[2]]\n");
+    try expectOutput("map(., false)", "[1,2]", "[false,false]\n");
+    try expectOutput("map(., [.name, .id])", "[{\"name\":\"Ada\",\"id\":9007199254740993},{\"name\":\"Cy\",\"id\":2}]", "[[\"Ada\",9007199254740993],[\"Cy\",2]]\n");
+    try expectOutput("map(.fixtures, {case, code: .result.code})", "{\"fixtures\":[{\"case\":\"compile\",\"result\":{\"code\":0}},{\"case\":\"link\",\"result\":{\"code\":1}}]}", "[{\"case\":\"compile\",\"code\":0},{\"case\":\"link\",\"code\":1}]\n");
+}
+
+test "summary filter preserves matching values order and numeric spelling" {
+    try expectOutput("filter(., . != null)", "[false,0,null,9007199254740993,1.2300e-4,{}]", "[false,0,9007199254740993,1.2300e-4,{}]\n");
+    try expectOutput("filter(., .)", "[false,true,false,true]", "[true,true]\n");
+    try expectOutput("filter(., false and .missing)", "[1,null,{}]", "[]\n");
+    try expectOutput("filter(.rows, exists(.keep?) and (.keep == true))", "{\"rows\":[{}, {\"keep\":false},{\"keep\":true,\"name\":\"Ada\"}]}", "[{\"keep\":true,\"name\":\"Ada\"}]\n");
+}
+
+test "summary map and filter compose inside projections and restore nested item scopes" {
+    try expectOutput("{before: .name, rows: map(.rows, {name, doubled: map(.values, . * 2), name_after: .name}), after: .name}", "{\"name\":\"outer\",\"rows\":[{\"name\":\"first\",\"values\":[1,2]},{\"name\":\"second\",\"values\":[3]}]}", "{\"before\":\"outer\",\"rows\":[{\"name\":\"first\",\"doubled\":[2,4],\"name_after\":\"first\"},{\"name\":\"second\",\"doubled\":[6],\"name_after\":\"second\"}],\"after\":\"outer\"}\n");
+    try expectOutput("map(filter(.rows, length(filter(.values, . > 1)) > 0), {name, count: length(.values), selected: filter(.values, . > 1)})", "{\"rows\":[{\"name\":\"skip\",\"values\":[0]},{\"name\":\"keep\",\"values\":[0,2,3]}]}", "[{\"name\":\"keep\",\"count\":3,\"selected\":[2,3]}]\n");
+    try expectOutput("map(., .value? ?? null) | each | collect", "[{\"value\":false},{},{\"value\":0}]", "[false,null,0]\n");
+}
+
+test "summary empty transformations skip bodies without changing their outer context" {
+    try expectOutput("{mapped: map(.items, .missing), filtered: filter(.items, 1/0), name}", "{\"items\":[],\"name\":\"outer\"}", "{\"mapped\":[],\"filtered\":[],\"name\":\"outer\"}\n");
+    try expectOutput("length(map(filter([], .missing), .missing))", "null", "0\n");
+}
+
+test "summary transformations enforce array inputs boolean predicates and required results" {
+    for ([_][]const u8{ "null", "false", "1", "\"\"", "{}" }) |input| {
+        try expectFailure("map(., .)", input, "expects an array", "$");
+        try expectFailure("filter(., true)", input, "expects an array", "$");
+    }
+    try expectFailure("map(.items?, .)", "{}", "missing value", "$[\"items\"]");
+    try expectFailure("filter(.items?, true)", "{}", "missing value", "$[\"items\"]");
+    try expectFailure("map(.items, .value?)", "{\"items\":[{}]}", "missing value", "$[\"items\"][0][\"value\"]");
+    for ([_][]const u8{ "filter(., null)", "filter(., 1)", "filter(., \"true\")", "filter(., {})", "filter(., [])" }) |source| try expectFailure(source, "[{}]", "expected a boolean", "");
+    try expectFailure("filter(.items, .keep?)", "{\"items\":[{}]}", "missing value", "$[\"items\"][0][\"keep\"]");
+    try expectFailure("filter(.items, .keep)", "{\"items\":[{\"keep\":null}]}", "expected a boolean", "$[\"items\"][0][\"keep\"]");
+}
+
+test "summary transformations retain precise nested source paths and clear computed paths" {
+    const input = "{\"rows\":[{\"items\":[{\"value\":1}]},{\"items\":[{}]}]}";
+    try expectFailure("map(.rows, map(.items, .value))", input, "absent", "$[\"rows\"][1][\"items\"][0][\"value\"]");
+    try expectFailure("filter(.rows, length(filter(.items, .value > 0)) > 0)", input, "absent", "$[\"rows\"][1][\"items\"][0][\"value\"]");
+    try expectFailure("map(.rows[-1].items, .value)", input, "absent", "$[\"rows\"][-1][\"items\"][0][\"value\"]");
+    try expectFailure("map(.rows[:], .missing)", input, "absent", "");
+    try expectFailure("filter(.rows, true) | each | .missing", input, "absent", "");
+    try expectFailure("{mapped: map(.rows, .), missing: .missing}", input, "absent", "$[\"missing\"]");
+}
+
+test "summary transformations reject bad arity nested pipes and malformed bodies" {
+    for ([_][]const u8{ "map()", "map(.)", "filter(.)", "map(.,)", "filter(.,)", "map(.,.,.)", "filter(.,.,.)", "map(., . | each)", "filter(., where(true))", "map(., {value,})", "map(.,", "filter(," }) |source| try expectInvalid(source);
+}
+
+test "summary transformations respect output depth and preserve an accepted input shape" {
+    var arrays: [256]u8 = undefined;
+    @memset(arrays[0..128], '[');
+    @memset(arrays[128..], ']');
+    var expected: [257]u8 = undefined;
+    @memcpy(expected[0..256], &arrays);
+    expected[256] = '\n';
+    try expectOutput("map(., .)", &arrays, &expected);
+    try expectOutput("filter(., true)", &arrays, &expected);
+    try expectFailure("map(., [.])", &arrays, "output nesting", "");
+}
+
+test "summary transformed values survive input and expression arena reuse before sorting" {
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "map(filter(.items[:], .keep), {name, id, fields: keys(.)}) | each | sort_by(.name) | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var stream = try program.start(t.allocator, &output.writer, &diagnostic, .{});
+    defer stream.deinit();
+    var buffer: [256]u8 = undefined;
+    for ([_][]const u8{
+        "{\"items\":[{\"name\":\"Cy\",\"id\":9007199254740993,\"keep\":true},{\"name\":\"skip\",\"id\":0,\"keep\":false}]}",
+        "{\"items\":[{\"name\":\"Ada\",\"id\":1e3,\"keep\":true}]}",
+    }) |input| {
+        @memcpy(buffer[0..input.len], input);
+        _ = try stream.feed(buffer[0..input.len]);
+        @memset(&buffer, 'x');
+    }
+    try stream.finish();
+    try t.expectEqualStrings("[{\"name\":\"Ada\",\"id\":1e3,\"fields\":[\"id\",\"keep\",\"name\"]},{\"name\":\"Cy\",\"id\":9007199254740993,\"fields\":[\"id\",\"keep\",\"name\"]}]\n", output.written());
+}
+
+test "summary failed transformations discard buffered results and honor retention budgets" {
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "map(.items, .value) | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var stream = try program.start(t.allocator, &output.writer, &diagnostic, .{});
+    defer stream.deinit();
+    _ = try stream.feed("{\"items\":[{\"value\":1}]}");
+    try t.expectError(error.EvaluationFailed, stream.feed("{\"items\":[{\"value\":2},{}]}"));
+    try t.expectError(error.StreamFailed, stream.finish());
+    try t.expectEqualStrings("", output.written());
+    var limited = try program.start(t.allocator, &output.writer, &diagnostic, .{ .max_collect_bytes = 0 });
+    defer limited.deinit();
+    try t.expectError(error.EvaluationFailed, limited.feed("{\"items\":[{\"value\":1}]}"));
+    try t.expect(std.mem.indexOf(u8, diagnostic.message, "memory limit") != null);
+    try t.expectError(error.StreamFailed, limited.finish());
+}
+
+fn allocationScenario(allocator: std.mem.Allocator) !void {
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(allocator, "{rows: map(filter(.items[:], .keep and matches(.name, \"^[a-z]+$\")), {name, size: length(.name), fields: keys(.), value: .value+1})} | collect", &diagnostic);
+    defer program.deinit();
+    var bytes: [1024]u8 = undefined;
+    var output = std.Io.Writer.fixed(&bytes);
+    var stream = try program.start(allocator, &output, &diagnostic, .{});
+    defer stream.deinit();
+    _ = try stream.feed("{\"items\":[{\"name\":\"first\",\"keep\":true,\"value\":1},{\"name\":\"skip\",\"keep\":false,\"value\":2}]}");
+    _ = try stream.feed("{\"items\":[{\"name\":\"next\",\"keep\":true,\"value\":3}]}");
+    try stream.finish();
+    try t.expectEqualStrings("[{\"rows\":[{\"name\":\"first\",\"size\":5,\"fields\":[\"keep\",\"name\",\"value\"],\"value\":2}]},{\"rows\":[{\"name\":\"next\",\"size\":4,\"fields\":[\"keep\",\"name\",\"value\"],\"value\":4}]}]\n", output.buffered());
+}
+
+test "summary allocation failures release parser transformations borrowed children and collectors" {
+    var baseline = t.FailingAllocator.init(t.allocator, .{ .resize_fail_index = 0 });
+    try allocationScenario(baseline.allocator());
+    try t.expectEqual(baseline.allocated_bytes, baseline.freed_bytes);
+    for (0..baseline.alloc_index) |index| {
+        var failing = t.FailingAllocator.init(t.allocator, .{ .fail_index = index, .resize_fail_index = 0 });
+        try t.expectError(error.OutOfMemory, allocationScenario(failing.allocator()));
+        try t.expect(failing.has_induced_failure);
+        try t.expectEqual(failing.allocated_bytes, failing.freed_bytes);
+    }
+}

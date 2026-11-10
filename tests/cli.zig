@@ -126,6 +126,17 @@ test "CLI inspects recent compiler commands with slices and negative indexes" {
     try check(&.{".commands[-1]"}, "{\"commands\":[]}", 2, "", "$[\"commands\"][-1]");
 }
 
+test "CLI builds nested failure summaries using scalar array functions" {
+    try check(&.{"{passed, cleanup_passed, requests: length(.http), last_request: .http[-1]? ?? null, failures: map(filter(.fixtures, .result.code != 0), {case, code: .result.code})}"}, "{\"passed\":false,\"cleanup_passed\":true,\"http\":[{\"status\":500}],\"fixtures\":[{\"case\":\"compile\",\"result\":{\"code\":0}},{\"case\":\"link\",\"result\":{\"code\":1}}]}", 0, "{\"passed\":false,\"cleanup_passed\":true,\"requests\":1,\"last_request\":{\"status\":500},\"failures\":[{\"case\":\"link\",\"code\":1}]}\n", null);
+    try check(&.{"map(.rows, map(.items, .value))"}, "{\"rows\":[{\"items\":[1]}]}", 2, "", "$[\"rows\"][0][\"items\"][0][\"value\"]");
+    try check(&.{"filter(., .)"}, "[true,null]", 2, "", "expected a boolean");
+}
+
+test "CLI retains transformed NDJSON summaries and suppresses failed partial aggregates" {
+    try check(&.{ "--ndjson", "{passed, errors: map(filter(.fixtures, .code != 0), .case)} | collect" }, "{\"passed\":true,\"fixtures\":[]}\n{\"passed\":false,\"fixtures\":[{\"case\":\"link\",\"code\":1}]}\n", 0, "[{\"passed\":true,\"errors\":[]},{\"passed\":false,\"errors\":[\"link\"]}]\n", null);
+    try check(&.{ "--ndjson", "map(.fixtures, .code) | collect" }, "{\"fixtures\":[{\"code\":0}]}\n{\"fixtures\":[{}]}\n", 2, "", "<stdin>:2:");
+}
+
 test "CLI take terminates with stdin still open after enough records" {
     try expectExitWithOpenInput("take(2) | collect", "1\n2\n", "[1,2]\n");
     try expectExitWithOpenInput("take(0) | count", "", "0\n");

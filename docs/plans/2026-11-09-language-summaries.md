@@ -1,6 +1,6 @@
 # Practical report queries
 
-Status: in progress; implementation authorized on 2026-11-09.
+Status: implemented and verified locally; implementation authorized on 2026-11-09.
 
 ## Evidence and scope
 
@@ -76,7 +76,7 @@ precision/rounding contract; exact integer arithmetic remains the current rule.
    CLI report-summary coverage, README/DESIGN, version 0.4.0.
 2. [x] Negative indexes and slices: range-safe parsing/evaluation, diagnostics,
    boundary/composition tests, CLI recent-command coverage, docs, version 0.5.0.
-3. [ ] `map`/`filter`: scoped evaluation, diagnostics, nested/empty/error cases,
+3. [x] `map`/`filter`: scoped evaluation, diagnostics, nested/empty/error cases,
    retention lifetime and allocation-failure checks, CLI summary/NDJSON coverage,
    executable report examples, docs, version 0.6.0.
 
@@ -112,3 +112,18 @@ map(.fixtures, {case, code: .result.code})
   bounds, malformed/dynamic bounds, optional/type behavior, source paths, chained
   access, compiler summaries, and retained borrowed views across input reuse.
   Native Debug build and formatting checks passed.
+- Slice 3, 0.6.0: `zig build test --summary all` passed 100/100 tests (77
+  library/language, 19 CLI, 4 version-workflow). Covers nested bindings and scope
+  restoration, exact token/false/null preservation, empty bodies, strict types,
+  missing results, nested source paths, output depth, delayed retention after
+  input reuse, stream poisoning/budgets, and allocation failures throughout
+  compile/evaluate/collect. Parser/evaluator fuzz seeds include the new syntax.
+  Native Debug build, formatting checks, and both executable query-file examples
+  passed. No missing tools or additional dependencies were needed.
+
+Run the report examples:
+
+```sh
+./zig-out/bin/jqz -f examples/report-summary.query examples/acceptance-report.json
+./zig-out/bin/jqz -f examples/recent-commands.query examples/compiler-commands.json
+```

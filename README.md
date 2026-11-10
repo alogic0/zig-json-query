@@ -48,6 +48,10 @@ zig build test
 
 ./zig-out/bin/jqz \
   '.users | each | .age | sum' examples/users.json
+
+./zig-out/bin/jqz -f examples/report-summary.query examples/acceptance-report.json
+
+./zig-out/bin/jqz -f examples/recent-commands.query examples/compiler-commands.json
 ```
 
 The first command emits:
@@ -105,6 +109,8 @@ Failed streams discard buffered aggregates instead of emitting partial totals.
 | `[.name, .age]` | Construct one array; does not collect a stream |
 | `length(.items)` | Array element count, object field count, or string Unicode scalar-value count |
 | `keys(.)` | Sorted object names, or ascending array indexes |
+| `map(.items, {name, id})` | One ordered array of results, evaluating the body with each item as `.` |
+| `filter(.items, .code != 0)` | One ordered array of original items whose boolean predicate is true |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Equality and ordering comparisons |
 | `and`, `or`, `not` | Strict boolean logic; `and` and `or` short circuit |
 | `+`, `-`, `*`, `/`, `%`, unary `-` | Checked exact signed 128-bit integer arithmetic |
@@ -148,6 +154,29 @@ missing bases propagate. Dynamic indexes and slice steps are unsupported.
 ```text
 {commands: length(.), recent: .[-3:], last: .[-1]? ?? null}
 ```
+
+`map(array, expression)` and `filter(array, predicate)` evaluate their first
+argument once, then bind `.` to each element for the second argument. They return
+one array and can nest inside objects and other functions:
+
+```text
+{
+  passed,
+  cleanup_passed,
+  requests: length(.http),
+  last_request: .http[-1]? ?? null,
+  failures: map(filter(.fixtures, .result.code != 0), {case, code: .result.code})
+}
+```
+
+`map` requires a nonmissing result per element; false and null are valid results.
+`filter` requires a boolean and keeps the original matching elements. Both
+preserve order, reject non-array inputs, skip the body on empty arrays, and
+restore the surrounding context after nested calls. Optional defaults stay
+explicit. Arrays are materialized within the current expression stage; `each`
+explicitly expands an array into a stream. There is no outer-scope variable
+binding inside a body. `map`/`filter` are language functions, not jq-compatible
+generator expressions; pipes still separate top-level stages.
 
 Important semantic choices:
 
@@ -256,7 +285,10 @@ All retaining stages in a session share a 64 MiB limit on live retained allocato
 requests, including arena/container capacity. Library callers can override it
 with `StreamOptions.max_collect_bytes`. This is not a process RSS limit: input
 parsing, scalar temporaries, writer buffers and allocator metadata are separate.
-Keys and grouping scratch count too. Passing values between retaining stages
+Materialized `map`/`filter` arrays and `keys` results use those scalar-stage
+temporaries, rather than the retention budget. Retaining their results charges
+the existing shared budget and copies borrowed input values.
+Retained sort/group keys and grouping scratch count too. Passing values between retaining stages
 temporarily retains both copies within that shared budget. A limit failure
 reports the responsible stage in the query.
 System allocation failures remain `OutOfMemory`. No spill-to-disk is implemented.
@@ -276,6 +308,8 @@ completion failures use `:EOF:`. Evaluation diagnostics track JSON paths through
 field/index projection and `each`. Constructed values and buffered aggregate
 outputs have no unique source path. Paths are bounded to 1024 bytes with explicit
 truncation; columns count bytes. Native CLI acceptance is tested on Linux.
+Array-function body errors include the source element index when the argument
+has a known source path. Slices and computed arrays clear that provenance.
 
 ## Reused packages
 

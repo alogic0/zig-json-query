@@ -1,0 +1,6 @@
+# Inspect recent compiler activity and a bounded sample of its argv.
+{
+  commands: length(.),
+  recent: map(.[-3:], {argv, wall_ns, returncode}),
+  last_args: .[-1]?.argv[1:4] ?? []
+}

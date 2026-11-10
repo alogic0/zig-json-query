@@ -1,0 +1,13 @@
+# Summarize one acceptance report; expressions each produce one value.
+{
+  suite,
+  passed,
+  cleanup_passed,
+  requests: length(.http),
+  last_request: .http[-1]? ?? null,
+  failures: map(filter(.fixtures, .result.code != 0), {
+    case,
+    code: .result.code,
+    message: .result.message? ?? null
+  })
+}
