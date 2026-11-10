@@ -1,6 +1,6 @@
 # Practical report queries
 
-Status: planned; implementation authorized on 2026-11-09.
+Status: in progress; implementation authorized on 2026-11-09.
 
 ## Evidence and scope
 
@@ -72,7 +72,7 @@ precision/rounding contract; exact integer arithmetic remains the current rule.
 
 ## Slices and validation
 
-1. [ ] Shorthand, `length`, `keys`: parser/evaluator, semantic and error tests,
+1. [x] Shorthand, `length`, `keys`: parser/evaluator, semantic and error tests,
    CLI report-summary coverage, README/DESIGN, version 0.4.0.
 2. [ ] Negative indexes and slices: range-safe parsing/evaluation, diagnostics,
    boundary/composition tests, CLI recent-command coverage, docs, version 0.5.0.
@@ -100,4 +100,8 @@ map(.fixtures, {case, code: .result.code})
 
 ## Verification record
 
-Implementation has not started.
+- Slice 1, 0.4.0: `zig build test --summary all` passed 80/80 tests (60
+  library/language, 16 CLI, 4 version-workflow). Includes the HTTP grouping
+  acceptance query, decoded shorthand keys, Unicode scalar counts, sorted keys,
+  strict type/missing errors, diagnostics, and retained NDJSON summaries.
+  Native Debug build and formatting checks passed.

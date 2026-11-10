@@ -7,7 +7,7 @@ const Execution = @import("execution.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = 64 * 1024 * 1024;
-pub const version = "0.3.1";
+pub const version = "0.4.0";
 
 pub const Program = struct {
     allocator: std.mem.Allocator,
@@ -153,6 +153,7 @@ test {
     _ = @import("tests.zig");
     _ = @import("stream_tests.zig");
     _ = @import("followup_tests.zig");
+    _ = @import("summary_tests.zig");
     _ = @import("property_tests.zig");
     _ = @import("fuzz_tests.zig");
 }

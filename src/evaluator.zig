@@ -150,6 +150,37 @@ pub const Evaluator = struct {
                 break :blk try integerValue(allocator, result);
             },
             .exists => |child| Value{ .bool = (try self.eval(allocator, child, input)) != null },
+            .length => |child| blk: {
+                const value = try self.evalRequired(allocator, child, input);
+                const length = switch (value) {
+                    .array => |array| array.items.len,
+                    .object => |object| object.count(),
+                    .string => |string| std.unicode.utf8CountCodepoints(string) catch return self.typeFailure(node, child, "length expects a valid UTF-8 string"),
+                    else => return self.typeFailure(node, child, "length expects an array, object, or string"),
+                };
+                break :blk try integerValue(allocator, @intCast(length));
+            },
+            .keys => |child| blk: {
+                const value = try self.evalRequired(allocator, child, input);
+                var array = std.json.Array.init(allocator);
+                switch (value) {
+                    .object => |object| {
+                        try array.ensureTotalCapacity(object.count());
+                        for (object.keys()) |key| array.appendAssumeCapacity(.{ .string = key });
+                        std.sort.pdq(Value, array.items, {}, struct {
+                            fn less(_: void, a: Value, b: Value) bool {
+                                return std.mem.lessThan(u8, a.string, b.string);
+                            }
+                        }.less);
+                    },
+                    .array => |items| {
+                        try array.ensureTotalCapacity(items.items.len);
+                        for (0..items.items.len) |index| array.appendAssumeCapacity(try integerValue(allocator, @intCast(index)));
+                    },
+                    else => return self.typeFailure(node, child, "keys expects an object or array"),
+                }
+                break :blk Value{ .array = array };
+            },
             .matches => |match| blk: {
                 const value = try self.evalRequired(allocator, match.value, input);
                 if (value != .string) {
@@ -177,6 +208,12 @@ pub const Evaluator = struct {
                 break :blk Value{ .array = array };
             },
         };
+    }
+
+    fn typeFailure(self: *Evaluator, node: *const Node, argument: *const Node, message: []const u8) Error {
+        const err = self.fail(node.offset, message);
+        self.locate(argument);
+        return err;
     }
 
     pub fn integer(self: *Evaluator, value: Value, offset: usize) Error!i128 {

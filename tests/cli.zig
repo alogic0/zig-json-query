@@ -114,6 +114,12 @@ fn expectExitWithOpenInput(source: []const u8, input: []const u8, expected: []co
     try t.expectEqualStrings("", errors);
 }
 
+test "CLI summarizes acceptance reports with shorthand length and keys" {
+    try check(&.{"{passed, cleanup_passed, requests: length(.http), fields: keys(.result)}"}, "{\"passed\":false,\"cleanup_passed\":true,\"http\":[{},{}],\"result\":{\"message\":\"failed\",\"code\":1}}", 0, "{\"passed\":false,\"cleanup_passed\":true,\"requests\":2,\"fields\":[\"code\",\"message\"]}\n", null);
+    try check(&.{ "--ndjson", "{passed, requests: length(.http)} | collect" }, "{\"passed\":true,\"http\":[]}\n{\"passed\":false,\"http\":[null]}\n", 0, "[{\"passed\":true,\"requests\":0},{\"passed\":false,\"requests\":1}]\n", null);
+    try check(&.{"{passed}"}, "{}", 2, "", "$[\"passed\"]");
+}
+
 test "CLI take terminates with stdin still open after enough records" {
     try expectExitWithOpenInput("take(2) | collect", "1\n2\n", "[1,2]\n");
     try expectExitWithOpenInput("take(0) | count", "", "0\n");

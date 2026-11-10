@@ -100,7 +100,10 @@ Failed streams discard buffered aggregates instead of emitting partial totals.
 | `sort`, `sort_by(.age)` | Buffer records, then emit them in stable ascending key order |
 | `group_by(.team)` | Emit one array per equal key, in first-seen key order |
 | `{name: .name, age: .age}` | Construct one object |
+| `{name, age, count: length(.items)}` | Shorthand strict fields mixed with computed values |
 | `[.name, .age]` | Construct one array; does not collect a stream |
+| `length(.items)` | Array element count, object field count, or string Unicode scalar-value count |
+| `keys(.)` | Sorted object names, or ascending array indexes |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Equality and ordering comparisons |
 | `and`, `or`, `not` | Strict boolean logic; `and` and `or` short circuit |
 | `+`, `-`, `*`, `/`, `%`, unary `-` | Checked exact signed 128-bit integer arithmetic |
@@ -113,6 +116,23 @@ Precedence, low to high: `??`, `or`, `and`, equality, ordering, `+`/`-`,
 `*`/`/`/`%`, `not`/unary `-`, access.
 `??` associates to the right; other binary operators associate to the left.
 Pipes separate stages and cannot appear inside scalar expressions.
+
+Container functions can be used inside expressions and object fields:
+
+```text
+{passed, cleanup_passed, requests: length(.http), fields: keys(.result)}
+.http | each | group_by(.status) | {status: .[0].status, count: length(.)} | collect
+```
+
+`{passed}` is shorthand for `{passed: .passed}`; quoted names work too:
+`{"a-b"}` reads `.["a-b"]`. Shorthand remains strict about absent fields.
+Use an explicit field such as `{result: .result? ?? null}` for a default.
+`length` counts Unicode scalar values in strings, so `"é😀"` has length `2`;
+combining characters count separately. `keys` sorts object names by UTF-8 bytes
+and returns `[0,1,...]` for arrays. Empty containers have length `0` and keys
+`[]`. Unsupported types and unhandled missing arguments error; use, for example,
+`length(.http? ?? [])` to handle an optional array. `length` counts one container;
+the `count` stage counts values arriving through the stream.
 
 Important semantic choices:
 

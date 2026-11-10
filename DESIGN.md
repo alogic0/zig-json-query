@@ -40,6 +40,14 @@ stages are interpreted directly. Literal regexes compile once through the shared
 regex module. JSON input is parsed with `parse_numbers = false`, retaining number
 tokens instead of rounding them through floating point.
 
+Object field shorthand expands to strict current-value accesses in the AST.
+`length(expr)` and `keys(expr)` are scalar functions, so counts and schema
+information can appear inside report summaries without introducing generators
+or nested pipelines. Length counts array elements, object fields, or Unicode
+scalar values in strings. Keys produces one array of sorted UTF-8 object names
+or ascending numeric array indexes. Unsupported types and unhandled missing
+values keep located errors. Results use the expression-stage lifetime.
+
 Execution uses a persistent session spanning all input records. A projection
 produces one value, a filter passes or drops it, and `each` invokes downstream
 stages once per array element. `count` maintains a checked u64 counter; `collect`
@@ -100,6 +108,9 @@ depends on correct ownership and bounds; it does not come automatically from Zig
 
 The [stream execution plan](docs/plans/2026-11-09-stream-runtime.md) and
 [follow-up plan](docs/plans/2026-11-09-followups.md) record implemented milestones.
+The [practical report-query plan](docs/plans/2026-11-09-language-summaries.md)
+tracks shorthand, container functions, relative indexes/slices and scalar array
+transformations motivated by real acceptance/compiler sessions.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
 fuzz coverage and benchmark evidence. Routine validation uses native x86_64
 Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.

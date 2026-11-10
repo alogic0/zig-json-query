@@ -20,6 +20,8 @@ pub const Node = struct {
         object: []const Field,
         array: []const *const Node,
         exists: *const Node,
+        length: *const Node,
+        keys: *const Node,
         matches: struct { value: *const Node, pattern: usize },
     },
 };
@@ -323,13 +325,15 @@ pub const Parser = struct {
                 }
                 const exists = self.word("exists");
                 const matches = self.word("matches");
-                if (!exists and !matches) return self.fail(offset, "unknown expression; fields start with .");
+                const length = self.word("length");
+                const keys = self.word("keys");
+                if (!exists and !matches and !length and !keys) return self.fail(offset, "unknown expression; fields start with .");
                 try self.advance();
                 try self.expect(.lparen, "expected ( after function name");
                 const value = try self.expression(0);
-                if (exists) {
-                    try self.expect(.rparen, "expected ) after exists argument");
-                    return self.make(offset, .{ .exists = value }, value.height + 1);
+                if (exists or length or keys) {
+                    try self.expect(.rparen, "expected ) after function argument");
+                    return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else .{ .keys = value }, value.height + 1);
                 }
                 try self.expect(.comma, "matches expects a value and a constant JSON string pattern");
                 if (self.token.tag != .string) return self.fail(self.token.start, "regex pattern must be a constant JSON string");
@@ -398,6 +402,7 @@ pub const Parser = struct {
         var fields: std.ArrayList(Field) = .empty;
         var height: usize = 1;
         while (self.token.tag != .rbrace) {
+            const key_offset = self.token.start;
             const key = switch (self.token.tag) {
                 .identifier => self.text(),
                 .string => (try self.jsonLiteral()).string,
@@ -405,8 +410,14 @@ pub const Parser = struct {
             };
             for (fields.items) |field| if (std.mem.eql(u8, field.name, key)) return self.fail(self.token.start, "duplicate object field");
             try self.advance();
-            try self.expect(.colon, "expected : after object field name");
-            const value = try self.expression(0);
+            const value = if (self.token.tag == .colon) blk: {
+                try self.advance();
+                break :blk try self.expression(0);
+            } else blk: {
+                if (self.token.tag != .comma and self.token.tag != .rbrace) return self.fail(self.token.start, "expected :, comma or } after object field name");
+                const current = try self.make(key_offset, .current, 1);
+                break :blk try self.make(key_offset, .{ .access = .{ .base = current, .key = .{ .field = key }, .optional = false } }, 2);
+            };
             height = @max(height, value.height + 1);
             try fields.append(self.allocator, .{ .name = key, .value = value });
             if (self.token.tag != .comma) break;
