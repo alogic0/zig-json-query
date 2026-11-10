@@ -101,9 +101,10 @@ depends on correct ownership and bounds; it does not come automatically from Zig
 The [stream execution plan](docs/plans/2026-11-09-stream-runtime.md) and
 [follow-up plan](docs/plans/2026-11-09-followups.md) record implemented milestones.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
-fuzz coverage and benchmark evidence. The release target is x86_64 Linux, with
-GNU and musl validation. Additional architectures will be planned only for a
-concrete deployment requirement. Public publication is separate from this local
+fuzz coverage and benchmark evidence. Routine validation uses native x86_64
+Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.
+Additional architectures will be planned only for a concrete deployment
+requirement. Public publication is separate from this local
 release preparation.
 
 Real log/API/config queries should guide feature selection. Incremental parsing

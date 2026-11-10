@@ -14,6 +14,10 @@ stream, with explicit aggregation, sorting, grouping and early termination.
 The release target is x86_64 Linux. Additional architectures will be considered
 when there is a concrete deployment requirement.
 
+Use the default Debug mode for routine builds and tests. Check one mode per
+change; other optimization modes are reserved for explicit requests or a
+specific issue that requires them.
+
 Dependencies are immutable source archives in `vendor/`, pinned by Zig hashes.
 No sibling checkout or network download is required. The regex package supplies
 matching; test-support supplies native CLI acceptance and benchmark helpers.
@@ -23,7 +27,6 @@ The shared package-version CLI supplies developer version synchronization.
 cd ~/prog/zig-json-query
 zig build
 zig build test
-zig build test -Doptimize=ReleaseSafe
 
 ./zig-out/bin/jqz \
   '.users | each | where(.age >= 18) | {name: .name, enabled: .enabled? ?? true, id: .id}' \
@@ -72,8 +75,8 @@ arguments with `-f` are errors. `-f -` reads the query from stdin and requires
 an explicit non-stdin input file. Query files have the same 64 KiB text limit.
 `--version` prints the package version.
 
-`zig build` installs `jqz` as the primary command and `json-query` as a
-compatibility command. The repository and source archives use `zig-json-query`.
+`zig build` installs only `jqz`. The repository and source archives use
+`zig-json-query`.
 
 Exit status is 0 for success (including zero matches) and 2 for any error.
 An error stops processing; output produced before the error remains on stdout.

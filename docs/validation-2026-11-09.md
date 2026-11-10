@@ -9,6 +9,8 @@ additional architectures will be planned only for a concrete deployment need.
 
 The runtime, fuzz and benchmark checkpoint below records version 0.1.0.
 The later version-workflow and binary-name checkpoints are recorded at the end.
+Routine validation now uses native x86_64 Linux Debug only. Earlier results in
+other modes below are historical checkpoints, not a required validation matrix.
 
 ## Functional and ownership checks
 
@@ -133,3 +135,16 @@ reports `jqz 0.3.0`; its help uses the short name. The compatibility command
 executed the example age sum successfully (`71`). A ReleaseSafe benchmark smoke
 run checks the new label/version and equivalent outputs. Historical benchmark
 records keep the executable name and version actually measured.
+
+## Single command and validation mode: 0.3.1
+
+Builds install only `jqz`; the `json-query` compatibility command and its
+previously generated local binary were removed. Routine checks use native
+x86_64 Linux Debug via `zig build test` and `zig build`. Other optimization
+modes are checked only when explicitly requested or needed for a specific issue.
+This policy is recorded in AGENTS.md and the README.
+
+The shared version command performed the patch bump from 0.3.0 to 0.3.1.
+Validation for this change used Debug only: all 73 tests passed, the binary
+built/installed successfully, and `jqz --version` reported `jqz 0.3.1`.
+The local installation directory contains only `jqz`.

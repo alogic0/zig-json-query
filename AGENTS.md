@@ -29,3 +29,10 @@ Each project and modular component library folder must be initialized as its own
 ## Slice Commits
 
 Implement work in reviewable, verified slices. After each slice passes its focused checks and tests, create a commit for that slice before beginning the next one. Keep unrelated changes and multiple slices out of the same commit.
+
+## Validation
+
+Use native x86_64 Linux Debug for routine build and test checks: `zig build` and
+`zig build test`. Validate each change in this one mode. Check other optimization
+modes only when the user requests them or a specific issue requires them, and
+explain the reason. Do not run a routine build-mode matrix.
