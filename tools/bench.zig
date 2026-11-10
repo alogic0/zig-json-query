@@ -83,11 +83,11 @@ pub fn main(init: std.process.Init) !void {
     if (rows == 0 or rows > 100000 or repeat == 0 or repeat > 100) return error.InvalidBenchmarkSize;
     if ((jaq == null) != (jaq_version == null)) return error.JaqPathAndPinnedVersionRequired;
     var tools: std.ArrayList(Tool) = .empty;
-    try tools.append(a, try pin(a, io, "json-query", exe, "json-query 0.2.0"));
+    try tools.append(a, try pin(a, io, "jqz", exe, "jqz 0.3.0"));
     try tools.append(a, try pin(a, io, "jq", jq, jq_version));
     if (jaq) |path| try tools.append(a, try pin(a, io, "jaq", path, jaq_version.?));
     const time_hash = try hex(a, try S.files.sha256(io, "/usr/bin/time"));
-    var workspace = try S.Workspace.init(a, io, .{ .prefix = "json-query-bench-" });
+    var workspace = try S.Workspace.init(a, io, .{ .prefix = "jqz-bench-" });
     defer workspace.close(.success) catch {};
     var records: std.ArrayList(Record) = .empty;
     for (cases) |case| {
@@ -111,7 +111,7 @@ pub fn main(init: std.process.Init) !void {
                 const equivalent = std.mem.eql(u8, sample.output, warmup.output);
                 if (!equivalent and case.fixture != .precision) return error.BenchmarkOutputMismatch;
                 std.crypto.hash.sha2.Sha256.hash(sample.output, &digest, .{});
-                const own = std.mem.eql(u8, tool.name, "json-query");
+                const own = std.mem.eql(u8, tool.name, "jqz");
                 try records.append(a, .{
                     .case = case.name,
                     .tool = tool.name,
@@ -168,7 +168,7 @@ fn pin(a: A, io: Io, name: []const u8, path: []const u8, expected: []const u8) !
 }
 
 fn measure(a: A, io: Io, tool: Tool, case: Case, path: []const u8) !Measurement {
-    const own = std.mem.eql(u8, tool.name, "json-query");
+    const own = std.mem.eql(u8, tool.name, "jqz");
     var argv: std.ArrayList([]const u8) = .empty;
     try argv.appendSlice(a, &.{ "/usr/bin/time", "-f", "json_query_peak_rss_kib=%M", "--", tool.path });
     try argv.appendSlice(a, if (own) case.own_flags else case.jq_flags);

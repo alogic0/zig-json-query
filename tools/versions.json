@@ -35,7 +35,7 @@
       "path": "tools/bench.zig",
       "patterns": [
         {
-          "prefix": "try tools.append(a, try pin(a, io, \"json-query\", exe, \"json-query ",
+          "prefix": "try tools.append(a, try pin(a, io, \"jqz\", exe, \"jqz ",
           "suffix": "\"));"
         }
       ]

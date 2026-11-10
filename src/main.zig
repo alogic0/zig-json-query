@@ -2,8 +2,8 @@ const std = @import("std");
 const query = @import("query");
 
 const usage =
-    \\Usage: json-query [OPTIONS] QUERY [FILE|-]
-    \\       json-query [OPTIONS] -f QUERY_FILE [FILE|-]
+    \\Usage: jqz [OPTIONS] QUERY [FILE|-]
+    \\       jqz [OPTIONS] -f QUERY_FILE [FILE|-]
     \\
     \\Read one JSON document, or all NDJSON records as one stream.
     \\Without FILE, read stdin. Output is one JSON value per line.
@@ -38,7 +38,7 @@ const usage =
 
 pub fn main(init: std.process.Init) void {
     const code = run(init) catch |err| {
-        std.debug.print("json-query: {s}\n", .{@errorName(err)});
+        std.debug.print("jqz: {s}\n", .{@errorName(err)});
         std.process.exit(2);
     };
     if (code != 0) std.process.exit(code);
@@ -64,7 +64,7 @@ fn run(init: std.process.Init) !u8 {
         if (options and std.mem.eql(u8, arg, "--")) {
             options = false;
         } else if (options and std.mem.eql(u8, arg, "--version")) {
-            try output.interface.print("json-query {s}\n", .{query.version});
+            try output.interface.print("jqz {s}\n", .{query.version});
             try output.interface.flush();
             return 0;
         } else if (options and (std.mem.eql(u8, arg, "--help") or std.mem.eql(u8, arg, "-h"))) {
@@ -81,7 +81,7 @@ fn run(init: std.process.Init) !u8 {
             if (index == args.len) return argumentError(&errors.interface, "-f requires a query filename");
             query_file = args[index];
         } else if (options and arg.len > 1 and arg[0] == '-') {
-            try errors.interface.print("json-query: unknown option {s}; use -- before a query beginning with -\n", .{arg});
+            try errors.interface.print("jqz: unknown option {s}; use -- before a query beginning with -\n", .{arg});
             try errors.interface.flush();
             return 2;
         } else {
@@ -159,7 +159,7 @@ fn run(init: std.process.Init) !u8 {
 }
 
 fn argumentError(errors: *std.Io.Writer, message: []const u8) !u8 {
-    try errors.print("json-query: {s}\n", .{message});
+    try errors.print("jqz: {s}\n", .{message});
     try errors.flush();
     return 2;
 }

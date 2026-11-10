@@ -13,7 +13,7 @@ fn check(args: []const []const u8, input: []const u8, code: i32, output: []const
         .stdin = input,
     });
     defer report.deinit(t.allocator);
-    try S.Diagnostic.expectExit(report, .{ .assertion = "json-query CLI", .code = code });
+    try S.Diagnostic.expectExit(report, .{ .assertion = "jqz CLI", .code = code });
     try t.expectEqualStrings(output, report.stdout);
     if (diagnostic) |message| {
         try t.expect(std.mem.indexOf(u8, report.stderr, message) != null);
@@ -39,7 +39,7 @@ test "CLI syntax and runtime errors are nonzero with query locations" {
 test "CLI rejects malformed JSON duplicate fields and unsupported options" {
     try check(&.{"."}, "{broken}", 2, "", "SyntaxError");
     try check(&.{"."}, "{\"x\":1,\"x\":2}", 2, "", "DuplicateField");
-    try check(&.{"--unknown"}, "", 2, "", "unknown option");
+    try check(&.{"--unknown"}, "", 2, "", "jqz: unknown option");
 }
 
 test "CLI accepts negative literals after option terminator" {

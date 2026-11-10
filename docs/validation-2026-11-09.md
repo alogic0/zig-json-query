@@ -8,7 +8,7 @@ The release target is x86_64 Linux. Required validation covers that architecture
 additional architectures will be planned only for a concrete deployment need.
 
 The runtime, fuzz and benchmark checkpoint below records version 0.1.0.
-The shared version-workflow qualification for 0.2.0 is recorded at the end.
+The later version-workflow and binary-name checkpoints are recorded at the end.
 
 ## Functional and ownership checks
 
@@ -119,3 +119,17 @@ invalid target rejection, and late preflight failure with unchanged file hashes.
 Dependency version pins and a separate historical-version fixture remain intact.
 The existing runtime/benchmark evidence above remains a 0.1.0 checkpoint rather
 than being rewritten to claim new measurements.
+
+## Short binary name: 0.3.0
+
+The primary executable is `jqz`. Builds also install `json-query` as a
+compatibility command; the repository and source archives retain the
+`zig-json-query` name. Help, version output, option diagnostics, examples and
+benchmark tool labels now use `jqz`. The version configuration follows the
+renamed benchmark marker; the shared updater performed the 0.2.0 -> 0.3.0 bump.
+
+Native Debug and ReleaseSafe test suites pass 73/73 tests. Installed `jqz`
+reports `jqz 0.3.0`; its help uses the short name. The compatibility command
+executed the example age sum successfully (`71`). A ReleaseSafe benchmark smoke
+run checks the new label/version and equivalent outputs. Historical benchmark
+records keep the executable name and version actually measured.

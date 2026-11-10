@@ -1,7 +1,7 @@
 # zig-json-query
 
 A standalone Zig 0.17.0 prototype of a JSON query language inspired by jq.
-The executable is called `json-query`; both names are provisional.
+The executable is called `jqz`.
 
 The language keeps field paths and pipelines and makes stream expansion
 explicit. Expressions produce one value, `each` expands an array, and
@@ -25,25 +25,25 @@ zig build
 zig build test
 zig build test -Doptimize=ReleaseSafe
 
-./zig-out/bin/json-query \
+./zig-out/bin/jqz \
   '.users | each | where(.age >= 18) | {name: .name, enabled: .enabled? ?? true, id: .id}' \
   examples/users.json
 
-./zig-out/bin/json-query --ndjson \
+./zig-out/bin/jqz --ndjson \
   'where(.level == "error") | .message' examples/events.ndjson
 
-./zig-out/bin/json-query --ndjson \
+./zig-out/bin/jqz --ndjson \
   'where(.level == "error") | count' examples/events.ndjson
 
-./zig-out/bin/json-query \
+./zig-out/bin/jqz \
   '.users | each | take(2) | .name | collect' examples/users.json
 
-./zig-out/bin/json-query -f examples/adults.query examples/users.json
+./zig-out/bin/jqz -f examples/adults.query examples/users.json
 
-./zig-out/bin/json-query -r \
+./zig-out/bin/jqz -r \
   '.users | each | sort_by(.name) | .name' examples/users.json
 
-./zig-out/bin/json-query \
+./zig-out/bin/jqz \
   '.users | each | .age | sum' examples/users.json
 ```
 
@@ -61,7 +61,7 @@ record; aggregates emit at stream completion. CRLF and a final line without a
 newline work. The count example emits `2`; the collection example emits
 `["Ada","Ben"]`.
 The default mode accepts exactly one JSON document, including multiline JSON.
-`--` ends option parsing, for example `json-query -- '-2' input.json`.
+`--` ends option parsing, for example `jqz -- '-2' input.json`.
 
 `-r` / `--raw-output` writes strings without JSON quotes; non-strings remain
 compact JSON. Each value has a trailing newline, and newlines inside a raw
@@ -71,6 +71,9 @@ follow positional arguments until `--`. Multiple `-f` options or two positional
 arguments with `-f` are errors. `-f -` reads the query from stdin and requires
 an explicit non-stdin input file. Query files have the same 64 KiB text limit.
 `--version` prints the package version.
+
+`zig build` installs `jqz` as the primary command and `json-query` as a
+compatibility command. The repository and source archives use `zig-json-query`.
 
 Exit status is 0 for success (including zero matches) and 2 for any error.
 An error stops processing; output produced before the error remains on stdout.
@@ -319,7 +322,7 @@ jaq was acquired separately because it was absent from the initial inventory.
 ```sh
 zig build version
 zig build version -- get
-zig build version -- set 0.2.1
+zig build version -- set 0.3.1
 zig build test-package-version
 ```
 
