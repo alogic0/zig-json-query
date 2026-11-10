@@ -74,7 +74,8 @@ pub const Evaluator = struct {
                 if (path.len == 0) break :blk path;
                 switch (access.key) {
                     .field => |key| path.field(key),
-                    .index => |index| path.index(index),
+                    .index => |index| if (index.negative) path.indexFromEnd(index.magnitude) else path.index(index.magnitude),
+                    .slice => return .{},
                 }
                 break :blk path;
             },
@@ -92,7 +93,19 @@ pub const Evaluator = struct {
                 const base = (try self.eval(allocator, access.base, input)) orelse break :blk null;
                 const found: ?Value = switch (access.key) {
                     .field => |key| if (base == .object) base.object.get(key) else return self.fail(node.offset, "field access expects an object (including optional access)"),
-                    .index => |index| if (base == .array) (if (index < base.array.items.len) base.array.items[index] else null) else return self.fail(node.offset, "index access expects an array (including optional access)"),
+                    .index => |index| if (base == .array) (if (index.resolve(base.array.items.len)) |absolute| base.array.items[absolute] else null) else return self.fail(node.offset, "index access expects an array (including optional access)"),
+                    .slice => |slice| blk_slice: {
+                        if (base != .array) return self.typeFailure(node, access.base, "slice access expects an array (including optional access)");
+                        const len = base.array.items.len;
+                        const start = if (slice.start) |bound| bound.clamp(len) else 0;
+                        const end = if (slice.end) |bound| bound.clamp(len) else len;
+                        // This view borrows children for the current synchronous
+                        // stage lifetime; retaining stages already deep-copy.
+                        var view = std.json.Array.init(allocator);
+                        view.items = base.array.items[start..@max(start, end)];
+                        view.capacity = view.items.len;
+                        break :blk_slice Value{ .array = view };
+                    },
                 };
                 if (found == null and !access.optional) return self.fail(node.offset, "field or index is absent; append ? for optional access");
                 break :blk found;

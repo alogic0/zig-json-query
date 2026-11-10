@@ -48,6 +48,13 @@ scalar values in strings. Keys produces one array of sorted UTF-8 object names
 or ascending numeric array indexes. Unsupported types and unhandled missing
 values keep located errors. Results use the expression-stage lifetime.
 
+Array indexes and slice bounds use a sign plus a `usize` magnitude, preserving
+the existing positive-index range and avoiding signed negation overflow.
+Negative indexes resolve from the end; slices clamp bounds and return borrowed
+array views with an exclusive end. Missing indexes retain strict/optional
+semantics. Slice output has no unique source-array path; diagnostics for literal
+indexes retain their sign. Retaining stages clone borrowed slice children.
+
 Execution uses a persistent session spanning all input records. A projection
 produces one value, a filter passes or drops it, and `each` invokes downstream
 stages once per array element. `count` maintains a checked u64 counter; `collect`

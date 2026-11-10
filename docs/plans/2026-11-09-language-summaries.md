@@ -74,7 +74,7 @@ precision/rounding contract; exact integer arithmetic remains the current rule.
 
 1. [x] Shorthand, `length`, `keys`: parser/evaluator, semantic and error tests,
    CLI report-summary coverage, README/DESIGN, version 0.4.0.
-2. [ ] Negative indexes and slices: range-safe parsing/evaluation, diagnostics,
+2. [x] Negative indexes and slices: range-safe parsing/evaluation, diagnostics,
    boundary/composition tests, CLI recent-command coverage, docs, version 0.5.0.
 3. [ ] `map`/`filter`: scoped evaluation, diagnostics, nested/empty/error cases,
    retention lifetime and allocation-failure checks, CLI summary/NDJSON coverage,
@@ -104,4 +104,11 @@ map(.fixtures, {case, code: .result.code})
   library/language, 16 CLI, 4 version-workflow). Includes the HTTP grouping
   acceptance query, decoded shorthand keys, Unicode scalar counts, sorted keys,
   strict type/missing errors, diagnostics, and retained NDJSON summaries.
+  Native Debug build and formatting checks passed.
+- Slice 2, 0.5.0: `zig build test --summary all` passed 87/87 tests (66
+  library/language, 17 CLI, 4 version-workflow). Generated slice checks cover 448
+  combinations against an independent position-selection model. Boundary tests
+  cover empty arrays, full `usize` magnitudes, `-0`, omitted/clamped/reversed
+  bounds, malformed/dynamic bounds, optional/type behavior, source paths, chained
+  access, compiler summaries, and retained borrowed views across input reuse.
   Native Debug build and formatting checks passed.

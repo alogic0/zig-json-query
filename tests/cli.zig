@@ -120,6 +120,12 @@ test "CLI summarizes acceptance reports with shorthand length and keys" {
     try check(&.{"{passed}"}, "{}", 2, "", "$[\"passed\"]");
 }
 
+test "CLI inspects recent compiler commands with slices and negative indexes" {
+    try check(&.{"{commands: length(.), recent: .[-2:], last: .[-1].argv[1:4]}"}, "[{\"argv\":[\"cc\",\"a.c\"]},{\"argv\":[\"cc\",\"b.c\"]},{\"argv\":[\"ld\",\"a.o\",\"b.o\",\"-o\",\"app\"]}]", 0, "{\"commands\":3,\"recent\":[{\"argv\":[\"cc\",\"b.c\"]},{\"argv\":[\"ld\",\"a.o\",\"b.o\",\"-o\",\"app\"]}],\"last\":[\"a.o\",\"b.o\",\"-o\"]}\n", null);
+    try check(&.{"{commands: length(.), last: .[-1]? ?? null}"}, "[]", 0, "{\"commands\":0,\"last\":null}\n", null);
+    try check(&.{".commands[-1]"}, "{\"commands\":[]}", 2, "", "$[\"commands\"][-1]");
+}
+
 test "CLI take terminates with stdin still open after enough records" {
     try expectExitWithOpenInput("take(2) | collect", "1\n2\n", "[1,2]\n");
     try expectExitWithOpenInput("take(0) | count", "", "0\n");

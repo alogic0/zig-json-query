@@ -87,8 +87,9 @@ Failed streams discard buffered aggregates instead of emitting partial totals.
 | Construct | Meaning |
 | --- | --- |
 | `.`, `.user.name` | Current value; strict field access |
-| `.["a-b"]`, `.users[0]` | Literal string key; nonnegative array index |
+| `.["a-b"]`, `.users[0]`, `.users[-1]` | Literal string key; array index, counting from the end when negative |
 | `.name?`, `.[4]?` | Allow an absent field or out-of-range index |
+| `.commands[-3:]`, `.items[:10]`, `.[1:4]` | One array slice, with an inclusive start and exclusive end |
 | `.name? ?? "unknown"` | Default for missing or JSON null only |
 | `exists(.name?)` | False for absence, true for any JSON value including null |
 | `each` | Expand the current array into an ordered stream of items |
@@ -133,6 +134,20 @@ and returns `[0,1,...]` for arrays. Empty containers have length `0` and keys
 `[]`. Unsupported types and unhandled missing arguments error; use, for example,
 `length(.http? ?? [])` to handle an optional array. `length` counts one container;
 the `count` stage counts values arriving through the stream.
+
+Array indexes and slice bounds are integer literals, with an optional minus
+sign and magnitude fitting `usize`. `[-1]` selects the last element, and `[-0]`
+selects index zero. An out-of-range index errors unless followed by `?`, for
+example `.http[-1]? ?? null` on an empty array. Slice bounds clamp to the array:
+omitted bounds mean the beginning/end, `[:]` selects the whole array, negative
+bounds count from the end, and reversed bounds produce `[]`. A slice always
+exists for a present array; a following `?` has no effect. Slices accept arrays,
+not strings. Optional indexes/slices still reject a wrong container type, and
+missing bases propagate. Dynamic indexes and slice steps are unsupported.
+
+```text
+{commands: length(.), recent: .[-3:], last: .[-1]? ?? null}
+```
 
 Important semantic choices:
 

@@ -92,7 +92,7 @@ test "regex uses the shared package with Unicode and JSON string escapes" {
 
 test "malformed queries and unsupported features give diagnostics and clean up" {
     const cases = [_][]const u8{
-        "",                     ".a |",                "where(", ".[]", ".[0.5]",         ".[-1]",   "{a:1,a:2}",
+        "",                     ".a |",                "where(", ".[]", ".[0.5]",         ".[-]",    "{a:1,a:2}",
         "[1,]",                 "{a:1,}",              "01",     "1e",  "\"unterminated", "\"\\x\"", "matches(., \"[\")",
         "matches(., .pattern)", "matches(., \"x\") |",
     };

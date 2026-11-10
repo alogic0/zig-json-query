@@ -30,8 +30,16 @@ pub const Path = struct {
     }
 
     pub fn index(self: *Path, value: usize) void {
+        self.writeIndex(value, false);
+    }
+
+    pub fn indexFromEnd(self: *Path, value: usize) void {
+        self.writeIndex(value, true);
+    }
+
+    fn writeIndex(self: *Path, value: usize, negative: bool) void {
         if (self.truncated) return;
-        const bytes = std.fmt.bufPrint(self.bytes[self.len..], "[{d}]", .{value}) catch {
+        const bytes = std.fmt.bufPrint(self.bytes[self.len..], "[{s}{d}]", .{ if (negative) "-" else "", value }) catch {
             self.truncated = true;
             return;
         };

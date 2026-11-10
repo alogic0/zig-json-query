@@ -5,7 +5,21 @@ const A = std.mem.Allocator;
 const Error = error{ InvalidQuery, OutOfMemory };
 
 pub const Op = enum { coalesce, eq, ne, lt, le, gt, ge, logical_and, logical_or, add, subtract, multiply, divide, remainder };
-pub const Key = union(enum) { field: []const u8, index: usize };
+pub const Index = struct {
+    magnitude: usize,
+    negative: bool,
+
+    pub fn resolve(self: Index, len: usize) ?usize {
+        if (self.negative) return if (self.magnitude <= len) len - self.magnitude else null;
+        return if (self.magnitude < len) self.magnitude else null;
+    }
+
+    pub fn clamp(self: Index, len: usize) usize {
+        return if (self.negative) len -| self.magnitude else @min(self.magnitude, len);
+    }
+};
+pub const Slice = struct { start: ?Index, end: ?Index };
+pub const Key = union(enum) { field: []const u8, index: Index, slice: Slice };
 pub const Field = struct { name: []const u8, value: *const Node };
 pub const Node = struct {
     offset: usize,
@@ -370,6 +384,15 @@ pub const Parser = struct {
         return self.make(offset, .{ .access = .{ .base = base, .key = .{ .field = key }, .optional = try self.optional() } }, base.height + 1);
     }
 
+    fn indexLiteral(self: *Parser) Error!Index {
+        const negative = self.token.tag == .minus;
+        if (negative) try self.advance();
+        if (self.token.tag != .number) return self.fail(self.token.start, "expected a literal integer index or slice bound; use | each to expand an array");
+        const magnitude = std.fmt.parseInt(usize, self.text(), 10) catch return self.fail(self.token.start, "index or slice bound must be an integer magnitude fitting usize");
+        try self.advance();
+        return .{ .magnitude = magnitude, .negative = negative and magnitude != 0 };
+    }
+
     fn postfix(self: *Parser, initial: *const Node) Error!*const Node {
         var value = initial;
         while (true) {
@@ -379,16 +402,19 @@ pub const Parser = struct {
             } else if (self.token.tag == .lbracket) {
                 const offset = self.token.start;
                 try self.advance();
-                const key: Key = switch (self.token.tag) {
-                    .string => .{ .field = (try self.jsonLiteral()).string },
-                    .number => blk: {
-                        const bytes = self.text();
-                        if (bytes.len == 0 or !std.ascii.isDigit(bytes[0])) return self.fail(self.token.start, "index must be a nonnegative integer");
-                        break :blk .{ .index = std.fmt.parseInt(usize, bytes, 10) catch return self.fail(self.token.start, "index must be a nonnegative integer fitting usize") };
-                    },
-                    else => return self.fail(self.token.start, "expected a string key or integer index; use | each to expand an array"),
+                const key: Key = if (self.token.tag == .string) blk: {
+                    const field = (try self.jsonLiteral()).string;
+                    try self.advance();
+                    break :blk .{ .field = field };
+                } else blk: {
+                    const start = if (self.token.tag == .colon) null else try self.indexLiteral();
+                    if (self.token.tag == .colon) {
+                        try self.advance();
+                        const end = if (self.token.tag == .rbracket) null else try self.indexLiteral();
+                        break :blk .{ .slice = .{ .start = start, .end = end } };
+                    }
+                    break :blk .{ .index = start.? };
                 };
-                try self.advance();
                 try self.expect(.rbracket, "expected ] after key or index");
                 value = try self.make(offset, .{ .access = .{ .base = value, .key = key, .optional = try self.optional() } }, value.height + 1);
             } else break;
