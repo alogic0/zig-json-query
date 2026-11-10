@@ -1,0 +1,8 @@
+.{
+    .name = .query_package_consumer,
+    .fingerprint = 0x3ca2ffa55bc11acc,
+    .version = "0.0.0",
+    .minimum_zig_version = "0.17.0",
+    .dependencies = .{ .json_query = .{ .path = "../.." } },
+    .paths = .{ "build.zig", "build.zig.zon", "main.zig" },
+}

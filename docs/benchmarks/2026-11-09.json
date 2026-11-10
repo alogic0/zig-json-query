@@ -1,0 +1,1769 @@
+{
+  "schema_version": 1,
+  "zig": "0.17.0",
+  "target": "x86_64-linux-gnu",
+  "optimization": "safe",
+  "rows": 100000,
+  "repeat": 5,
+  "measured_at_unix_seconds": 1794269598,
+  "tools": [
+    {
+      "name": "json-query",
+      "path": ".zig-cache/o/9c8c2879a2339fde856d451758ed1a9c/json-query",
+      "version": "json-query 0.1.0",
+      "sha256": "c6fc496739d0680465b9a148b2f95bf0699aafaab979f97791b809052b3a52e8"
+    },
+    {
+      "name": "jq",
+      "path": "/usr/bin/jq",
+      "version": "jq-1.7",
+      "sha256": "59cfd58d7e470b103aede0e7589cfea929e45ee27f5471f08aa9676ac7bfc566"
+    },
+    {
+      "name": "jaq",
+      "path": ".zig-cache/tools/jaq-3.1.2",
+      "version": "jaq 3.1.2",
+      "sha256": "df94e0ce3658897a5677958417347e1109f91f72b9f75b8fe8f028a70c90b766"
+    }
+  ],
+  "gnu_time_sha256": "3b11dec50514a8473e9f6efa7a34d584d0657538c09988f61b72d38ad4991a10",
+  "method": "Monotonic wall time includes process supervision and capture; GNU time %M is child peak RSS (null if the OS reports zero). One reference warmup per case; rotated tool order. Non-precision output mismatches fail the run. Compare only equivalent=true results. No throughput advantage is claimed.",
+  "skipped": [],
+  "results": [
+    {
+      "case": "startup",
+      "tool": "json-query",
+      "iteration": 0,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [],
+      "elapsed_ns": 1462169,
+      "peak_rss_bytes": 1069056,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jq",
+      "iteration": 0,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3517137,
+      "peak_rss_bytes": 3645440,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jaq",
+      "iteration": 0,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3647050,
+      "peak_rss_bytes": 13156352,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jq",
+      "iteration": 1,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3622603,
+      "peak_rss_bytes": 3592192,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jaq",
+      "iteration": 1,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3479163,
+      "peak_rss_bytes": 12984320,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "json-query",
+      "iteration": 1,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [],
+      "elapsed_ns": 1476937,
+      "peak_rss_bytes": 1200128,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jaq",
+      "iteration": 2,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3608395,
+      "peak_rss_bytes": 13090816,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "json-query",
+      "iteration": 2,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [],
+      "elapsed_ns": 1477549,
+      "peak_rss_bytes": 1069056,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jq",
+      "iteration": 2,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3578617,
+      "peak_rss_bytes": 3780608,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "json-query",
+      "iteration": 3,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [],
+      "elapsed_ns": 1500033,
+      "peak_rss_bytes": 1069056,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jq",
+      "iteration": 3,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3578275,
+      "peak_rss_bytes": 3645440,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jaq",
+      "iteration": 3,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3552616,
+      "peak_rss_bytes": 12861440,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jq",
+      "iteration": 4,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3623274,
+      "peak_rss_bytes": 3702784,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "jaq",
+      "iteration": 4,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 3582905,
+      "peak_rss_bytes": 13062144,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "startup",
+      "tool": "json-query",
+      "iteration": 4,
+      "input_bytes": 5,
+      "input_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "query": ".",
+      "flags": [],
+      "elapsed_ns": 1395579,
+      "peak_rss_bytes": 1069056,
+      "output_bytes": 5,
+      "output_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "json-query",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | .name",
+      "flags": [],
+      "elapsed_ns": 80226404,
+      "peak_rss_bytes": 47337472,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jq",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 107838860,
+      "peak_rss_bytes": 69967872,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jaq",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 150245992,
+      "peak_rss_bytes": 75202560,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jq",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 112902360,
+      "peak_rss_bytes": 69828608,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jaq",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 145109489,
+      "peak_rss_bytes": 75038720,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "json-query",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | .name",
+      "flags": [],
+      "elapsed_ns": 80551018,
+      "peak_rss_bytes": 47075328,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jaq",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 140260249,
+      "peak_rss_bytes": 75358208,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "json-query",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | .name",
+      "flags": [],
+      "elapsed_ns": 84298815,
+      "peak_rss_bytes": 47337472,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jq",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 107965478,
+      "peak_rss_bytes": 69742592,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "json-query",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | .name",
+      "flags": [],
+      "elapsed_ns": 83479404,
+      "peak_rss_bytes": 47337472,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jq",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 100536723,
+      "peak_rss_bytes": 69959680,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jaq",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 144823370,
+      "peak_rss_bytes": 75198464,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jq",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 106618995,
+      "peak_rss_bytes": 70045696,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "jaq",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | .name",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 149582344,
+      "peak_rss_bytes": 75354112,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "projection",
+      "tool": "json-query",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | .name",
+      "flags": [],
+      "elapsed_ns": 81436469,
+      "peak_rss_bytes": 47206400,
+      "output_bytes": 600000,
+      "output_sha256": "1a1792f9b64e4e453a0baa37b75b5d309d11ee46ae88e2d9af5b16047c6bcfd2",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "json-query",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(.age >= 18) | {id:.id,name:.name}",
+      "flags": [],
+      "elapsed_ns": 150738414,
+      "peak_rss_bytes": 47206400,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jq",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 163883715,
+      "peak_rss_bytes": 72151040,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jaq",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 262238843,
+      "peak_rss_bytes": 75362304,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jq",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 171800974,
+      "peak_rss_bytes": 72400896,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jaq",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 270415951,
+      "peak_rss_bytes": 75251712,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "json-query",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(.age >= 18) | {id:.id,name:.name}",
+      "flags": [],
+      "elapsed_ns": 146569624,
+      "peak_rss_bytes": 47468544,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jaq",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 255744526,
+      "peak_rss_bytes": 75358208,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "json-query",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(.age >= 18) | {id:.id,name:.name}",
+      "flags": [],
+      "elapsed_ns": 154621176,
+      "peak_rss_bytes": 47337472,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jq",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 173764554,
+      "peak_rss_bytes": 72372224,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "json-query",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(.age >= 18) | {id:.id,name:.name}",
+      "flags": [],
+      "elapsed_ns": 144715428,
+      "peak_rss_bytes": 47206400,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jq",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 161182864,
+      "peak_rss_bytes": 72478720,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jaq",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 269065510,
+      "peak_rss_bytes": 75280384,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jq",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 169022883,
+      "peak_rss_bytes": 72396800,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "jaq",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.age >= 18) | {id:.id,name:.name}",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 275128834,
+      "peak_rss_bytes": 75358208,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "filter",
+      "tool": "json-query",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(.age >= 18) | {id:.id,name:.name}",
+      "flags": [],
+      "elapsed_ns": 148070879,
+      "peak_rss_bytes": 47206400,
+      "output_bytes": 2006420,
+      "output_sha256": "f4ed444e29af500601567a876f5952ad478eec3b5d2beeeca19931e7a55aa152",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "json-query",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(matches(.name, \"^A\")) | .id",
+      "flags": [],
+      "elapsed_ns": 197885783,
+      "peak_rss_bytes": 47337472,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jq",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 222284156,
+      "peak_rss_bytes": 71892992,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jaq",
+      "iteration": 0,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 382913678,
+      "peak_rss_bytes": 76017664,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jq",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 237868224,
+      "peak_rss_bytes": 71954432,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jaq",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 380229730,
+      "peak_rss_bytes": 75845632,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "json-query",
+      "iteration": 1,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(matches(.name, \"^A\")) | .id",
+      "flags": [],
+      "elapsed_ns": 199123704,
+      "peak_rss_bytes": 47337472,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jaq",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 394752313,
+      "peak_rss_bytes": 75730944,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "json-query",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(matches(.name, \"^A\")) | .id",
+      "flags": [],
+      "elapsed_ns": 207918809,
+      "peak_rss_bytes": 47075328,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jq",
+      "iteration": 2,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 230145635,
+      "peak_rss_bytes": 71860224,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "json-query",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(matches(.name, \"^A\")) | .id",
+      "flags": [],
+      "elapsed_ns": 209236465,
+      "peak_rss_bytes": 47206400,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jq",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 234517663,
+      "peak_rss_bytes": 71753728,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jaq",
+      "iteration": 3,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 405877925,
+      "peak_rss_bytes": 76042240,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jq",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 236011244,
+      "peak_rss_bytes": 71868416,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "jaq",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users[] | select(.name | test(\"^A\")) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 397862243,
+      "peak_rss_bytes": 75808768,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "regex",
+      "tool": "json-query",
+      "iteration": 4,
+      "input_bytes": 3476402,
+      "input_sha256": "df0b4484f719e081006e66093c3d62feb152526ba36ad35dfb978028656a2712",
+      "query": ".users | each | where(matches(.name, \"^A\")) | .id",
+      "flags": [],
+      "elapsed_ns": 208675989,
+      "peak_rss_bytes": 47181824,
+      "output_bytes": 294445,
+      "output_sha256": "5f97a488f5f84f00d7e505bca027bd8bbda9cbfb08b4be2c29258a68a5ad72de",
+      "equivalent": true,
+      "note": ""
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "json-query",
+      "iteration": 0,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users | each | where(.id > 9007199254740992) | .id",
+      "flags": [],
+      "elapsed_ns": 3100201,
+      "peak_rss_bytes": 1200128,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jq",
+      "iteration": 0,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4181525,
+      "peak_rss_bytes": 3780608,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jaq",
+      "iteration": 0,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4494277,
+      "peak_rss_bytes": 13152256,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jq",
+      "iteration": 1,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4288575,
+      "peak_rss_bytes": 3768320,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jaq",
+      "iteration": 1,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4206905,
+      "peak_rss_bytes": 13078528,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "json-query",
+      "iteration": 1,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users | each | where(.id > 9007199254740992) | .id",
+      "flags": [],
+      "elapsed_ns": 3252709,
+      "peak_rss_bytes": 1200128,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jaq",
+      "iteration": 2,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4185052,
+      "peak_rss_bytes": 13160448,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "json-query",
+      "iteration": 2,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users | each | where(.id > 9007199254740992) | .id",
+      "flags": [],
+      "elapsed_ns": 2362399,
+      "peak_rss_bytes": 1200128,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jq",
+      "iteration": 2,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4137619,
+      "peak_rss_bytes": 3579904,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "json-query",
+      "iteration": 3,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users | each | where(.id > 9007199254740992) | .id",
+      "flags": [],
+      "elapsed_ns": 2253555,
+      "peak_rss_bytes": 1200128,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jq",
+      "iteration": 3,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4072783,
+      "peak_rss_bytes": 3768320,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jaq",
+      "iteration": 3,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4291962,
+      "peak_rss_bytes": 12906496,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jq",
+      "iteration": 4,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4157599,
+      "peak_rss_bytes": 3579904,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "jaq",
+      "iteration": 4,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users[] | select(.id > 9007199254740992) | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 4215703,
+      "peak_rss_bytes": 13250560,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "numeric_precision",
+      "tool": "json-query",
+      "iteration": 4,
+      "input_bytes": 372,
+      "input_sha256": "1936ff681d99a7d6892ddd992d7bfdde67b9d71edda93d3d9f5d92ef14733e6a",
+      "query": ".users | each | where(.id > 9007199254740992) | .id",
+      "flags": [],
+      "elapsed_ns": 3345010,
+      "peak_rss_bytes": 1200128,
+      "output_bytes": 85,
+      "output_sha256": "5c2b843de50cb592501786a657f6f8d74290817c9bfac03c819462d4d6d8dd0c",
+      "equivalent": true,
+      "note": "Precision fixture; differing output is a semantic difference, not an equivalent performance comparison."
+    },
+    {
+      "case": "ndjson",
+      "tool": "json-query",
+      "iteration": 0,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "where(.age >= 18) | count",
+      "flags": [
+        "--ndjson"
+      ],
+      "elapsed_ns": 440480407,
+      "peak_rss_bytes": 2248704,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jq",
+      "iteration": 0,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 90221124,
+      "peak_rss_bytes": 3526656,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jaq",
+      "iteration": 0,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 100412760,
+      "peak_rss_bytes": 16801792,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jq",
+      "iteration": 1,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 89299072,
+      "peak_rss_bytes": 3637248,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jaq",
+      "iteration": 1,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 99413987,
+      "peak_rss_bytes": 16785408,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "json-query",
+      "iteration": 1,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "where(.age >= 18) | count",
+      "flags": [
+        "--ndjson"
+      ],
+      "elapsed_ns": 406418892,
+      "peak_rss_bytes": 2248704,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jaq",
+      "iteration": 2,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 99799952,
+      "peak_rss_bytes": 16470016,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "json-query",
+      "iteration": 2,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "where(.age >= 18) | count",
+      "flags": [
+        "--ndjson"
+      ],
+      "elapsed_ns": 406915803,
+      "peak_rss_bytes": 2248704,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jq",
+      "iteration": 2,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 91268582,
+      "peak_rss_bytes": 3620864,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "json-query",
+      "iteration": 3,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "where(.age >= 18) | count",
+      "flags": [
+        "--ndjson"
+      ],
+      "elapsed_ns": 404106711,
+      "peak_rss_bytes": 2117632,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jq",
+      "iteration": 3,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 92538785,
+      "peak_rss_bytes": 3653632,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jaq",
+      "iteration": 3,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 99949404,
+      "peak_rss_bytes": 16732160,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jq",
+      "iteration": 4,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 93690197,
+      "peak_rss_bytes": 3723264,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "jaq",
+      "iteration": 4,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "reduce inputs as $row (0; if $row.age >= 18 then .+1 else . end)",
+      "flags": [
+        "-c",
+        "-n"
+      ],
+      "elapsed_ns": 100867337,
+      "peak_rss_bytes": 16736256,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "ndjson",
+      "tool": "json-query",
+      "iteration": 4,
+      "input_bytes": 3476390,
+      "input_sha256": "9fb6ba0502fdbfb19cbf21056c3d4cfdf38a005e71c6501bc97b41028e2d0831",
+      "query": "where(.age >= 18) | count",
+      "flags": [
+        "--ndjson"
+      ],
+      "elapsed_ns": 408794446,
+      "peak_rss_bytes": 2248704,
+      "output_bytes": 6,
+      "output_sha256": "6b343f8bb9dde9391536dd7e64e23cd497ba211138451c2a418d0184cc461c3f",
+      "equivalent": true,
+      "note": "Both queries count incrementally; JSON inputs are one record per line."
+    },
+    {
+      "case": "large_document",
+      "tool": "json-query",
+      "iteration": 0,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users | each | .id",
+      "flags": [],
+      "elapsed_ns": 329807896,
+      "peak_rss_bytes": 205279232,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jq",
+      "iteration": 0,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 418019792,
+      "peak_rss_bytes": 284135424,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jaq",
+      "iteration": 0,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 579462903,
+      "peak_rss_bytes": 264171520,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jq",
+      "iteration": 1,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 431008515,
+      "peak_rss_bytes": 284475392,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jaq",
+      "iteration": 1,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 582095820,
+      "peak_rss_bytes": 264065024,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "json-query",
+      "iteration": 1,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users | each | .id",
+      "flags": [],
+      "elapsed_ns": 332611577,
+      "peak_rss_bytes": 205410304,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jaq",
+      "iteration": 2,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 589077149,
+      "peak_rss_bytes": 264384512,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "json-query",
+      "iteration": 2,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users | each | .id",
+      "flags": [],
+      "elapsed_ns": 327657912,
+      "peak_rss_bytes": 205148160,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jq",
+      "iteration": 2,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 415332286,
+      "peak_rss_bytes": 284364800,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "json-query",
+      "iteration": 3,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users | each | .id",
+      "flags": [],
+      "elapsed_ns": 324669910,
+      "peak_rss_bytes": 205279232,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jq",
+      "iteration": 3,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 436073307,
+      "peak_rss_bytes": 284438528,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jaq",
+      "iteration": 3,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 591938854,
+      "peak_rss_bytes": 264273920,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jq",
+      "iteration": 4,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 442141861,
+      "peak_rss_bytes": 284196864,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "jaq",
+      "iteration": 4,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users[] | .id",
+      "flags": [
+        "-c"
+      ],
+      "elapsed_ns": 577105221,
+      "peak_rss_bytes": 264372224,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    },
+    {
+      "case": "large_document",
+      "tool": "json-query",
+      "iteration": 4,
+      "input_bytes": 14238902,
+      "input_sha256": "fcfa9984d6dc0c3bd572cbd0a4b70fb1f17b0f2d07f3ccc551fb3a99daf272cc",
+      "query": ".users | each | .id",
+      "flags": [],
+      "elapsed_ns": 333622121,
+      "peak_rss_bytes": 204886016,
+      "output_bytes": 2688890,
+      "output_sha256": "a0114b605da9b04ab0970f71f60b77454b78abc3dc592a64a6b045da1c0057d0",
+      "equivalent": true,
+      "note": "Single-document parsing; fixture has four times the requested row count."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "users": [
+    {"name": "Ada", "age": 36, "enabled": false, "id": 9007199254740993},
+    {"name": "Ben", "age": 15, "enabled": true, "id": 9007199254740994},
+    {"name": "Cy", "age": 20, "id": 9007199254740995}
+  ]
+}

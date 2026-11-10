@@ -1,0 +1,98 @@
+const std = @import("std");
+
+/// Bounded JSONPath. Truncation is explicit, and never retains input bytes.
+pub const Path = struct {
+    bytes: [1024]u8 = undefined,
+    len: usize = 0,
+    truncated: bool = false,
+
+    pub fn root() Path {
+        var result: Path = .{};
+        result.bytes[0] = '$';
+        result.len = 1;
+        return result;
+    }
+
+    pub fn field(self: *Path, key: []const u8) void {
+        if (self.truncated) return;
+        var writer = std.Io.Writer.fixed(self.bytes[self.len..]);
+        writeField(&writer, key) catch {
+            self.truncated = true;
+            return;
+        };
+        self.len += writer.end;
+    }
+
+    fn writeField(writer: *std.Io.Writer, key: []const u8) !void {
+        try writer.writeByte('[');
+        try std.json.Stringify.value(key, .{}, writer);
+        try writer.writeByte(']');
+    }
+
+    pub fn index(self: *Path, value: usize) void {
+        if (self.truncated) return;
+        const bytes = std.fmt.bufPrint(self.bytes[self.len..], "[{d}]", .{value}) catch {
+            self.truncated = true;
+            return;
+        };
+        self.len += bytes.len;
+    }
+
+    pub fn write(self: *const Path, writer: *std.Io.Writer) !void {
+        try writer.writeAll(self.bytes[0..self.len]);
+        if (self.truncated) try writer.writeAll("...");
+    }
+};
+
+pub const Diagnostic = struct {
+    offset: usize = 0,
+    message: []const u8 = "",
+    input_offset: ?usize = null,
+    input_line: u64 = 1,
+    input_column: u64 = 1,
+    path: Path = .{},
+    path_reported: bool = false,
+
+    pub fn set(self: *Diagnostic, offset: usize, message: []const u8) void {
+        self.* = .{ .offset = offset, .message = message };
+    }
+
+    pub fn write(self: Diagnostic, source: []const u8, writer: *std.Io.Writer) !void {
+        try self.writeNamed(source, "query", writer);
+    }
+
+    pub fn writeNamed(self: Diagnostic, source: []const u8, label: []const u8, writer: *std.Io.Writer) !void {
+        const offset = @min(self.offset, source.len);
+        var line: usize = 1;
+        var start: usize = 0;
+        for (source[0..offset], 0..) |byte, index| {
+            if (byte == '\n') {
+                line += 1;
+                start = index + 1;
+            }
+        }
+        const end = if (std.mem.indexOfScalarPos(u8, source, offset, '\n')) |n| n else source.len;
+        try writer.print("{s}:{d}:{d}: {s}\n", .{ label, line, offset - start + 1, self.message });
+        try excerpt(source, offset, start, end, writer);
+        if (self.path.len != 0) {
+            try writer.writeAll("input path: ");
+            try self.path.write(writer);
+            try writer.writeByte('\n');
+        }
+    }
+
+    pub fn writeInput(self: Diagnostic, input: []const u8, writer: *std.Io.Writer) !void {
+        const offset = @min(self.input_offset orelse 0, input.len);
+        const start = if (std.mem.lastIndexOfScalar(u8, input[0..offset], '\n')) |n| n + 1 else 0;
+        const end = std.mem.indexOfScalarPos(u8, input, offset, '\n') orelse input.len;
+        try excerpt(input, offset, start, end, writer);
+    }
+
+    fn excerpt(source: []const u8, offset: usize, line_start: usize, line_end: usize, writer: *std.Io.Writer) !void {
+        const start = @max(line_start, offset -| 80);
+        const end = @min(line_end, start +| 160);
+        try writer.print("  {s}\n  ", .{source[start..end]});
+        for (source[start..offset]) |byte| try writer.writeByte(if (byte == '\t') '\t' else ' ');
+        try writer.writeAll("^\n");
+    }
+};

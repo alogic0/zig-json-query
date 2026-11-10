@@ -1,0 +1,4 @@
+.users
+| each
+| where(.age >= 18)
+| {name: .name, enabled: .enabled? ?? true, id: .id}

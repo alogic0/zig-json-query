@@ -1,0 +1,246 @@
+const std = @import("std");
+const regex = @import("regex");
+const syntax = @import("parser.zig");
+const number = @import("number.zig");
+const Diagnostic = @import("diagnostic.zig").Diagnostic;
+const Path = @import("diagnostic.zig").Path;
+const Value = std.json.Value;
+const Node = syntax.Node;
+const A = std.mem.Allocator;
+const Error = error{ EvaluationFailed, OutOfMemory };
+
+pub const Evaluator = struct {
+    patterns: []const regex.Compiled,
+    diagnostic: *Diagnostic,
+    path: Path = .{},
+
+    fn fail(self: *Evaluator, offset: usize, message: []const u8) Error {
+        self.diagnostic.set(offset, message);
+        return error.EvaluationFailed;
+    }
+
+    pub fn required(self: *Evaluator, value: ?Value, offset: usize) Error!Value {
+        return value orelse self.fail(offset, "missing value: use ?? to supply a default or exists(...) to test presence");
+    }
+
+    pub fn boolean(self: *Evaluator, slot: ?Value, offset: usize) Error!bool {
+        const value = try self.required(slot, offset);
+        if (value != .bool) return self.fail(offset, "expected a boolean; comparisons and where do not use implicit truthiness");
+        return value.bool;
+    }
+
+    pub fn eval(self: *Evaluator, allocator: A, node: *const Node, input: Value) Error!?Value {
+        return self.evalInner(allocator, node, input) catch |err| {
+            if (err == error.EvaluationFailed and !self.diagnostic.path_reported) self.locate(node);
+            return err;
+        };
+    }
+
+    pub fn locate(self: *Evaluator, node: *const Node) void {
+        self.diagnostic.path = self.pathFor(node);
+        self.diagnostic.path_reported = true;
+    }
+
+    pub fn evalRequired(self: *Evaluator, allocator: A, node: *const Node, input: Value) Error!Value {
+        return self.requiredAt(try self.eval(allocator, node, input), node);
+    }
+
+    fn requiredAt(self: *Evaluator, value: ?Value, node: *const Node) Error!Value {
+        return self.required(value, node.offset) catch |err| {
+            self.locate(node);
+            return err;
+        };
+    }
+
+    pub fn booleanAt(self: *Evaluator, value: ?Value, node: *const Node) Error!bool {
+        return self.boolean(value, node.offset) catch |err| {
+            self.locate(node);
+            return err;
+        };
+    }
+
+    fn integerAt(self: *Evaluator, value: Value, node: *const Node) Error!i128 {
+        return self.integer(value, node.offset) catch |err| {
+            self.locate(node);
+            return err;
+        };
+    }
+
+    pub fn pathFor(self: *const Evaluator, node: *const Node) Path {
+        return switch (node.data) {
+            .current => self.path,
+            .access => |access| blk: {
+                var path = self.pathFor(access.base);
+                if (path.len == 0) break :blk path;
+                switch (access.key) {
+                    .field => |key| path.field(key),
+                    .index => |index| path.index(index),
+                }
+                break :blk path;
+            },
+            else => .{}, // Constructed/computed values have no single source path.
+        };
+    }
+
+    fn evalInner(self: *Evaluator, allocator: A, node: *const Node, input: Value) Error!?Value {
+        return switch (node.data) {
+            .current => input,
+            .literal => |value| value,
+            .access => |access| blk: {
+                // Missing from an earlier optional access propagates. Explicit
+                // JSON null and other wrong container types remain type errors.
+                const base = (try self.eval(allocator, access.base, input)) orelse break :blk null;
+                const found: ?Value = switch (access.key) {
+                    .field => |key| if (base == .object) base.object.get(key) else return self.fail(node.offset, "field access expects an object (including optional access)"),
+                    .index => |index| if (base == .array) (if (index < base.array.items.len) base.array.items[index] else null) else return self.fail(node.offset, "index access expects an array (including optional access)"),
+                };
+                if (found == null and !access.optional) return self.fail(node.offset, "field or index is absent; append ? for optional access");
+                break :blk found;
+            },
+            .binary => |binary| blk: {
+                const lhs = try self.eval(allocator, binary.lhs, input);
+                switch (binary.op) {
+                    .coalesce => {
+                        if (lhs) |value| if (value != .null) break :blk value;
+                        break :blk try self.eval(allocator, binary.rhs, input);
+                    },
+                    .logical_and => if (!try self.booleanAt(lhs, binary.lhs)) break :blk Value{ .bool = false },
+                    .logical_or => if (try self.booleanAt(lhs, binary.lhs)) break :blk Value{ .bool = true },
+                    else => {},
+                }
+                const rhs = try self.eval(allocator, binary.rhs, input);
+                if (binary.op == .logical_and or binary.op == .logical_or) break :blk Value{ .bool = try self.booleanAt(rhs, binary.rhs) };
+                const a = try self.requiredAt(lhs, binary.lhs);
+                const b = try self.requiredAt(rhs, binary.rhs);
+                const arithmetic_op: ?number.Arithmetic = switch (binary.op) {
+                    .add => .add,
+                    .subtract => .subtract,
+                    .multiply => .multiply,
+                    .divide => .divide,
+                    .remainder => .remainder,
+                    else => null,
+                };
+                if (arithmetic_op) |op| {
+                    const result = number.arithmetic(op, try self.integerAt(a, binary.lhs), try self.integerAt(b, binary.rhs)) catch |err| return self.integerFailure(node.offset, err);
+                    break :blk try integerValue(allocator, result);
+                }
+                if (binary.op == .eq or binary.op == .ne) {
+                    const is_equal = self.equal(a, b, node.offset, 0) catch |err| {
+                        self.locate(binary.lhs);
+                        return err;
+                    };
+                    break :blk Value{ .bool = if (binary.op == .eq) is_equal else !is_equal };
+                }
+                const order = self.compare(a, b, node.offset) catch |err| {
+                    self.locate(binary.lhs);
+                    return err;
+                };
+                break :blk Value{ .bool = switch (binary.op) {
+                    .lt => order == .lt,
+                    .le => order != .gt,
+                    .gt => order == .gt,
+                    .ge => order != .lt,
+                    else => unreachable,
+                } };
+            },
+            .logical_not => |child| Value{ .bool = !try self.booleanAt(try self.eval(allocator, child, input), child) },
+            .negate => |child| blk: {
+                const value = try self.evalRequired(allocator, child, input);
+                const result = number.arithmetic(.subtract, 0, try self.integerAt(value, child)) catch |err| return self.integerFailure(node.offset, err);
+                break :blk try integerValue(allocator, result);
+            },
+            .exists => |child| Value{ .bool = (try self.eval(allocator, child, input)) != null },
+            .matches => |match| blk: {
+                const value = try self.evalRequired(allocator, match.value, input);
+                if (value != .string) {
+                    const err = self.fail(node.offset, "matches expects a string value");
+                    self.locate(match.value);
+                    return err;
+                }
+                const matched = self.patterns[match.pattern].isMatch(value.string) catch |err| switch (err) {
+                    error.OutOfMemory => return error.OutOfMemory,
+                    else => return self.fail(node.offset, "regex evaluation failed"),
+                };
+                break :blk Value{ .bool = matched };
+            },
+            .object => |fields| blk: {
+                var object: std.json.ObjectMap = .empty;
+                for (fields) |field| {
+                    const value = try self.evalRequired(allocator, field.value, input);
+                    try object.put(allocator, field.name, value);
+                }
+                break :blk Value{ .object = object };
+            },
+            .array => |children| blk: {
+                var array = std.json.Array.init(allocator);
+                for (children) |child| try array.append(try self.evalRequired(allocator, child, input));
+                break :blk Value{ .array = array };
+            },
+        };
+    }
+
+    pub fn integer(self: *Evaluator, value: Value, offset: usize) Error!i128 {
+        if (value != .number_string) return self.fail(offset, "integer arithmetic expects a number; types are not coerced");
+        return number.integer(value.number_string) catch |err| self.integerFailure(offset, err);
+    }
+
+    pub fn integerFailure(self: *Evaluator, offset: usize, err: number.IntegerError) Error {
+        return self.fail(offset, switch (err) {
+            error.IntegerRange => "integer arithmetic exceeds the supported signed 128-bit range",
+            error.FractionalNumber => "integer arithmetic rejects fractional numbers",
+            error.DivisionByZero => "division or remainder by zero",
+            error.InexactDivision => "division must be exact; rounding is not implicit",
+        });
+    }
+
+    pub fn compare(self: *Evaluator, a: Value, b: Value, offset: usize) Error!std.math.Order {
+        if (a == .number_string and b == .number_string) return number.compare(a.number_string, b.number_string) catch return self.fail(offset, "numeric comparison exponent is outside the supported i64 range");
+        if (a == .string and b == .string) return std.mem.order(u8, a.string, b.string);
+        return self.fail(offset, "ordering expects two numbers or two strings; types are not coerced");
+    }
+
+    pub fn equal(self: *Evaluator, a: Value, b: Value, offset: usize, depth: usize) Error!bool {
+        if (depth > 128 or (depth == 128 and (a == .array or a == .object or b == .array or b == .object))) return self.fail(offset, "comparison nesting exceeds 128 levels");
+        if (std.meta.activeTag(a) != std.meta.activeTag(b)) return false;
+        return switch (a) {
+            .null => true,
+            .bool => |value| value == b.bool,
+            .string => |value| std.mem.eql(u8, value, b.string),
+            .number_string => (try self.compare(a, b, offset)) == .eq,
+            .array => |array| blk: {
+                if (array.items.len != b.array.items.len) break :blk false;
+                for (array.items, b.array.items) |av, bv| if (!try self.equal(av, bv, offset, depth + 1)) break :blk false;
+                break :blk true;
+            },
+            .object => |object| blk: {
+                if (object.count() != b.object.count()) break :blk false;
+                var it = object.iterator();
+                while (it.next()) |entry| {
+                    const other = b.object.get(entry.key_ptr.*) orelse break :blk false;
+                    if (!try self.equal(entry.value_ptr.*, other, offset, depth + 1)) break :blk false;
+                }
+                break :blk true;
+            },
+            // Program inputs and query literals always use parse_numbers=false.
+            .integer, .float => unreachable,
+        };
+    }
+};
+
+fn integerValue(allocator: A, value: i128) Error!Value {
+    return .{ .number_string = try std.fmt.allocPrint(allocator, "{d}", .{value}) };
+}
+
+pub fn withinDepth(value: Value, depth: usize) bool {
+    if (depth > 128 or (depth == 128 and (value == .array or value == .object))) return false;
+    switch (value) {
+        .array => |array| for (array.items) |item| {
+            if (!withinDepth(item, depth + 1)) return false;
+        },
+        .object => |object| for (object.values()) |item| {
+            if (!withinDepth(item, depth + 1)) return false;
+        },
+        else => {},
+    }
+    return true;
+}

@@ -1,0 +1,173 @@
+const std = @import("std");
+const S = @import("test_support");
+const exe = @import("test_options").exe;
+const t = std.testing;
+
+fn check(args: []const []const u8, input: []const u8, code: i32, output: []const u8, diagnostic: ?[]const u8) !void {
+    var argv: std.ArrayList([]const u8) = .empty;
+    defer argv.deinit(t.allocator);
+    try argv.append(t.allocator, exe);
+    try argv.appendSlice(t.allocator, args);
+    const report = try S.command.runReport(t.allocator, t.io, .{
+        .run = .{ .spawn = .{ .argv = argv.items }, .timeout_ms = 5000, .stdout_limit = 64 * 1024, .stderr_limit = 16 * 1024 },
+        .stdin = input,
+    });
+    defer report.deinit(t.allocator);
+    try S.Diagnostic.expectExit(report, .{ .assertion = "json-query CLI", .code = code });
+    try t.expectEqualStrings(output, report.stdout);
+    if (diagnostic) |message| {
+        try t.expect(std.mem.indexOf(u8, report.stderr, message) != null);
+    } else try t.expectEqualStrings("", report.stderr);
+}
+
+test "CLI reads stdin and emits filtered records" {
+    try check(&.{"each | where(.age >= 18) | .name"}, "[{\"name\":\"Ada\",\"age\":36},{\"name\":\"Ben\",\"age\":15}]", 0, "\"Ada\"\n", null);
+    try check(&.{"each | where(false)"}, "[1,2]", 0, "", null);
+}
+
+test "CLI streams NDJSON with blank lines CRLF and no trailing newline" {
+    try check(&.{ "--ndjson", ".x? ?? false" }, "{\"x\":0}\r\n\n{}\n{\"x\":true}", 0, "0\nfalse\ntrue\n", null);
+    try check(&.{ "--ndjson", "." }, "", 0, "", null);
+}
+
+test "CLI syntax and runtime errors are nonzero with query locations" {
+    try check(&.{".x |"}, "{}", 2, "", "query:1:5:");
+    try check(&.{".missing"}, "{}", 2, "", "field or index is absent");
+    try check(&.{ "--ndjson", ".x" }, "{\"x\":1}\n{}\n{\"x\":3}\n", 2, "1\n", "<stdin>:2:");
+}
+
+test "CLI rejects malformed JSON duplicate fields and unsupported options" {
+    try check(&.{"."}, "{broken}", 2, "", "SyntaxError");
+    try check(&.{"."}, "{\"x\":1,\"x\":2}", 2, "", "DuplicateField");
+    try check(&.{"--unknown"}, "", 2, "", "unknown option");
+}
+
+test "CLI accepts negative literals after option terminator" {
+    try check(&.{ "--", "-2" }, "null", 0, "-2\n", null);
+}
+
+test "CLI reads an explicit input file" {
+    var temporary = t.tmpDir(.{});
+    defer temporary.cleanup();
+    const root = try temporary.dir.realPathFileAlloc(t.io, ".", t.allocator);
+    defer t.allocator.free(root);
+    const path = try std.fs.path.join(t.allocator, &.{ root, "input.json" });
+    defer t.allocator.free(path);
+    try S.files.writeAtomic(t.io, .{ .path = path, .replace = false }, &.{"{\"id\":9007199254740993}"});
+    try check(&.{ ".id", path }, "", 0, "9007199254740993\n", null);
+}
+
+test "CLI rejects an oversized NDJSON line" {
+    const bytes = try t.allocator.alloc(u8, 1024 * 1024 + 2);
+    defer t.allocator.free(bytes);
+    @memset(bytes, ' ');
+    try check(&.{ "--ndjson", "." }, bytes, 2, "", "line limit 1 MiB");
+}
+
+test "CLI aggregates one NDJSON stream including blank lines and empty input" {
+    try check(&.{ "--ndjson", "where(.level == \"error\") | count" }, "{\"level\":\"info\"}\n\n{\"level\":\"error\"}\r\n{\"level\":\"error\"}", 0, "2\n", null);
+    try check(&.{ "--ndjson", "collect" }, "0\nfalse\nnull\n\"last\"", 0, "[0,false,null,\"last\"]\n", null);
+    try check(&.{ "--ndjson", "count" }, " \n\r\n", 0, "0\n", null);
+    try check(&.{ "--ndjson", "collect" }, "", 0, "[]\n", null);
+    try check(&.{"each | where(. >= 2) | count"}, "[1,2,3]", 0, "2\n", null);
+}
+
+test "CLI take skips later bad records while downstream aggregates finish" {
+    try check(&.{ "--ndjson", "take(2) | collect" }, "1\n2\n{bad}\n", 0, "[1,2]\n", null);
+    try check(&.{ "--ndjson", ".value | take(1) | count" }, "{\"value\":1}\n{}\n", 0, "1\n", null);
+    try check(&.{ "--ndjson", "take(0) | count" }, "{bad}\n", 0, "0\n", null);
+    try check(&.{"take(0) | collect"}, "{bad}", 0, "[]\n", null);
+}
+
+test "CLI input and EOF failures do not emit buffered partial aggregates" {
+    try check(&.{ "--ndjson", "collect" }, "1\n{bad}\n", 2, "", "<stdin>:2:");
+    try check(&.{ "--ndjson", ".value | count" }, "{\"value\":1}\n{}\n", 2, "", "<stdin>:2:");
+    try check(&.{ "--ndjson", "count | .missing" }, "1\n", 2, "", "<stdin>:EOF:");
+}
+
+fn expectExitWithOpenInput(source: []const u8, input: []const u8, expected: []const u8) !void {
+    var child = try S.process.Child.spawn(t.allocator, t.io, .{
+        .argv = &.{ exe, "--ndjson", source },
+        .stdin = .pipe,
+        .stdout = .pipe,
+        .stderr = .pipe,
+    });
+    defer child.deinit();
+    if (input.len != 0) {
+        var write_buffer: [128]u8 = undefined;
+        var writer = S.process.PipeWriter.init(child.stdin.?, t.io, &write_buffer);
+        try writer.interface.writeAll(input);
+        try writer.interface.flush();
+    }
+    // Keep stdin open: the CLI must finish without waiting for producer EOF.
+    const termination = try child.wait(2000);
+    try t.expect(termination.success());
+    var read_buffer: [128]u8 = undefined;
+    var reader = S.process.PipeReader.init(child.stdout.?, t.io, &read_buffer);
+    const output = try reader.interface.allocRemaining(t.allocator, .limited(1024));
+    defer t.allocator.free(output);
+    try t.expectEqualStrings(expected, output);
+    var stderr_buffer: [128]u8 = undefined;
+    var stderr_reader = S.process.PipeReader.init(child.stderr.?, t.io, &stderr_buffer);
+    const errors = try stderr_reader.interface.allocRemaining(t.allocator, .limited(1024));
+    defer t.allocator.free(errors);
+    try t.expectEqualStrings("", errors);
+}
+
+test "CLI take terminates with stdin still open after enough records" {
+    try expectExitWithOpenInput("take(2) | collect", "1\n2\n", "[1,2]\n");
+    try expectExitWithOpenInput("take(0) | count", "", "0\n");
+    try expectExitWithOpenInput("collect | take(0) | collect", "", "[]\n");
+}
+
+test "CLI raw output preserves JSON for non-strings and accepts long option" {
+    try check(&.{ "-r", "each" }, "[\"a\\nb\",false,null,2,{}]", 0, "a\nb\nfalse\nnull\n2\n{}\n", null);
+    try check(&.{ "--raw-output", ".x" }, "{\"x\":\"hi\"}", 0, "hi\n", null);
+}
+
+test "CLI query files argument precedence stdin queries and source errors" {
+    var temporary = t.tmpDir(.{});
+    defer temporary.cleanup();
+    const root = try temporary.dir.realPathFileAlloc(t.io, ".", t.allocator);
+    defer t.allocator.free(root);
+    const query_path = try std.fs.path.join(t.allocator, &.{ root, "query.jq" });
+    defer t.allocator.free(query_path);
+    const input_path = try std.fs.path.join(t.allocator, &.{ root, "input.json" });
+    defer t.allocator.free(input_path);
+    const missing_path = try std.fs.path.join(t.allocator, &.{ root, "missing.json" });
+    defer t.allocator.free(missing_path);
+    try S.files.writeAtomic(t.io, .{ .path = query_path, .replace = false }, &.{".name # query file\n"});
+    try S.files.writeAtomic(t.io, .{ .path = input_path, .replace = false }, &.{"{\"name\":\"Ada\"}"});
+    try check(&.{ "-r", "-f", query_path }, "{\"name\":\"Ada\"}", 0, "Ada\n", null);
+    try check(&.{ "--from-file", query_path, input_path }, "", 0, "\"Ada\"\n", null);
+    try check(&.{ input_path, "-f", query_path }, "", 0, "\"Ada\"\n", null);
+    try check(&.{ "-f", "-", input_path }, ".name", 0, "\"Ada\"\n", null);
+    try check(&.{ "-f", "-" }, ".", 2, "", "explicit non-stdin input");
+    try check(&.{ "-f", query_path, ".", input_path }, "", 2, "", "inline queries cannot");
+    try check(&.{ "-f", query_path, "-f", query_path }, "", 2, "", "only one -f");
+    try check(&.{"-f"}, "", 2, "", "requires a query filename");
+    try check(&.{ ".", missing_path }, "", 2, "", missing_path);
+    try check(&.{ "-f", missing_path }, "", 2, "", missing_path);
+    try S.files.writeAtomic(t.io, .{ .path = query_path, .replace = true }, &.{".x |"});
+    try check(&.{ "-f", query_path }, "", 2, "", query_path);
+    const oversized = try t.allocator.alloc(u8, 65537);
+    defer t.allocator.free(oversized);
+    @memset(oversized, ' ');
+    try S.files.writeAtomic(t.io, .{ .path = query_path, .replace = true }, &.{oversized});
+    try check(&.{ "-f", query_path }, "", 2, "", "limit 64 KiB");
+}
+
+test "CLI locates malformed multiline input and nested evaluation paths" {
+    try check(&.{"."}, "{\n \"x\": nope\n}", 2, "", "<stdin>:2:8:");
+    try check(&.{ "--ndjson", "." }, "{}\n{\"x\": nope}\n", 2, "{}\n", "<stdin>:2:8:");
+    try check(&.{".users | each | .age"}, "{\"users\":[{}]}", 2, "", "$[\"users\"][0][\"age\"]");
+}
+
+test "CLI arithmetic sorting and grouping share one NDJSON stream" {
+    try check(&.{ "--ndjson", ".value*2 | sum" }, "{\"value\":9007199254740993}\n{\"value\":1}\n", 0, "18014398509481988\n", null);
+    try check(&.{ "--ndjson", "sort_by(.k) | .v | collect" }, "{\"k\":2,\"v\":\"b\"}\n{\"k\":1,\"v\":\"a\"}\n", 0, "[\"a\",\"b\"]\n", null);
+    try check(&.{ "--ndjson", "group_by(.) | collect" }, "2\n1\n2\n", 0, "[[2,2],[1]]\n", null);
+    try check(&.{ "--ndjson", "sum" }, "1\n0.5\n", 2, "", "fractional");
+    try check(&.{ "--ndjson", "sort" }, "1\n\"x\"\n", 2, "", "all be numbers");
+    try expectExitWithOpenInput("group_by(.) | take(0) | sum", "", "0\n");
+}
