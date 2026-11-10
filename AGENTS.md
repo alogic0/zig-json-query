@@ -6,17 +6,16 @@ into that file. Then create the commit with `git commit -F path_to_temp_file`. D
 
 Before committing a fix or feature:
 
-1. Read `build.zig.zon` and note the current package version.
+1. Run `zig build version` and note the current package version.
 2. Decide between a patch increment for a backward-compatible fix and a minor
    increment for a backward-compatible feature. Keep the current major component.
 3. Never change the major component. Major-version changes are made only by the
    user. If a change would require a new major version, report that requirement and
    wait for the user to change the version before committing.
-4. Set the selected patch or minor version in `build.zig.zon` and update its
-   copies in `src/root.zig`, source archive names in `build.zig`, and the expected
-   CLI version in `tools/bench.zig`. This project uses these Zig files directly;
-   it has no `./build.sh version` command.
-5. Include every version file updated by that change in the fix or feature commit.
+4. Run `zig build version -- set <new_sem_ver>` with the selected patch or minor
+   version. This uses the pinned `zig-package-version` tool and the project's
+   marker configuration in `tools/versions.json`.
+5. Include every version file updated by that command in the fix or feature commit.
 
 ## Temporary Files
 

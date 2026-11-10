@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "path": "build.zig.zon",
+      "patterns": [
+        {
+          "prefix": "    .version = \"",
+          "suffix": "\","
+        }
+      ]
+    },
+    {
+      "path": "src/root.zig",
+      "patterns": [
+        {
+          "prefix": "pub const version = \"",
+          "suffix": "\";"
+        }
+      ]
+    },
+    {
+      "path": "build.zig",
+      "patterns": [
+        {
+          "prefix": "const source_archive = archive.addOutputFileArg(\"zig-json-query-",
+          "suffix": ".tar.gz\""
+        },
+        {
+          "prefix": "const install_archive = b.addInstallFileWithDir(source_archive, .prefix, \"dist/zig-json-query-",
+          "suffix": ".tar.gz\""
+        }
+      ]
+    },
+    {
+      "path": "tools/bench.zig",
+      "patterns": [
+        {
+          "prefix": "try tools.append(a, try pin(a, io, \"json-query\", exe, \"json-query ",
+          "suffix": "\"));"
+        }
+      ]
+    }
+  ]
+}

@@ -17,6 +17,7 @@ when there is a concrete deployment requirement.
 Dependencies are immutable source archives in `vendor/`, pinned by Zig hashes.
 No sibling checkout or network download is required. The regex package supplies
 matching; test-support supplies native CLI acceptance and benchmark helpers.
+The shared package-version CLI supplies developer version synchronization.
 
 ```sh
 cd ~/prog/zig-json-query
@@ -244,6 +245,7 @@ Current source and APIs were inspected before adoption.
 | --- | --- | --- |
 | `../zig-regex` 0.2.0 | Compiled `matches` expressions | `65e304effed8e58e5ca09a39104f8c24e28fc312` |
 | `../zig-test-support` 0.2.0 | CLI stdin, output capture, exit/error assertions, temporary-file helpers | `f0f54d4e8cb649af7673ca498f259b6b2f9aa25e` |
+| `../zig-package-version` 0.1.0 | Release version validation and synchronization | `3b35ef146e0308b9aa0f61f27e95ae8c7f143a15` |
 
 These revisions are pinned source archives with hashes, licenses and provenance
 in [vendor/README.md](vendor/README.md). Test support uses its existing vendored
@@ -284,6 +286,7 @@ concurrent use.
 zig build test-unit
 zig build test-unit -Dtest-filter=stream
 zig build test-cli
+zig build test-package-version
 zig build check
 zig build fuzz -Dfuzz-target='fuzz parser' --fuzz=10000
 zig build fuzz -Dfuzz-target='fuzz evaluator' --fuzz=10000
@@ -310,3 +313,26 @@ See [DESIGN.md](DESIGN.md), the completed
 [qualification report](docs/validation-2026-11-09.md) for contracts and checks
 actually executed. Comparative measurements use pinned jq and jaq binaries;
 jaq was acquired separately because it was absent from the initial inventory.
+
+## Version workflow
+
+```sh
+zig build version
+zig build version -- get
+zig build version -- set 0.2.1
+zig build test-package-version
+```
+
+The `version` step runs the pinned `zig-package-version` CLI using
+[`tools/versions.json`](tools/versions.json). `build.zig.zon` is authoritative;
+reading checks that the library version, both source archive names and the
+benchmark's expected CLI version match it. Setting a canonical numeric
+`MAJOR.MINOR.PATCH` prepares all five marked replacements before writing and
+preserves dependency pins and historical benchmark/validation records. The
+shared tool owns validation, per-file atomic updates and rollback. Bump decisions
+remain in [AGENTS.md](AGENTS.md): agents use patch increments for compatible fixes
+and minor increments for compatible features; major changes belong to the user.
+
+`zig build test` includes four integration checks using temporary copies of the
+real configured files: get/set synchronization, mismatch reporting/repair,
+invalid version rejection and failed preflight without partial writes.

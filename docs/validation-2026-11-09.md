@@ -7,6 +7,9 @@ remains in [its plan](plans/2026-11-09-stream-runtime.md).
 The release target is x86_64 Linux. Required validation covers that architecture;
 additional architectures will be planned only for a concrete deployment need.
 
+The runtime, fuzz and benchmark checkpoint below records version 0.1.0.
+The shared version-workflow qualification for 0.2.0 is recorded at the end.
+
 ## Functional and ownership checks
 
 | Command / check | Result |
@@ -88,3 +91,31 @@ The CLI still enforces its documented input/query/depth limits. Retaining stages
 share a 64 MiB budget; grouping is initially quadratic and disk spilling remains
 an explicit unsupported policy. Incremental parsing within a document, broader
 decimal arithmetic and general jq compatibility remain separate future work.
+
+## Shared version workflow: 0.2.0
+
+The pinned `zig-package-version` 0.1.0 source archive at revision
+`3b35ef146e0308b9aa0f61f27e95ae8c7f143a15` supplies the version CLI and library.
+This project supplies `tools/versions.json`; no synchronization engine is copied
+or reimplemented. The shared command performed the actual 0.1.0 -> 0.2.0 minor
+bump, preserving major version 0 and all dependency and historical evidence pins.
+
+| Check | Result |
+| --- | --- |
+| `zig build version` before the bump | `0.1.0`; all five markers synchronized |
+| `zig build version -- set 0.2.0` | Updated four files / five marked locations |
+| `zig build version` after the bump | `0.2.0` |
+| `zig build test --summary all` | 73/73: 54 language/library, 15 CLI, 4 version integration |
+| `zig build test -Doptimize=ReleaseSafe --summary all` | 73/73 |
+| `zig build test-package-version --summary all` | 4/4 |
+| Version benchmark smoke: 20 rows, one repetition, ReleaseSafe | Expected CLI version `0.2.0`; outputs match |
+| `zig build dist` | Created `zig-json-query-0.2.0.tar.gz`, including the version configuration and pinned tool |
+| Extracted 0.2.0 archive, empty local/global caches: `zig build version` | `0.2.0`; no sibling checkout required |
+| Extracted archive: `zig build test-package-version --summary all` | 4/4 |
+
+Version tests operate on disposable copies of the actual configured project
+files. They exercise get/set, both archive names, mismatch reporting and repair,
+invalid target rejection, and late preflight failure with unchanged file hashes.
+Dependency version pins and a separate historical-version fixture remain intact.
+The existing runtime/benchmark evidence above remains a 0.1.0 checkpoint rather
+than being rewritten to claim new measurements.

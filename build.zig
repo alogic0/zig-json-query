@@ -51,6 +51,38 @@ pub fn build(b: *std.Build) void {
     b.step("test-cli", "Run native CLI acceptance tests").dependOn(&run_cli.step);
     b.step("check", "Compile the CLI").dependOn(&exe.step);
 
+    const version_package = b.dependency("package_version", .{ .target = b.graph.host, .optimize = optimize });
+    const version_cli = version_package.artifact("zig-package-version");
+    const run_version = b.addRunArtifact(version_cli);
+    run_version.setCwd(b.path("."));
+    run_version.addArg("--config");
+    run_version.addFileArg(b.path("tools/versions.json"));
+    run_version.addPassthruArgs();
+    run_version.has_side_effects = true;
+    b.step("version", "Check or synchronize release versions using zig-package-version").dependOn(&run_version.step);
+
+    const version_options = b.addOptions();
+    version_options.addOptionPath("exe", version_cli.getEmittedBin());
+    version_options.addOptionPath("config", b.path("tools/versions.json"));
+    version_options.addOptionPath("manifest", b.path("build.zig.zon"));
+    version_options.addOption([]const u8, "version", @import("build.zig.zon").version);
+    const version_tests_module = b.createModule(.{
+        .root_source_file = b.path("tests/version.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+        .imports = &.{
+            .{ .name = "test_support", .module = support },
+            .{ .name = "package_version", .module = version_package.module("package_version") },
+        },
+    });
+    version_tests_module.addOptions("version_options", version_options);
+    const version_tests = b.addTest(.{ .root_module = version_tests_module });
+    const run_version_tests = b.addRunArtifact(version_tests);
+    run_version_tests.setCwd(b.path("."));
+    run_version_tests.has_side_effects = true;
+    tests.dependOn(&run_version_tests.step);
+    b.step("test-package-version", "Check release synchronization and fixture-based get/set/preflight").dependOn(&run_version_tests.step);
+
     const bench_module = b.createModule(.{
         .root_source_file = b.path("tools/bench.zig"),
         .target = b.graph.host,
@@ -69,8 +101,8 @@ pub fn build(b: *std.Build) void {
     });
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.1.0.tar.gz");
-    archive.addArgs(&.{ "build.zig", "build.zig.zon", ".zigversion", ".gitignore", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" });
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.1.0.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.2.0.tar.gz");
+    archive.addArgs(&.{ "build.zig", "build.zig.zon", ".zigversion", ".gitignore", "AGENTS.md", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" });
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.2.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

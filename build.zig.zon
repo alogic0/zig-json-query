@@ -1,11 +1,12 @@
 .{
     .name = .zig_json_query,
-    .version = "0.1.0",
+    .version = "0.2.0",
     .fingerprint = 0x15e77a18fed0ac0c,
     .minimum_zig_version = "0.17.0",
     .dependencies = .{
         .regex = .{ .url = "file:vendor/zig-regex-0.2.0.tar.gz", .hash = "regex-0.2.0-ez7ct8y7DgDqflioZeuO-GIXrcWzCcZaEHg4toprit2r" },
         .test_support = .{ .url = "file:vendor/zig-test-support-0.2.0.tar.gz", .hash = "test_support-0.2.0-WfGxyjo5BAB0686gSkz5ucgtYJWyK1q9Idd0xXji0hue" },
+        .package_version = .{ .url = "file:vendor/zig-package-version-0.1.0.tar.gz", .hash = "package_version-0.1.0-18r-wXuWAACFwT-44Citt9hUNuohRTwJpPwWgrIfjOUg" },
     },
-    .paths = .{ "build.zig", "build.zig.zon", ".zigversion", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" },
+    .paths = .{ "build.zig", "build.zig.zon", ".zigversion", "AGENTS.md", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" },
 }
