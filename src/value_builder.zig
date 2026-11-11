@@ -8,17 +8,32 @@ const Error = std.json.ParseError(Scanner);
 
 pub const Event = enum { token, arena_seed, array_growth, array_append, duplicate_check, object_insert, object_finish };
 
+/// Carries the caller allocator through the standard Parsed arena owner without
+/// recovering it from Scanner internals or changing token allocation identity.
+pub const Source = struct {
+    scanner: *Scanner,
+    temporary: A,
+    pub const NextError = Scanner.NextError;
+    pub const PeekError = Scanner.PeekError;
+    pub const AllocError = Scanner.AllocError;
+
+    pub inline fn next(self: *Source) NextError!std.json.Token {
+        return self.scanner.next();
+    }
+};
+
 value: std.json.Value,
 
-pub fn jsonParse(a: A, source: *Scanner, options: std.json.ParseOptions) Error!@This() {
-    std.debug.assert(source.is_end_of_input);
+pub fn jsonParse(a: A, source: *Source, options: std.json.ParseOptions) Error!@This() {
+    std.debug.assert(source.scanner.is_end_of_input);
     std.debug.assert(!options.parse_numbers and options.duplicate_field_behavior == .@"error");
-    return .{ .value = try build(a, source, options.max_value_len.?, {}) };
+    return .{ .value = try build(a, source.temporary, source.scanner, options.max_value_len.?, {}) };
 }
 
 /// Internal observation points compile away when observer is void. Observers
 /// belong to profiling only; children are parsed outside container intervals.
-pub fn build(a: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Value {
+pub fn build(a: A, temporary: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Value {
+    _ = temporary;
     // A bounded initial region avoids many tiny arena growth attempts on large
     // documents. Free the reservation immediately so DOM storage can reuse it.
     if (max >= 64 * 1024) {

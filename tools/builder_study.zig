@@ -17,17 +17,23 @@ const Operation = struct {
     logical_resize_attempts: u64 = 0,
     logical_remap_attempts: u64 = 0,
     logical_requested_bytes: u64 = 0,
+    temporary_allocations: u64 = 0,
+    temporary_resize_attempts: u64 = 0,
+    temporary_remap_attempts: u64 = 0,
+    temporary_requested_bytes: u64 = 0,
     backing_allocations: u64 = 0,
     backing_requested_bytes: u64 = 0,
 };
-const Observation = struct { case: []const u8, variant: []const u8, iteration: usize, operations: []const Operation };
+const Instrumentation = struct { operations: []const Operation, temporary: M.Meter.Counters };
+const Observation = struct { case: []const u8, variant: []const u8, iteration: usize, operations: []const Operation, temporary: M.Meter.Counters };
 
 fn Probe(comptime timed: bool) type {
     return struct {
         const Self = @This();
-        pub const Stamp = struct { logical: M.Meter.Counters, backing: M.Meter.Counters, start: if (timed) Io.Timestamp else void };
+        pub const Stamp = struct { logical: M.Meter.Counters, temporary: M.Meter.Counters, backing: M.Meter.Counters, start: if (timed) Io.Timestamp else void };
         io: Io,
         logical: *M.Meter,
+        temporary: *M.Meter,
         backing: *M.Meter,
         operations: [std.enums.values(Event).len]Operation = initial(),
 
@@ -38,7 +44,7 @@ fn Probe(comptime timed: bool) type {
         }
 
         pub fn begin(self: *Self, _: Event) Stamp {
-            return .{ .logical = self.logical.counters, .backing = self.backing.counters, .start = if (timed) Io.Clock.awake.now(self.io) else {} };
+            return .{ .logical = self.logical.counters, .temporary = self.temporary.counters, .backing = self.backing.counters, .start = if (timed) Io.Clock.awake.now(self.io) else {} };
         }
 
         pub fn end(self: *Self, event: Event, stamp: Stamp) void {
@@ -50,6 +56,10 @@ fn Probe(comptime timed: bool) type {
             operation.logical_resize_attempts += self.logical.counters.resize_attempts - stamp.logical.resize_attempts;
             operation.logical_remap_attempts += self.logical.counters.remap_attempts - stamp.logical.remap_attempts;
             operation.logical_requested_bytes += self.logical.counters.requested_bytes - stamp.logical.requested_bytes;
+            operation.temporary_allocations += self.temporary.counters.allocations - stamp.temporary.allocations;
+            operation.temporary_resize_attempts += self.temporary.counters.resize_attempts - stamp.temporary.resize_attempts;
+            operation.temporary_remap_attempts += self.temporary.counters.remap_attempts - stamp.temporary.remap_attempts;
+            operation.temporary_requested_bytes += self.temporary.counters.requested_bytes - stamp.temporary.requested_bytes;
             operation.backing_allocations += self.backing.counters.allocations - stamp.backing.allocations;
             operation.backing_requested_bytes += self.backing.counters.requested_bytes - stamp.backing.requested_bytes;
         }
@@ -83,7 +93,7 @@ fn observed(a: A, scanner_a: A, bytes: []const u8, diagnostic: *engine.Diagnosti
     defer scanner.deinit();
     var position: std.json.Diagnostics = .{};
     scanner.enableDiagnostics(&position);
-    const value = engine.ValueBuilder.build(a, &scanner, bytes.len, probe) catch |err| {
+    const value = engine.ValueBuilder.build(a, scanner_a, &scanner, bytes.len, probe) catch |err| {
         location(diagnostic, position);
         return err;
     };
@@ -101,20 +111,22 @@ fn verify(a: A, value: std.json.Value, expected: []const u8) !void {
     if (!std.mem.eql(u8, text, expected)) return error.BuilderOutputMismatch;
 }
 
-fn instrumented(comptime timed: bool, report_a: A, meter: *M.Meter, io: Io, bytes: []const u8, diagnostic: *engine.Diagnostic, expected: []const u8, record: *M.Record) ![]const Operation {
+fn instrumented(comptime timed: bool, report_a: A, meter: *M.Meter, io: Io, bytes: []const u8, diagnostic: *engine.Diagnostic, expected: []const u8, record: *M.Record) !Instrumentation {
     const a = meter.allocator();
     const arena = try a.create(std.heap.ArenaAllocator);
     defer a.destroy(arena);
     arena.* = std.heap.ArenaAllocator.init(a);
     defer arena.deinit();
     var logical: M.Meter = .{ .backing = arena.allocator() };
-    var probe: Probe(timed) = .{ .io = io, .logical = &logical, .backing = meter };
+    var temporary: M.Meter = .{ .backing = a };
+    var probe: Probe(timed) = .{ .io = io, .logical = &logical, .temporary = &temporary, .backing = meter };
     const start = Io.Clock.awake.now(io);
-    const value = try observed(logical.allocator(), a, bytes, diagnostic, &probe);
+    const value = try observed(logical.allocator(), temporary.allocator(), bytes, diagnostic, &probe);
     record.elapsed_ns = M.elapsed(start, io);
     record.logical = logical.counters;
     try verify(report_a, value, expected);
-    return report_a.dupe(Operation, &probe.operations);
+    if (temporary.counters.live_bytes != 0) return error.TemporaryAllocationLeak;
+    return .{ .operations = try report_a.dupe(Operation, &probe.operations), .temporary = temporary.counters };
 }
 
 fn measure(report_a: A, backing: A, io: Io, id: []const u8, bytes: []const u8, expected: []const u8, variant: Variant, iteration: usize) !struct { record: M.Record, observation: ?Observation } {
@@ -122,7 +134,7 @@ fn measure(report_a: A, backing: A, io: Io, id: []const u8, bytes: []const u8, e
     var diagnostic: engine.Diagnostic = .{};
     const before = meter.begin();
     var record: M.Record = .{ .case = id, .variant = @tagName(variant), .iteration = iteration, .elapsed_ns = 0, .memory = null };
-    var operations: ?[]const Operation = null;
+    var instrumentation: ?Instrumentation = null;
     switch (variant) {
         .reference, .control, .current, .current_control => {
             const start = Io.Clock.awake.now(io);
@@ -131,12 +143,12 @@ fn measure(report_a: A, backing: A, io: Io, id: []const u8, bytes: []const u8, e
             record.elapsed_ns = M.elapsed(start, io);
             try verify(report_a, parsed.value, expected);
         },
-        .counters => operations = try instrumented(false, report_a, &meter, io, bytes, &diagnostic, expected, &record),
-        .timed => operations = try instrumented(true, report_a, &meter, io, bytes, &diagnostic, expected, &record),
+        .counters => instrumentation = try instrumented(false, report_a, &meter, io, bytes, &diagnostic, expected, &record),
+        .timed => instrumentation = try instrumented(true, report_a, &meter, io, bytes, &diagnostic, expected, &record),
     }
     record.memory = meter.end(before);
     if (record.memory.?.end_live_bytes != 0) return error.StudyAllocationLeak;
-    return .{ .record = record, .observation = if (operations) |items| .{ .case = id, .variant = @tagName(variant), .iteration = iteration, .operations = items } else null };
+    return .{ .record = record, .observation = if (instrumentation) |details| .{ .case = id, .variant = @tagName(variant), .iteration = iteration, .operations = details.operations, .temporary = details.temporary } else null };
 }
 
 pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
@@ -167,7 +179,7 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
             if (result.observation) |observation| try observations.append(a, observation);
         }
     };
-    try guard.publish("builder", repeat, "One warm-up; rotated six variants. reference/control freeze the 0.22.0 builder; current/current_control use ordinary production parsing. counters/timed observe that same production builder above its arena; timed adds per-operation clocks. Logical operations are exclusive: recursive child parsing is outside append/object intervals. Indexed insertion includes hashing, duplicate lookup and any growth. EOF/depth/owner work is outside operation buckets. Narrow timings include instrumentation and are not an additive uninstrumented CPU budget; full-parser controls govern acceptance. Observed timing excludes arena-owner setup; ordinary timing includes it. Output checks and cleanup are outside timers. Backing allocation counts include the owner/scanner and must reach zero; logical arena requests are bulk reclaimed. No production clocks or counters.", records.items, .{ .checks = checks.items, .observations = observations.items }, out);
+    try guard.publish("builder", repeat, "One warm-up; rotated six variants. reference/control freeze the 0.22.0 builder; current/current_control use ordinary production parsing. counters/timed observe that same production builder above its arena; timed adds per-operation clocks. Logical operations are exclusive: recursive child parsing is outside append/object intervals. Indexed insertion includes hashing, duplicate lookup and any growth. EOF/depth/owner work is outside operation buckets. Narrow timings include instrumentation and are not an additive uninstrumented CPU budget; full-parser controls govern acceptance. Observed timing excludes arena-owner setup; ordinary timing includes it. Output checks and cleanup are outside timers. Backing allocation counts include the owner/scanner and must reach zero; logical arena requests are bulk reclaimed. Temporary counters independently wrap the caller allocator used by the scanner and temporary builder storage; temporary live bytes must return to zero. Compare arena plus temporary traffic when storage moves between owners. No production clocks or counters.", records.items, .{ .checks = checks.items, .observations = observations.items }, out);
 }
 
 fn variation(a: A, kind: enum { flat, nested, wide }) ![]const u8 {
@@ -196,29 +208,35 @@ test "builder observations preserve values diagnostics and classify all logical 
         var region = std.heap.ArenaAllocator.init(backing.allocator());
         defer region.deinit();
         var logical: M.Meter = .{ .backing = region.allocator() };
-        var probe: Probe(false) = .{ .io = t.io, .logical = &logical, .backing = &backing };
+        var temporary: M.Meter = .{ .backing = backing.allocator() };
+        var probe: Probe(false) = .{ .io = t.io, .logical = &logical, .temporary = &temporary, .backing = &backing };
         var expected_diagnostic: engine.Diagnostic = .{};
         var actual_diagnostic: engine.Diagnostic = .{};
         const parsed = reference(t.allocator, bytes, &expected_diagnostic) catch |err| {
-            try t.expectError(err, observed(logical.allocator(), backing.allocator(), bytes, &actual_diagnostic, &probe));
+            try t.expectError(err, observed(logical.allocator(), temporary.allocator(), bytes, &actual_diagnostic, &probe));
             try t.expectEqual(expected_diagnostic.input_offset, actual_diagnostic.input_offset);
             try t.expectEqual(expected_diagnostic.input_line, actual_diagnostic.input_line);
             try t.expectEqual(expected_diagnostic.input_column, actual_diagnostic.input_column);
+            try t.expectEqual(@as(u64, 0), temporary.counters.live_bytes);
             continue;
         };
         defer parsed.deinit();
-        const value = try observed(logical.allocator(), backing.allocator(), bytes, &actual_diagnostic, &probe);
+        const value = try observed(logical.allocator(), temporary.allocator(), bytes, &actual_diagnostic, &probe);
         const expected = try std.json.Stringify.valueAlloc(arena.allocator(), parsed.value, .{});
         try verify(t.allocator, value, expected);
         var bytes_counted: u64 = 0;
         var allocations: u64 = 0;
+        var temporary_bytes: u64 = 0;
         for (probe.operations) |operation| {
             bytes_counted += operation.logical_requested_bytes;
             allocations += operation.logical_allocations;
+            temporary_bytes += operation.temporary_requested_bytes;
             try t.expectEqual(null, operation.elapsed_ns);
         }
         try t.expectEqual(logical.counters.requested_bytes, bytes_counted);
         try t.expectEqual(logical.counters.allocations, allocations);
+        try t.expectEqual(temporary.counters.requested_bytes, temporary_bytes);
+        try t.expectEqual(@as(u64, 0), temporary.counters.live_bytes);
     }
 }
 

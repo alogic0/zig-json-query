@@ -11,7 +11,8 @@ pub fn parse(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagn
     defer scanner.deinit();
     var json_diagnostic: std.json.Diagnostics = .{};
     scanner.enableDiagnostics(&json_diagnostic);
-    const parsed = std.json.parseFromTokenSource(ValueBuilder, allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
+    var source: ValueBuilder.Source = .{ .scanner = &scanner, .temporary = allocator };
+    const parsed = std.json.parseFromTokenSource(ValueBuilder, allocator, &source, .{ .parse_numbers = false, .max_value_len = input.len, .allocate = .alloc_if_needed }) catch |err| {
         diagnostic.input_offset = @intCast(json_diagnostic.getByteOffset());
         diagnostic.input_line = json_diagnostic.getLine();
         diagnostic.input_column = json_diagnostic.getColumn();

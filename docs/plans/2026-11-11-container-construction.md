@@ -180,3 +180,15 @@ temporary array on success/failure. Large nonallocating scalar prefixes can keep
 ordinary arena-backed growth without a final duplicate. Attribute temporary
 requests explicitly alongside logical arena requests before evaluating the
 unchanged memory gate; moving requests between owners is not a traffic reduction.
+
+Temporary-owner instrumentation, 0.24.0: a small explicit source adapter carries
+the caller allocator through the standard parsed-arena owner; it does not infer
+an allocator from Scanner internals. Production construction is still unchanged.
+The [576-sample baseline](../profiling/2026-11-11-builder-temporary-baseline.json)
+separates arena logical requests, temporary/scanner requests and backing totals.
+All temporary live counts return to zero. Reference/current parser medians are
+24.156/24.408 ms for commands and 50.797/50.796 ms for backend, with identical
+backing peaks. Native Debug build and all 213 checks pass. The unchanged candidate
+gate applies to combined arena-plus-temporary array traffic, not arena traffic
+alone. The explicit bridge and accounting are committed before the next runtime
+candidate.

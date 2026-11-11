@@ -626,6 +626,8 @@ are reported separately from backing arena capacity.
 compares the frozen 0.22.0 builder and current parser with paired controls, then
 observes token/container operations with counters alone and with clocks. Narrow
 operation timings include probe overhead; acceptance uses ordinary full parses.
+Temporary caller-allocator requests are separate from parsed-arena logical
+requests; backing peaks include both owners.
 `zig build profile -- --study invocation --repeat 10 --out .zig-cache/invocation.json`
 compares native Debug launch controls, repeated processes, multi-file/NDJSON
 batching and compiled-Program reuse. An optional `--reference-cli PATH` pins an
