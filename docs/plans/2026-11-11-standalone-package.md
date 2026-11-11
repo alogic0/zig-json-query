@@ -1,6 +1,6 @@
 # Current standalone source package and independent consumer
 
-Status: authorized implementation in progress, starting from jqz 0.26.2.
+Status: completed on 2026-11-11 at jqz 0.26.2; authorized on 2026-11-11.
 
 ## Objective and scope
 
@@ -74,7 +74,7 @@ with plain `rm`, without flags.
    - Move source caches/package directory/build outputs aside. Run all eight
      consumer checks with distinct fresh caches/package directory and confirm
      the quarantined source artifacts were unnecessary.
-5. [ ] Exercise practical queries and publish the checkpoint:
+5. [x] Exercise practical queries and publish the checkpoint:
    - Use the extracted CLI to summarize the bundled qualification report,
      identify its slowest measured jqz cases and inspect version-marker coverage.
      Check each result independently with installed jq; record queries, input
@@ -143,3 +143,20 @@ The consumer build/main files match the archive; the
 [only manifest change](../qualification/2026-11-11-package-consumer-manifest.patch)
 points `json_query` to `../source`. All 159 source file fingerprints still match
 after the consumer check. No code/package fix or version increment was needed.
+
+Slice 5: three [practical checks](../qualification/2026-11-11-package-queries.json)
+run the extracted CLI against bundled project data: qualification overview,
+slowest measured jqz cases and version-marker coverage. Independent jq
+translations produce byte-identical stdout, with zero exits and empty stderr.
+No language gap is found in these checks, and original observed-workflow coverage
+remains 30/30. No new code, dependency or version increment was needed.
+
+The [verified checkpoint](../qualification/2026-11-11-package-evidence.json)
+records the archive/tool/binary hashes, complete 159-file manifest, commands,
+cache isolation, raw source/consumer logs and 45-case replay. The original
+0.12.0 checkpoint and frozen corpus are unchanged. Runtime/corpus fingerprints
+match the checkout; archive, replay and practical-output hashes pass final checks.
+The temporary workspace and all its caches were removed using plain `rm` and
+`rmdir`; the qualified archive and extracted CLI remain in `zig-out/qualification`.
+Latest package links and snapshot limits are documented. Links/diff checks pass;
+all slices are committed, and the package version remains 0.26.2.

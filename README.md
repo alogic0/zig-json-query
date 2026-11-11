@@ -648,8 +648,10 @@ and deduplication on repeated, distinct, mixed and nested inputs. Full-query
 controls check the component model against the actual evaluator.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
-The [standalone-package plan](docs/plans/2026-11-11-standalone-package.md) tracks
-fresh extracted-source and independent-consumer verification of the current release.
+The completed [standalone-package plan](docs/plans/2026-11-11-standalone-package.md)
+and [package checkpoint](docs/qualification/2026-11-11-package-evidence.json) record
+byte-identical archive rebuilds, fresh extracted-source checks and an independent
+consumer for 0.26.2, plus practical report/configuration queries checked against jq.
 
 See [DESIGN.md](DESIGN.md), the completed
 [stream plan](docs/plans/2026-11-09-stream-runtime.md), the

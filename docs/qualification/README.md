@@ -61,10 +61,9 @@ four version-workflow, three qualification-runner and eighteen profiler checks),
 plus eight separate-package consumer tests on 0.26.2. Changed checks ran before
 their commits; all 220 executed on the final version.
 These checks include retention ownership, Unicode sizing, immutable edits and
-structural sets. The consumer uses the checkout; the standalone archive checkpoint
-below remains version 0.12.0.
-The [standalone-package plan](../plans/2026-11-11-standalone-package.md) records
-the current archive/extraction/consumer qualification work.
+structural sets. The current standalone checkpoint below also verifies 0.26.2
+from an extraction and independent consumer, with fresh caches. The historical
+0.12.0 checkpoint remains unchanged.
 
 ## Behavior differences
 
@@ -134,6 +133,61 @@ retaining the original sorter/comparator after rejected experiments. Its
 [report](../profiling/container-construction-2026-11-11.md) identifies remaining
 complete-document construction, expression/path work and sorting costs. Additional
 language features need new practical evidence.
+
+## Current standalone source and consumer (0.26.2)
+
+[2026-11-11-package-evidence.json](2026-11-11-package-evidence.json) records the
+qualified 1,713,603-byte source snapshot at commit
+`db25365997c63c95d4ad6c4243c377a1cea78230`. Two unchanged `zig build dist` runs
+produced identical bytes, SHA-256
+`4af915486f4f1a0e046edf663461252d405105a9f19b480e76b6b6f495cd4d58`.
+The [full file manifest](2026-11-11-package-files.sha256) covers all 159 intended
+files; caches, build outputs and Git metadata are excluded. All three bundled
+dependency checksums pass, with only local file/path dependencies required.
+
+The extracted source passes all 220 project checks and builds `jqz 0.26.2` with
+initially empty local/global caches and no package directory. Its
+[corpus replay](2026-11-11-package-replay.json) passes all 45 cases, including
+30/30 selected observed translations and ten probes. The 68 one-repetition smoke
+samples verify packaged behavior; the five-repetition performance evidence above
+remains the timing checkpoint. Runtime/corpus fingerprints match that checkout.
+
+The independent sibling consumer passes all eight checks using separate fresh
+caches after source caches, packages and outputs are quarantined. The setup audit
+also caught an empty default `.zig-cache/tmp` directory; the initial consumer
+attempt is excluded and the reported fresh rerun includes that quarantine.
+Original source artifact paths remain absent afterwards. Consumer build/main
+files are unchanged; the [manifest patch](2026-11-11-package-consumer-manifest.patch)
+changes only its dependency path to `../source`. All 159 source file hashes
+still match after testing. Commands, relevant environment, logs and distinct
+Debug executable hashes are in the evidence record.
+
+Three [practical query checks](2026-11-11-package-queries.json) use the extracted
+binary to summarize qualification coverage, select the slowest jqz cases and
+inspect version-marker coverage. Each result is byte-identical to an independent
+jq translation, with zero exits and empty stderr. No language gap was found in
+these checks; they do not increase the original 30-case observed coverage count.
+
+The retained local artifacts are
+`zig-out/qualification/zig-json-query-0.26.2-db25365.tar.gz` and
+`zig-out/qualification/jqz-0.26.2-db25365`. The standard dist path also contains
+the snapshot until another `zig build dist` replaces it. Rebuild commit
+`db25365` in an external detached checkout to reproduce the frozen payload.
+The [completed plan](../plans/2026-11-11-standalone-package.md) records the steps.
+
+Package-result documents are written after freezing the archive, so the archive
+does not contain its own new checksum/results. Later documentation commits can
+therefore produce different complete archive bytes with the same verified code.
+Debug paths can also change executable hashes. No runtime/package fix or version
+increment was needed; all checks use native x86_64 Linux Debug.
+
+For an extracted source and a sibling copy of its three consumer project files,
+use independent fresh caches and initialize each project with `git init`. Change
+only the consumer manifest dependency to `../source`. The exact normalized
+commands/environment are recorded in the evidence. For the consumer step, move
+the source's local/global caches, `zig-pkg`, `zig-out` and any default `.zig-cache`
+aside first. The fresh-cache commands below in the historical checkpoint use
+the same Zig 0.17.0 environment settings.
 
 ## Historical standalone source and consumer (0.12.0)
 

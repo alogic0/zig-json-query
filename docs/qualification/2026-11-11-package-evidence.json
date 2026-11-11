@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "status": "consumer_verified",
+  "status": "verified",
   "version": "0.26.2",
-  "verified_at_utc": "2026-11-11T13:07:36Z",
+  "verified_at_utc": "2026-11-11T13:30:16Z",
   "target": "x86_64-linux-gnu",
   "optimization": "debug",
   "snapshot_commit": "db25365997c63c95d4ad6c4243c377a1cea78230",
@@ -19,7 +19,9 @@
     "file_manifest": "docs/qualification/2026-11-11-package-files.sha256",
     "file_manifest_sha256": "97d0d0ccac92e35d2814b35d0c6ad22868fb3344e7f92ba52a5a455791558c44",
     "snapshot_note": "Qualified snapshot at the plan commit. Package-result documents are written after archiving to avoid a self-referential hash. Later documentation commits do not have this complete archive hash; runtime/corpus identity is checked separately.",
-    "retained_path": "zig-out/qualification/zig-json-query-0.26.2-db25365.tar.gz"
+    "retained_path": "zig-out/qualification/zig-json-query-0.26.2-db25365.tar.gz",
+    "retained_cli_path": "zig-out/qualification/jqz-0.26.2-db25365",
+    "retained_cli_sha256": "0734a725fca28f5d0b9c098e7bf7bbeafbe60b0f0c5ebc40041b94a57b010156"
   },
   "toolchain": {
     "zig_version": "0.17.0",
@@ -27,7 +29,11 @@
     "zig_sha256": "7c61539af19fa4082c94848f1c2b57b89e76dc6cfd5bd4c57764c3caf8f82272",
     "tar_version": "tar (GNU tar) 1.35",
     "tar_sha256": "3ee2c3c0b4dd9aacebfd2f0fbae44bad36348203acff78a44888dd58c05f811c",
-    "gzip_sha256": "afea077ce127d4fa9ad410d3066ba2b54dea19c0b44f04adf56c72d5f7b7a9bb"
+    "gzip_sha256": "afea077ce127d4fa9ad410d3066ba2b54dea19c0b44f04adf56c72d5f7b7a9bb",
+    "jq_version": "jq-1.7",
+    "jq_sha256": "59cfd58d7e470b103aede0e7589cfea929e45ee27f5471f08aa9676ac7bfc566",
+    "gnu_time_version": "time (GNU Time) UNKNOWN",
+    "gnu_time_sha256": "3b11dec50514a8473e9f6efa7a34d584d0657538c09988f61b72d38ad4991a10"
   },
   "dependencies": {
     "top_level": "Three bundled file:vendor archives pinned by Zig hashes and SHA256SUMS.",
@@ -213,6 +219,26 @@
         "verification_script_exit_code": 1,
         "log": "docs/qualification/2026-11-11-package-consumer-discarded-tests.log"
       }
+    },
+    {
+      "id": "practical-project-queries",
+      "exit_code": 0,
+      "cases": 3,
+      "byte_identical_to_jq": true,
+      "gaps_found": [],
+      "raw": "docs/qualification/2026-11-11-package-queries.json",
+      "coverage_note": "Additional self-use checks on bundled project reports/configuration; not additions to the selected session-derived coverage count."
+    },
+    {
+      "id": "final-integrity",
+      "exit_code": 0,
+      "archive_sha256_matches": true,
+      "file_manifest_sha256_matches": true,
+      "replay_sha256_matches": true,
+      "practical_stdout_hashes_match": true,
+      "source_files_still_match": 159,
+      "runtime_and_frozen_corpus_unchanged_from": "44af031",
+      "historical_012_evidence_unchanged": true
     }
   ],
   "required_checks": {
@@ -249,6 +275,29 @@
       "<workspace>/source/zig-out",
       "<workspace>/source/.zig-cache"
     ],
-    "isolation_audit": "The initial setup detected an empty source .zig-cache/tmp directory left by tests. A consumer attempt was inadvertently started before that setup result was checked; its eight passing tests are excluded. The empty default directory and every consumer cache/package directory were moved aside, and the reported consumer run started fresh with all source artifact paths absent."
+    "isolation_audit": "The initial setup detected an empty source .zig-cache/tmp directory left by tests. A consumer attempt was inadvertently started before that setup result was checked; its eight passing tests are excluded. The empty default directory and every consumer cache/package directory were moved aside, and the reported consumer run started fresh with all source artifact paths absent.",
+    "temporary_workspace_removed": true
+  },
+  "summary": {
+    "archive_rebuild_identical": true,
+    "payload_files_verified": 159,
+    "project_checks_passed": 220,
+    "consumer_checks_passed": 8,
+    "corpus_cases_passed": 45,
+    "observed_translations_passed": 30,
+    "intentional_probes_passed": 10,
+    "corpus_smoke_samples": 68,
+    "practical_queries_passed": 3,
+    "runtime_or_package_fix_needed": false,
+    "version_changed": false
+  },
+  "binary_note": "Each Debug executable hash is recorded separately; paths can affect executable bytes. Archive reproducibility and source/corpus fingerprints were checked independently.",
+  "cleanup": {
+    "temporary_workspace_removed": true,
+    "file_removal": "plain rm without flags, with rmdir for empty directories",
+    "retained_artifacts": [
+      "zig-out/qualification/zig-json-query-0.26.2-db25365.tar.gz",
+      "zig-out/qualification/jqz-0.26.2-db25365"
+    ]
   }
 }

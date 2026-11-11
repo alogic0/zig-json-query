@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "version": "0.26.2",
+  "target": "x86_64-linux-gnu",
+  "optimization": "debug",
+  "cli": {
+    "path": "zig-out/qualification/jqz-0.26.2-db25365",
+    "sha256": "0734a725fca28f5d0b9c098e7bf7bbeafbe60b0f0c5ebc40041b94a57b010156"
+  },
+  "reference": {
+    "path": "/usr/bin/jq",
+    "version": "jq-1.7",
+    "sha256": "59cfd58d7e470b103aede0e7589cfea929e45ee27f5471f08aa9676ac7bfc566"
+  },
+  "method": "Practical queries run with the extracted CLI against bundled project JSON/configuration. Reference jq uses independent translations with compact output. Each command exits zero, stderr is empty and stdout is byte-identical. These checks do not expand the 30 selected session-workflow coverage count and are not timing measurements.",
+  "cases": [
+    {
+      "id": "qualification-overview",
+      "input": "docs/qualification/2026-11-11-container-construction.json",
+      "query": "{version,observed:.coverage.observed,translated:.coverage.translated,case_checks:length(.cases),samples:length(.samples)}",
+      "reference": "{version,observed:.coverage.observed,translated:.coverage.translated,case_checks:(.cases|length),samples:(.samples|length)}",
+      "purpose": "Summarize the current workflow evidence.",
+      "cwd": "<workspace>/source",
+      "input_sha256": "f340c42d0ee8402279503426537b3d9d15329df081296ca56cf59e18699509c7",
+      "candidate_argv": [
+        "<workspace>/artifacts/jqz",
+        "{version,observed:.coverage.observed,translated:.coverage.translated,case_checks:length(.cases),samples:length(.samples)}",
+        "docs/qualification/2026-11-11-container-construction.json"
+      ],
+      "reference_argv": [
+        "/usr/bin/jq",
+        "-c",
+        "{version,observed:.coverage.observed,translated:.coverage.translated,case_checks:(.cases|length),samples:(.samples|length)}",
+        "docs/qualification/2026-11-11-container-construction.json"
+      ],
+      "candidate_exit_code": 0,
+      "reference_exit_code": 0,
+      "candidate_stderr_bytes": 0,
+      "reference_stderr_bytes": 0,
+      "stdout": "{\"version\":\"0.26.2\",\"observed\":30,\"translated\":30,\"case_checks\":45,\"samples\":340}\n",
+      "output_sha256": "2f357ea421858325f14250b483ca15bfb7d77ec28d3440ac116770aaac2763a6",
+      "byte_identical": true
+    },
+    {
+      "id": "slowest-qualified-cases",
+      "input": "docs/qualification/2026-11-11-container-construction.json",
+      "query": "map(sort_by(filter(.summaries,.tool == \"jqz\"),.wall_ns.median)[-3:],{case,median_ns:.wall_ns.median})",
+      "reference": ".summaries | map(select(.tool==\"jqz\")) | sort_by(.wall_ns.median) | .[-3:] | map({case,median_ns:.wall_ns.median})",
+      "purpose": "Find the three slowest jqz medians in ascending order, preserving integer nanoseconds.",
+      "cwd": "<workspace>/source",
+      "input_sha256": "f340c42d0ee8402279503426537b3d9d15329df081296ca56cf59e18699509c7",
+      "candidate_argv": [
+        "<workspace>/artifacts/jqz",
+        "map(sort_by(filter(.summaries,.tool == \"jqz\"),.wall_ns.median)[-3:],{case,median_ns:.wall_ns.median})",
+        "docs/qualification/2026-11-11-container-construction.json"
+      ],
+      "reference_argv": [
+        "/usr/bin/jq",
+        "-c",
+        ".summaries | map(select(.tool==\"jqz\")) | sort_by(.wall_ns.median) | .[-3:] | map({case,median_ns:.wall_ns.median})",
+        "docs/qualification/2026-11-11-container-construction.json"
+      ],
+      "candidate_exit_code": 0,
+      "reference_exit_code": 0,
+      "candidate_stderr_bytes": 0,
+      "reference_stderr_bytes": 0,
+      "stdout": "[{\"case\":\"compiler-call-count\",\"median_ns\":14277018},{\"case\":\"command-progress-scale\",\"median_ns\":38139809},{\"case\":\"report-summary-scale\",\"median_ns\":68025456}]\n",
+      "output_sha256": "36517d39056d6f91bc5ec38000eb06cc4cf32a73c53847d4c4357709cadf66a6",
+      "byte_identical": true
+    },
+    {
+      "id": "version-marker-coverage",
+      "input": "tools/versions.json",
+      "query": "map(.files,{path,markers:length(.patterns)})",
+      "reference": "[.files[]|{path,markers:(.patterns|length)}]",
+      "purpose": "Inspect files covered by the pinned version tool.",
+      "cwd": "<workspace>/source",
+      "input_sha256": "f158694458501b90eb26a9854424fe3337276df22bac46c5bba4eddf7b63f30e",
+      "candidate_argv": [
+        "<workspace>/artifacts/jqz",
+        "map(.files,{path,markers:length(.patterns)})",
+        "tools/versions.json"
+      ],
+      "reference_argv": [
+        "/usr/bin/jq",
+        "-c",
+        "[.files[]|{path,markers:(.patterns|length)}]",
+        "tools/versions.json"
+      ],
+      "candidate_exit_code": 0,
+      "reference_exit_code": 0,
+      "candidate_stderr_bytes": 0,
+      "reference_stderr_bytes": 0,
+      "stdout": "[{\"path\":\"build.zig.zon\",\"markers\":1},{\"path\":\"src/root.zig\",\"markers\":1},{\"path\":\"build.zig\",\"markers\":2},{\"path\":\"tools/bench.zig\",\"markers\":1}]\n",
+      "output_sha256": "10bb3d44f6f6305651ec520f16fa3c63dbeeb076ec73d3639774bd8b74c9a964",
+      "byte_identical": true
+    }
+  ],
+  "gaps_found": []
+}
