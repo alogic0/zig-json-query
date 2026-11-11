@@ -1,0 +1,93 @@
+diff --git a/src/value_builder.zig b/src/value_builder.zig
+index 65ebc00..2146f41 100644
+--- a/src/value_builder.zig
++++ b/src/value_builder.zig
+@@ -52,24 +52,75 @@ fn read(a: A, source: *Scanner, max: usize, token: std.json.Token, observer: any
+         .false => .{ .bool = false },
+         .string, .allocated_string => |text| .{ .string = text },
+         .number, .allocated_number => |text| .{ .number_string = text },
+-        .array_begin => blk: {
+-            var array = std.json.Array.init(a);
+-            while (true) {
+-                const token_next = try next(a, source, max, observer);
+-                if (token_next == .array_end) break;
+-                const item = try read(a, source, max, token_next, observer);
+-                const event: Event = if (@TypeOf(observer) == void) .array_append else if (array.items.len == array.capacity) .array_growth else .array_append;
+-                const stamp = begin(observer, event);
+-                defer end(observer, event, stamp);
+-                try array.append(item);
+-            }
+-            break :blk .{ .array = array };
+-        },
++        .array_begin => .{ .array = try readArray(a, source, max, observer) },
+         .object_begin => try readObject(a, source, max, observer),
+         else => error.UnexpectedToken,
+     };
+ }
+ 
++// Growing an arena-backed array interleaved with its children strands every old
++// buffer. Keep a small prefix on the stack and bounded chunks, then copy once to
++// exact final storage. Chunks and children share the parsed arena's lifetime.
++const ArrayBuilder = struct {
++    const Chunk = struct { items: []std.json.Value, used: usize = 0, next: ?*Chunk = null };
++    small: [16]std.json.Value = undefined,
++    count: usize = 0,
++    first: ?*Chunk = null,
++    last: ?*Chunk = null,
++
++    fn grows(self: *const ArrayBuilder) bool {
++        return self.count >= self.small.len and (self.last == null or self.last.?.used == self.last.?.items.len);
++    }
++
++    inline fn append(self: *ArrayBuilder, a: A, item: std.json.Value) !void {
++        if (self.count < self.small.len) {
++            self.small[self.count] = item;
++        } else {
++            if (self.last == null or self.last.?.used == self.last.?.items.len) {
++                const capacity = if (self.last) |last| @min(last.items.len * 2, 256) else 16;
++                const chunk = try a.create(Chunk);
++                chunk.* = .{ .items = try a.alloc(std.json.Value, capacity) };
++                if (self.last) |last| last.next = chunk else self.first = chunk;
++                self.last = chunk;
++            }
++            const last = self.last.?;
++            last.items[last.used] = item;
++            last.used += 1;
++        }
++        self.count += 1;
++    }
++
++    fn finish(self: *const ArrayBuilder, a: A) !std.json.Array {
++        if (self.count == 0) return std.json.Array.init(a);
++        const items = try a.alloc(std.json.Value, self.count);
++        var offset: usize = @min(self.count, self.small.len);
++        @memcpy(items[0..offset], self.small[0..offset]);
++        var chunk = self.first;
++        while (chunk) |part| : (chunk = part.next) {
++            @memcpy(items[offset..][0..part.used], part.items[0..part.used]);
++            offset += part.used;
++        }
++        std.debug.assert(offset == items.len);
++        return std.json.Array.fromOwnedSlice(a, items);
++    }
++};
++
++fn readArray(a: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Array {
++    var array: ArrayBuilder = .{};
++    while (true) {
++        const token = try next(a, source, max, observer);
++        if (token == .array_end) break;
++        const item = try read(a, source, max, token, observer);
++        const event: Event = if (@TypeOf(observer) == void) .array_append else if (array.grows()) .array_growth else .array_append;
++        const stamp = begin(observer, event);
++        defer end(observer, event, stamp);
++        try array.append(a, item);
++    }
++    const stamp = begin(observer, .array_growth);
++    defer end(observer, .array_growth, stamp);
++    return array.finish(a);
++}
++
+ fn readObject(a: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Value {
+     // Most report objects are small. Buffer a few fields on the stack and
+     // allocate their final map once, avoiding successive arena-backed growth.

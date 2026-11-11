@@ -162,3 +162,21 @@ reference/control medians. Investigate other-case regressions exceeding both 10%
 and 0.05 ms and every unexplained peak increase. Cover flat/nested/wide/escaped
 cases and capacity boundaries. Reject or adjust a candidate that fails these
 gates; do not claim a CPU improvement from the narrow instrumented intervals.
+
+First slice-3 candidate rejected: [arena chunks](../profiling/2026-11-11-builder-chunked-rejected.json)
+reduce backend logical array traffic from 4,705,792 to 2,267,840 bytes (52%), but
+the backing peak is 8,520,779 versus 10,517,879 bytes (19% lower), missing the
+predeclared 20% gate. Flat scalar arrays can grow contiguously without child
+allocations; always retaining chunks plus a final copy wastes that advantage.
+Equivalent reference/control peaks there also vary with remapping, so raw peaks
+and ranges are retained rather than choosing the favorable control. The
+[rejected patch](../profiling/experiments/builder-chunked.patch) applies to
+`ef4fe65`; the main builder has been restored to that committed implementation.
+
+Next bounded candidate: buffer a small prefix, then use a temporary array outside
+the parsed arena for arrays whose prefix contains allocating children. Its growth
+can release old buffers; copy once into final owned arena storage and free the
+temporary array on success/failure. Large nonallocating scalar prefixes can keep
+ordinary arena-backed growth without a final duplicate. Attribute temporary
+requests explicitly alongside logical arena requests before evaluating the
+unchanged memory gate; moving requests between owners is not a traffic reduction.
