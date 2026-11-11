@@ -8,6 +8,7 @@ const usage =
     \\Read one JSON document per file, or all NDJSON records as one stream.
     \\Without FILE, read stdin. Output is one JSON value per line.
     \\
+    \\  -n, --null-input          Run once with null; read no input data
     \\  --ndjson                  Parse one JSON record per nonblank line
     \\  -s, --slurp               Query one array containing all input values
     \\  -r, --raw-output          Write strings raw; other values as JSON
@@ -21,7 +22,9 @@ const usage =
     \\  --version                Show the package version
     \\
     \\With -f, positional arguments are input files. -f - reads the query
-    \\from stdin and requires explicit named input files. Stdin is used once.
+    \\from stdin and requires explicit named input files unless -n is set.
+    \\With -n, data filenames, --slurp and --ndjson are ignored; -f - can
+    \\still read the query from stdin. input_filename() returns null.
     \\
     \\Examples:
     \\  .users | each | where(.age >= 18) | {name: .name}
@@ -62,6 +65,7 @@ fn run(init: std.process.Init) !u8 {
     var error_buffer: [4096]u8 = undefined;
     var errors = std.Io.File.stderr().writer(io, &error_buffer);
     var ndjson = false;
+    var null_input = false;
     var raw_output = false;
     var sort_keys = false;
     var exit_status = false;
@@ -85,6 +89,8 @@ fn run(init: std.process.Init) !u8 {
             try output.interface.writeAll(usage);
             try output.interface.flush();
             return 0;
+        } else if (options and (std.mem.eql(u8, arg, "-n") or std.mem.eql(u8, arg, "--null-input"))) {
+            null_input = true;
         } else if (options and std.mem.eql(u8, arg, "--ndjson")) {
             ndjson = true;
         } else if (options and (std.mem.eql(u8, arg, "-s") or std.mem.eql(u8, arg, "--slurp"))) {
@@ -115,7 +121,7 @@ fn run(init: std.process.Init) !u8 {
     if (query_file == null and positional.items.len == 0) return argumentError(&errors.interface, usage);
     const paths = if (query_file != null) positional.items else positional.items[1..];
     const default_input = [_][]const u8{"-"};
-    const inputs = if (paths.len == 0) &default_input else paths;
+    const inputs: []const []const u8 = if (null_input) &.{} else if (paths.len == 0) &default_input else paths;
     var stdin_count: usize = 0;
     for (inputs) |path| if (std.mem.eql(u8, path, "-")) {
         stdin_count += 1;
@@ -126,7 +132,7 @@ fn run(init: std.process.Init) !u8 {
     defer if (query_bytes) |bytes| allocator.free(bytes);
     const source = if (query_file) |query_path| blk: {
         const query_stdin = std.mem.eql(u8, query_path, "-");
-        if (query_stdin and (paths.len == 0 or stdin_count != 0)) return argumentError(&errors.interface, "-f - requires explicit non-stdin input files");
+        if (query_stdin and !null_input and (paths.len == 0 or stdin_count != 0)) return argumentError(&errors.interface, "-f - requires explicit non-stdin input files");
         const file = if (query_stdin) std.Io.File.stdin() else std.Io.Dir.cwd().openFile(io, query_path, .{}) catch |err| return fileError(&errors.interface, query_path, "open query file", err);
         defer if (!query_stdin) file.close(io);
         var buffer: [4096]u8 = undefined;
@@ -147,9 +153,14 @@ fn run(init: std.process.Init) !u8 {
     defer program.deinit();
     var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .sort_keys = sort_keys });
     defer stream.deinit();
-    const slurp = if (slurp_input and stream.needsInput()) try query.Slurp.init(allocator, query.max_input_bytes) else null;
+    const slurp = if (slurp_input and !null_input and stream.needsInput()) try query.Slurp.init(allocator, query.max_input_bytes) else null;
     defer if (slurp) |collector| collector.deinit();
     var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = "<stdin>", .output = &output.interface, .errors = &errors.interface, .exit_status = exit_status, .slurp = slurp };
+    if (null_input) {
+        runner.label = "<null>";
+        if (stream.needsInput()) _ = stream.feed("null") catch |err| return runner.report(err, "null", 1);
+        return runner.finish();
+    }
     if (!stream.needsInput()) return runner.finish();
     for (inputs) |path| {
         if (!stream.needsInput()) break;

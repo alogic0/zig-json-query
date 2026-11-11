@@ -1,6 +1,7 @@
 # Null-input CLI execution
 
-Status: authorized, starting from jqz 0.27.1.
+Status: implementation verified as jqz 0.28.0; committed-corpus replay and final
+evidence documentation are next.
 
 ## Objective and contract
 
@@ -32,9 +33,9 @@ are needed; reuse anonymous `Stream.feed("null")` and normal completion.
 
 ## Verified slices
 
-1. [ ] Record this plan, inspect CLI/session/test/qualification APIs and installed
+1. [x] Record this plan, inspect CLI/session/test/qualification APIs and installed
    jq behavior, and link it from the README. Commit the plan before code changes.
-2. [ ] Implement the CLI branch and focused acceptance coverage. Prove that the
+2. [x] Implement the CLI branch and focused acceptance coverage. Prove that the
    command finishes while stdin remains open, skips malformed/missing data files,
    handles named/stdin query files and preserves completion/status/error behavior.
    Update help, examples, README/DESIGN and the current corpus notes/case. Read
@@ -61,3 +62,14 @@ under `-n`, gives null even with `-s`, and reports a null input filename. The
 existing jqz anonymous feed already provides null provenance. jqz's own stdin
 query-file support extends naturally to `-n -f -`; it does not require a new
 input reader or a change to library ownership.
+
+Feature verification: native `zig build` and all 233 project tests pass (158
+library, 42 CLI, four version-workflow, three qualification-runner, eighteen
+profiler and eight distribution-verifier checks). Five new CLI tests cover
+null-input behavior, including commands completing with stdin still open.
+The documented artifact-record query runs successfully with typed bindings and
+no data input. Version markers are synchronized at 0.28.0, formatting/diff checks
+pass, and an independent comparison confirms that every case's jq invocation,
+origin and frozen jqz expected result remain unchanged. The argument-only case
+now uses `-n` without files and is eligible for timing; the replay below will
+validate that changed invocation before any new qualification claim.

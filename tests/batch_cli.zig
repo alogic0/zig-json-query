@@ -69,6 +69,35 @@ test "CLI files stdin and query files compose without sharing stdin twice" {
     try check(&.{"input_filename(1)"}, "", 2, "", "takes no arguments");
 }
 
+test "CLI null input skips malformed missing and repeated stdin sources in every input mode" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const malformed = try files.write("malformed.json", "{bad}");
+    const absent = try files.path("missing.json");
+    try check(&.{ "-n", "[.,input_filename()]", malformed, absent, "-", "-" }, "", 0, "[null,null]\n", null);
+    try check(&.{ "-n", "-s", ".", absent }, "", 0, "null\n", null);
+    try check(&.{ "--slurp", "--null-input", ".", malformed }, "", 0, "null\n", null);
+    try check(&.{ "-n", "--ndjson", "count", absent, malformed }, "", 0, "1\n", null);
+    try check(&.{ "--ndjson", "-s", "-n", "collect", malformed, "-", "-" }, "", 0, "[null]\n", null);
+    try expectExitWithOpenInputArgs(&.{ exe, "--null-input", "count", "-", absent }, "", "1\n");
+}
+
+test "CLI null input accepts named and stdin queries without data files" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const source = try files.write("bound.query", "{value:$value,file:input_filename()}");
+    const invalid = try files.write("invalid.query", "where(");
+    const absent = try files.path("missing.query");
+    try check(&.{ "-n", "--argjson", "value", "42", "-f", source }, "", 0, "{\"value\":42,\"file\":null}\n", null);
+    try check(&.{ "--null-input", "--argjson", "value", "false", "--from-file", source, absent }, "", 0, "{\"value\":false,\"file\":null}\n", null);
+    try check(&.{ "-n", "--arg", "value", "bound", "-f", "-" }, "$value", 0, "\"bound\"\n", null);
+    try check(&.{ "-s", "--ndjson", "-n", "-f", "-", "-", absent, "-" }, "[.,input_filename()]", 0, "[null,null]\n", null);
+    try check(&.{ "-n", "-f", absent }, "", 2, "", "open query file");
+    try check(&.{ "-n", "-f", invalid }, "", 2, "", invalid);
+    try check(&.{ "-n", "-f", "-" }, "where(", 2, "", "-:1:");
+    try check(&.{ "-n", "-f", source, "-f", source }, "", 2, "", "only one -f");
+}
+
 test "CLI NDJSON spans files but keeps diagnostics local to each file" {
     var files = try InputFiles.init();
     defer files.deinit();

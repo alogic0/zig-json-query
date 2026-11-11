@@ -1,0 +1,2 @@
+# jqz -n --arg name artifact --arg path out/artifact --arg sha256 hash-a --argjson bytes 42 -f examples/artifact-record.query
+{name:$name,path:$path,sha256:$sha256,bytes:$bytes}

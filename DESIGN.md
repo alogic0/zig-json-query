@@ -187,6 +187,15 @@ is cloned like other strings. `input_filename()` is null for anonymous feeds,
 completion aggregates and slurped arrays. File results are flushed before opening
 the next file, preserving earlier output if a later open/read operation fails.
 
+Null-input mode (`-n` / `--null-input`) supplies the existing anonymous feed with
+the validated constant `null` once when input is requested. It bypasses data-file
+opening, stdin data and slurp allocation; `--ndjson` and `--slurp` have no effect.
+Named query files and bindings keep their validation, and `-n -f -` reads query
+text from stdin without requiring data files. Anonymous provenance makes
+`input_filename()` null, while CLI diagnostics use `<null>` as their label.
+Completion, early stopping and predicate status use the ordinary stream path;
+no new library API or query syntax is introduced.
+
 Slurp uses the same validated parser as ordinary feeds, deep-copies values into
 a stable-address collector and charges array/arena capacity to a separate input
 budget. The CLI sets that budget to 64 MiB. Container depth includes the outer

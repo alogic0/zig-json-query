@@ -52,6 +52,9 @@ zig build test
 ./zig-out/bin/jqz -f examples/report-summary.query examples/acceptance-report.json
 
 ./zig-out/bin/jqz -f examples/recent-commands.query examples/compiler-commands.json
+
+./zig-out/bin/jqz -n --arg name artifact --arg path out/artifact \
+  --arg sha256 hash-a --argjson bytes 42 -f examples/artifact-record.query
 ```
 
 The first command emits:
@@ -77,15 +80,24 @@ compact JSON. Each value has a trailing newline, and newlines inside a raw
 string remain literal. `-f FILE` / `--from-file FILE` reads one query file;
 positional arguments then name input files. Options can precede or follow
 positional arguments until `--`. Multiple `-f` options are errors. `-f -` reads
-the query from stdin and requires explicit named input files, without `-` input.
+the query from stdin and requires explicit named input files, without `-` input,
+unless `-n` is set.
 Query files have the same 64 KiB text limit.
-The [null-input implementation plan](docs/plans/2026-11-11-null-input.md)
-records the next CLI increment for constructing JSON from arguments.
 `--version` prints the package version.
 
+`-n` / `--null-input` runs the query with one anonymous null value, so arguments
+can construct JSON without an input file or stdin data. Data filenames (including
+`-`) are ignored, and `--slurp` / `--ndjson` have no effect in this mode. Query
+files and bindings are still read/validated; `-n -f -` reads only the query from
+stdin and needs no data filenames. Normal completion, output options, early
+stopping and `-e` status apply. For example, `jqz -n 'count'` emits `1`, while
+`jqz -n -e '.'` emits null and exits 1. Diagnostics label synthetic input `<null>`.
+The [null-input implementation plan](docs/plans/2026-11-11-null-input.md)
+records the behavior and its workflow qualification.
+
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
-for CLI stdin. Completion aggregates and slurped input have no unique filename
-and return null. Capture provenance before aggregation:
+for CLI stdin. Completion aggregates, null input and slurped input have no unique
+filename and return null. Capture provenance before aggregation:
 
 ```sh
 ./zig-out/bin/jqz -f examples/batch-reports.query \

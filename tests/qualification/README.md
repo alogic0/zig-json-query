@@ -12,8 +12,11 @@ sample of every invocation. It contains 30 observed workflow cases (all translat
 serialization/sizing, immutable configuration edits and structural uniqueness
 close the last three gaps. Grouping and totals cover both embedded-summary projections;
 the component checks remain outside observed coverage. The argument-only
-construction case needs a null fixture because jqz has no `-n`; this invocation
-adaptation is counted explicitly and excluded from timing comparisons.
+construction case uses `-n` for both tools, with identical bindings and no input
+files. Its original query, expected output and observed case identity are unchanged.
+It is now eligible for measurement alongside the other 34 equivalent cases,
+with zero invocation adaptations. Historical reports retain the earlier
+null-fixture workaround and its measurement exclusion.
 
 ## How fixtures were reconstructed
 

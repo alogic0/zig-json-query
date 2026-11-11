@@ -25,6 +25,30 @@ test "CLI reads stdin and emits filtered records" {
     try check(&.{"each | where(false)"}, "[1,2]", 0, "", null);
 }
 
+test "CLI null input constructs records from typed bindings with anonymous provenance" {
+    try check(&.{ "-n", "--arg", "name", "artifact", "--argjson", "bytes", "9007199254740993", "{name:$name,bytes:$bytes,input:.,file:input_filename()}" }, "", 0, "{\"name\":\"artifact\",\"bytes\":9007199254740993,\"input\":null,\"file\":null}\n", null);
+    try check(&.{ "--null-input", "--argjson", "value", "1.2300e-4", "$value | collect" }, "", 0, "[1.2300e-4]\n", null);
+    try check(&.{ "--arg", "value", "-n", "-n", "-r", "$value" }, "", 0, "-n\n", null);
+    try check(&.{ ".", "--null-input", "-n" }, "", 0, "null\n", null);
+    try check(&.{ "-n", "--", "-2" }, "", 0, "-2\n", null);
+}
+
+test "CLI null input preserves predicate status completion and error precedence" {
+    try check(&.{ "-n", "-e", "." }, "", 1, "null\n", null);
+    try check(&.{ "-n", "--exit-status", "false" }, "", 1, "false\n", null);
+    try check(&.{ "-n", "-e", "true" }, "", 0, "true\n", null);
+    try check(&.{ "-n", "-e", "where(false)" }, "", 4, "", null);
+    try check(&.{ "-n", "-e", "take(0)" }, "", 4, "", null);
+    try check(&.{ "-n", "-e", "take(0) | collect" }, "", 0, "[]\n", null);
+    try check(&.{ "-n", "-r", "-e", "\"false\"" }, "", 0, "false\n", null);
+    try check(&.{ "-n", "-S", "-e", "{z:1,a:2}" }, "", 0, "{\"a\":2,\"z\":1}\n", null);
+    try check(&.{ "-n", "-e", ".missing" }, "", 2, "", "<null>:1:");
+    try check(&.{ "-n", "count | .missing" }, "", 2, "", "<null>:EOF:");
+    try check(&.{ "-n", "--argjson", "unused", "{bad}", "take(0)" }, "", 2, "", "one valid JSON value");
+    try check(&.{ "-n", "$unbound" }, "", 2, "", "unbound variable");
+    try check(&.{"-n"}, "", 2, "", "Usage:");
+}
+
 test "CLI serializes JSON text and distinguishes Unicode bytes from characters" {
     try check(&.{ "-r", "tojson(.)" }, "{\"x\":\"é😀\",\"n\":9007199254740993}", 0, "{\"x\":\"é😀\",\"n\":9007199254740993}\n", null);
     try check(&.{"[length(tojson(.)),byte_length(tojson(.))]"}, "\"é😀\"", 0, "[4,8]\n", null);
@@ -195,6 +219,14 @@ pub fn expectExitWithOpenInputArgs(argv: []const []const u8, input: []const u8, 
     const errors = try stderr_reader.interface.allocRemaining(t.allocator, .limited(1024));
     defer t.allocator.free(errors);
     try t.expectEqualStrings("", errors);
+}
+
+test "CLI null input completes without waiting for stdin data or EOF" {
+    try expectExitWithOpenInputArgs(&.{ exe, "-n", "[.,input_filename()]" }, "", "[null,null]\n");
+    try expectExitWithOpenInputArgs(&.{ exe, "--null-input", "count" }, "", "1\n");
+    try expectExitWithOpenInputArgs(&.{ exe, "-n", "collect" }, "", "[null]\n");
+    try expectExitWithOpenInputArgs(&.{ exe, "-s", "--ndjson", "-n", "." }, "", "null\n");
+    try expectExitWithOpenInputArgs(&.{ exe, "-n", "--slurp", "take(0) | count" }, "", "0\n");
 }
 
 test "CLI summarizes acceptance reports with shorthand length and keys" {
