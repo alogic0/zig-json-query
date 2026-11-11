@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "version": "0.12.0",
+  "verified_at_utc": "2026-11-11T04:57:51Z",
+  "target": "x86_64-linux-gnu",
+  "optimization": "debug",
+  "corresponding_code_commit": "4180390",
+  "archive": {
+    "path": "zig-out/dist/zig-json-query-0.12.0.tar.gz",
+    "bytes": 368248,
+    "sha256": "0412226d66bb709c641fc3e019b9b843eb005a0759785dcc882d2831766e0a08",
+    "unchanged_rebuild_identical": true,
+    "caches_and_build_outputs_excluded": true,
+    "snapshot_note": "Verified source snapshot containing all code and the expanded consumer. Packaging-result documents and later plan/readme updates were added after archiving to avoid a self-referential archive hash. Source/corpus hashes and consumer main match the code commit."
+  },
+  "toolchain": {
+    "zig_version": "0.17.0",
+    "zig_sha256": "7c61539af19fa4082c94848f1c2b57b89e76dc6cfd5bd4c57764c3caf8f82272",
+    "tar_version": "tar (GNU tar) 1.35",
+    "tar_sha256": "3ee2c3c0b4dd9aacebfd2f0fbae44bad36348203acff78a44888dd58c05f811c"
+  },
+  "isolation": {
+    "outside_original_checkout": true,
+    "source_local_cache_initially_empty": true,
+    "source_global_cache_initially_empty": true,
+    "source_package_directory_initially_absent": true,
+    "consumer_local_cache_initially_empty": true,
+    "consumer_global_cache_initially_empty": true,
+    "consumer_package_directory_initially_absent": true,
+    "source_and_consumer_caches_distinct": true,
+    "package_cache_setting": "ZIG_LOCAL_PKG_DIR=zig-pkg (relative to each project)",
+    "dependency_urls": "Bundled file:vendor archives and their internal path dependencies; no sibling checkout or network dependency required.",
+    "path_notation": "Temporary absolute prefixes below are normalized to <workspace>; source and consumer are sibling independent projects."
+  },
+  "checks": [
+    {
+      "id": "source-tests",
+      "cwd": "<workspace>/source",
+      "env": {"ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/source-global", "ZIG_LOCAL_PKG_DIR": "zig-pkg"},
+      "argv": ["zig", "build", "test", "--summary", "all", "--cache-dir", "<workspace>/caches/source-local"],
+      "exit_code": 0,
+      "tests": {"total": 147, "language_library": 107, "cli": 33, "version_workflow": 4, "qualification_runner": 3}
+    },
+    {
+      "id": "source-build",
+      "cwd": "<workspace>/source",
+      "env": {"ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/source-global", "ZIG_LOCAL_PKG_DIR": "zig-pkg"},
+      "argv": ["zig", "build", "--cache-dir", "<workspace>/caches/source-local"],
+      "exit_code": 0,
+      "cli_version": "jqz 0.12.0",
+      "cli_sha256": "132f71af1f5400cbc1e59645b55cf8b82125d8e9d53cc49a296d7f42addac2de"
+    },
+    {
+      "id": "packaged-corpus-replay",
+      "cwd": "<workspace>/source",
+      "env": {"ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/source-global", "ZIG_LOCAL_PKG_DIR": "zig-pkg"},
+      "argv": ["zig", "build", "qualify", "--cache-dir", "<workspace>/caches/source-local", "--", "--repeat", "1", "--out", "<workspace>/source-qualification.json"],
+      "exit_code": 0,
+      "case_checks": 41,
+      "coverage": {"observed": 30, "translated": 25, "unsupported": 5, "invocation_adaptations": 1, "components": 2, "semantic_probes": 7, "scale_cases": 2, "measured_cases": 28},
+      "smoke_samples": 56,
+      "source_hashes_match_measurement_report": "2026-11-10.json",
+      "purpose": "Verify packaged runner/data behavior; the one-repetition replay is not the performance baseline."
+    },
+    {
+      "id": "separate-consumer-tests",
+      "cwd": "<workspace>/consumer",
+      "env": {"ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/consumer-global", "ZIG_LOCAL_PKG_DIR": "zig-pkg"},
+      "argv": ["zig", "build", "test", "--summary", "all", "--cache-dir", "<workspace>/caches/consumer-local"],
+      "exit_code": 0,
+      "tests": 4,
+      "dependency_override": "json_query.path = ../source",
+      "main_sha256": "f0887f36ecaf32cee86f7624e9059f0ed15dafab4a468c973962b614f0df869b",
+      "copy_note": "build.zig and main.zig were copied unchanged from the archive; only the consumer manifest dependency path was adjusted.",
+      "apis": ["Program.compile", "Program.compileWithBindings", "Stream.feed", "Stream.feedNamed", "Slurp.init/append/deinit", "Stream.feedSlurp", "Stream.finish/predicateStatus", "all/any", "mean/divide", "sort/group/sum"]
+    },
+    {
+      "id": "bundled-dependencies",
+      "cwd": "<workspace>/source/vendor",
+      "argv": ["sha256sum", "-c", "SHA256SUMS"],
+      "exit_code": 0,
+      "passed": ["zig-regex-0.2.0.tar.gz", "zig-test-support-0.2.0.tar.gz", "zig-package-version-0.1.0.tar.gz"]
+    }
+  ],
+  "manifest_sha256": "89b3f56622d567518347766f405a40563ec26946eed7ccb857fa740e47bebc7d",
+  "provenance_sha256": "e0433585d2b0ce0fb3c89f50750cf47bb17f07382114b5f8c969050b162545ba",
+  "qualification_runner_sha256": "84e0adfd9de027bab983f7190040b1ef25c4898d3a8d60478d57ab70b6ceabf2",
+  "binary_note": "Each Debug executable hash is recorded separately. Build paths can affect Debug bytes; archive determinism and matching source/corpus fingerprints were checked."
+}

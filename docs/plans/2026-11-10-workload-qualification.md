@@ -1,6 +1,6 @@
 # Qualification against practical report workflows
 
-Status: in progress; authorized on 2026-11-10.
+Status: implemented and verified locally; authorized on 2026-11-10.
 
 ## Objective and scope
 
@@ -65,7 +65,7 @@ process/file helpers; no jqz language additions are assumed by this plan.
    packaging and consumer execution with isolated caches in native Debug. Commit
    the verified consumer/test slice independently; bump a patch version only if
    qualification finds a production defect that requires a fix.
-4. [ ] Write the qualification report with measured coverage, semantic differences,
+4. [x] Write the qualification report with measured coverage, semantic differences,
    timing/memory limits, packaging evidence and ranked next work. Mark the plan
    complete only after all required runs pass and retain reproducible evidence.
 
@@ -111,3 +111,11 @@ unchanged reproduces SHA-256
 Zig 0.17.0 uses `ZIG_GLOBAL_CACHE_DIR` for the global cache; its package-cache
 override must stay relative (`ZIG_LOCAL_PKG_DIR=zig-pkg`). Formatting passed.
 No production defect or runtime-version change was needed for this test slice.
+
+Slice 4: [the report](../qualification/README.md), raw 280-sample evidence and
+structured package evidence record the selected-case denominator, seven checked
+contract differences, five unsupported workflows, Debug performance limits and
+standalone build/consumer results. All planned slices are complete. No additional
+external tool or provider change was required. Follow-up priorities are scalar
+report-local grouping/totals, JSON serialization sizing, configuration deletion/
+sorted output, structural-array distinctness, and profiling measured Debug costs.

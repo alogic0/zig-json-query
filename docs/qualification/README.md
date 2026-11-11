@@ -93,5 +93,46 @@ Constant suffix matching and scalar schema-key unions already translate through
 regex and grouping/sorting. Helpers could shorten those queries, while the five
 listed gaps require additional capabilities.
 
-Standalone-source and expanded-consumer evidence will be added after the
-separate packaging slice is verified.
+## Standalone source and consumer
+
+[package-evidence.json](package-evidence.json) records the qualified 368,248-byte
+source snapshot, archive/compiler/binary hashes, normalized commands and results.
+Its archive SHA-256 is
+`0412226d66bb709c641fc3e019b9b843eb005a0759785dcc882d2831766e0a08`;
+an unchanged rebuild produced identical bytes. Caches/build outputs were excluded.
+The archive was produced before its result documents, so it is a qualification
+snapshot; later changes are test-readme/qualification documentation. All code,
+consumer main and corpus fingerprints match the recorded code checkpoint.
+
+A fresh extraction outside the checkout passed 147/147 tests, built jqz 0.12.0,
+and replayed all 41 corpus checks (56 one-repetition smoke samples). Source/corpus
+hashes match the measured checkout. All three bundled dependency checksums pass.
+A sibling independent consumer, copied from the archive with only its dependency
+path adjusted, passed 4/4 tests using its own empty caches. These exercise buffer
+ownership, named feeds, slurp retention, quantifiers, decimal statistics and
+predicate status through the public API. Each Debug executable hash is recorded
+separately; build paths can affect binary bytes.
+
+To reproduce, extract a freshly built archive into a temporary `source` directory,
+copy `tests/package` into a sibling `consumer`, and change only its `json_query`
+dependency path from `../..` to `../source`. Initialize those temporary projects
+independently if using Git. Use fresh local/global caches per project and an
+initially absent local package directory:
+
+```sh
+# From the extracted source; SOURCE_GLOBAL/SOURCE_LOCAL are fresh absolute paths.
+ZIG_GLOBAL_CACHE_DIR="$SOURCE_GLOBAL" ZIG_LOCAL_PKG_DIR=zig-pkg \
+  zig build test --summary all --cache-dir "$SOURCE_LOCAL"
+ZIG_GLOBAL_CACHE_DIR="$SOURCE_GLOBAL" ZIG_LOCAL_PKG_DIR=zig-pkg \
+  zig build --cache-dir "$SOURCE_LOCAL"
+ZIG_GLOBAL_CACHE_DIR="$SOURCE_GLOBAL" ZIG_LOCAL_PKG_DIR=zig-pkg \
+  zig build qualify --cache-dir "$SOURCE_LOCAL" -- --repeat 1 --out replay.json
+
+# From the separate consumer, with a different fresh cache pair.
+ZIG_GLOBAL_CACHE_DIR="$CONSUMER_GLOBAL" ZIG_LOCAL_PKG_DIR=zig-pkg \
+  zig build test --summary all --cache-dir "$CONSUMER_LOCAL"
+```
+
+This Zig 0.17.0 installation rejects `zig build --global-cache-dir`; the global
+cache is selected through the environment. Its package-cache override must stay
+relative. Native Debug is the only build mode used for this qualification.
