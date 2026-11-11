@@ -285,3 +285,27 @@ with a late inversion. Ordinary repeated-schema full evaluation is 19.585 ms.
 This establishes the full-pipeline regression control before evaluating a
 validated sorted-input shortcut. The predeclared 20% targeted sort-time gate
 and 10% plus 0.5 ms full-pipeline regression investigation gate still apply.
+
+Sorted-input guard rejected: the
+[3,072-interval experiment](../profiling/2026-11-11-sort-guard-rejected.json)
+reduces repeated-schema sort from 7.201 to 1.135 ms, but a late inversion costs
+25.634 ms full pipeline versus 22.062 ms reference (16% and 3.572 ms higher).
+The extra prefix scan fails the full-query gate. The
+[rejected patch](../profiling/experiments/sort-guard.patch) applies to `7d1c521`;
+the production sorter has been restored before continuing.
+
+Comparator reference fix, 0.26.1: the
+[3,072-interval baseline](../profiling/2026-11-11-comparison-baseline.json)
+freezes the 0.22.0 comparator as well as stable block sort. Production comparison
+is unchanged; all 220 native Debug checks pass. Reference/current repeated sort
+medians are 7.022/6.638 ms, full-sort 19.107/19.444 ms; late-inversion full-sort
+is 22.051/21.838 ms. The small implementation/context difference is recorded
+before the next candidate, with equivalent paired controls.
+
+Next bounded sort candidate: keep stable block sort and avoid redundant type-rank
+mapping when two validated values already have the same union tag. Cross-type
+ordering keeps explicit JSON ranks; numeric, container and stable-equality
+semantics remain unchanged. This introduces no extra row scan. Apply the same
+20% targeted sort-time gate and full-pipeline time/peak regression gates, using
+the frozen comparator for the reference sorter. Record this candidate before
+changing production comparison.

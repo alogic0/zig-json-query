@@ -5,6 +5,7 @@ const engine = @import("profile_engine");
 const M = @import("study_support.zig");
 const generated = @import("fixtures.zig");
 const structural = @import("structural_study.zig");
+const frozen = @import("reference_json_compare.zig");
 const A = std.mem.Allocator;
 const Io = std.Io;
 const Value = std.json.Value;
@@ -21,7 +22,7 @@ fn referenceStorage(a: A, count: usize) !std.json.Array {
 fn referenceSort(rows: []engine.RowOps.Row) void {
     std.sort.block(engine.RowOps.Row, rows, {}, struct {
         fn less(_: void, a: engine.RowOps.Row, b: engine.RowOps.Row) bool {
-            return engine.JsonOrder.compare(a.key, b.key) == .lt;
+            return frozen.compare(a.key, b.key) == .lt;
         }
     }.less);
 }
@@ -158,7 +159,7 @@ fn output(a: A, bytes: []const u8, program: *const engine.Program) ![]const u8 {
 pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
     const a = init.arena.allocator();
     const args = try init.minimal.args.toSlice(a);
-    var guard = try M.Run.init(a, init.io, args[0], &.{ "tools/collection_study.zig", "tools/structural_study.zig" });
+    var guard = try M.Run.init(a, init.io, args[0], &.{ "tools/collection_study.zig", "tools/reference_json_compare.zig", "tools/structural_study.zig" });
     const cases = [_]Case{
         .{ .id = "repeated-schema", .bytes = try generated.generate(a, .backend, 10000), .schemas = true, .source = "map(.fixtures,keys(.))", .query = "unique(map(.fixtures,keys(.)))" },
         .{ .id = "all-distinct", .bytes = try structural.variation(a, .distinct), .schemas = true, .source = "map(.fixtures,keys(.))", .query = "unique(map(.fixtures,keys(.)))" },
