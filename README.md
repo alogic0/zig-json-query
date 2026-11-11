@@ -616,6 +616,11 @@ separates depth/scanner experiments, standard DOM allocation traffic and matched
 full-parser controls. Scanner experiments overlap full parsing; they are not
 additive timings or duplicate-key validation. Logical token/container requests
 are reported separately from backing arena capacity.
+`zig build profile -- --study invocation --repeat 10 --out .zig-cache/invocation.json`
+compares native Debug launch controls, repeated processes, multi-file/NDJSON
+batching and compiled-Program reuse. An optional `--reference-cli PATH` pins an
+older CLI for the null-query control. Child memory is unavailable in these
+supervised intervals and is reported as null rather than zero.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 

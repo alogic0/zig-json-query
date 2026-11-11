@@ -117,6 +117,14 @@ pub fn build(b: *std.Build) void {
     tests.dependOn(&run_qualification_tests.step);
 
     const profile_options = b.addOptions();
+    for ([_]bool{ false, true }) |echo| {
+        const launch_options = b.addOptions();
+        launch_options.addOption(bool, "echo", echo);
+        const launch_module = b.createModule(.{ .root_source_file = b.path("tools/launch_fixture.zig"), .target = b.graph.host, .optimize = optimize });
+        launch_module.addOptions("launch_options", launch_options);
+        const launch_fixture = b.addExecutable(.{ .name = if (echo) "profile-echo" else "profile-exit", .root_module = launch_module });
+        profile_options.addOptionPath(if (echo) "echo_probe" else "exit_probe", launch_fixture.getEmittedBin());
+    }
     profile_options.addOptionPath("exe", exe.getEmittedBin());
     profile_options.addOption([]const u8, "version", @import("build.zig.zon").version);
     profile_options.addOption([]const u8, "compiler", b.graph.zig_exe);
@@ -150,8 +158,8 @@ pub fn build(b: *std.Build) void {
     });
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.19.1.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.20.0.tar.gz");
     archive.addArgs(&.{ "build.zig", "build.zig.zon", ".zigversion", ".gitignore", "AGENTS.md", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" });
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.19.1.tar.gz");
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.20.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

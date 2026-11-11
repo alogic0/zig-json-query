@@ -126,7 +126,7 @@ fn measure(report_a: A, backing: A, io: Io, id: []const u8, bytes: []const u8, e
         },
     }
     record.memory = meter.end(before);
-    if (record.memory.end_live_bytes != 0) return error.StudyAllocationLeak;
+    if (record.memory.?.end_live_bytes != 0) return error.StudyAllocationLeak;
     return record;
 }
 

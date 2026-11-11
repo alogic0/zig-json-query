@@ -12,13 +12,13 @@ pub const Record = struct {
     variant: []const u8,
     iteration: usize,
     elapsed_ns: u64,
-    memory: Meter.Delta,
+    memory: ?Meter.Delta,
     logical: ?Meter.Counters = null,
     token_traffic: ?Traffic = null,
 };
 pub const Hash = struct { path: []const u8, sha256: []const u8 };
 pub const Stats = struct { min: u64, median: u64, max: u64 };
-const Summary = struct { case: []const u8, variant: []const u8, samples: usize, wall_ns: Stats, allocations: Stats, requested_bytes: Stats, peak_live_bytes: Stats };
+const Summary = struct { case: []const u8, variant: []const u8, samples: usize, wall_ns: Stats, allocations: ?Stats, requested_bytes: ?Stats, peak_live_bytes: ?Stats };
 pub const Run = struct {
     a: A,
     io: Io,
@@ -59,11 +59,13 @@ pub const Run = struct {
             var peaks: std.ArrayList(u64) = .empty;
             for (records) |item| if (same(record, item)) {
                 try times.append(self.a, item.elapsed_ns);
-                try allocations.append(self.a, item.memory.allocations);
-                try requested.append(self.a, item.memory.requested_bytes);
-                try peaks.append(self.a, item.memory.peak_live_bytes);
+                if (item.memory) |memory| {
+                    try allocations.append(self.a, memory.allocations);
+                    try requested.append(self.a, memory.requested_bytes);
+                    try peaks.append(self.a, memory.peak_live_bytes);
+                }
             };
-            try summaries.append(self.a, .{ .case = record.case, .variant = record.variant, .samples = times.items.len, .wall_ns = try stats(self.a, times.items), .allocations = try stats(self.a, allocations.items), .requested_bytes = try stats(self.a, requested.items), .peak_live_bytes = try stats(self.a, peaks.items) });
+            try summaries.append(self.a, .{ .case = record.case, .variant = record.variant, .samples = times.items.len, .wall_ns = try stats(self.a, times.items), .allocations = if (allocations.items.len != 0) try stats(self.a, allocations.items) else null, .requested_bytes = if (requested.items.len != 0) try stats(self.a, requested.items) else null, .peak_live_bytes = if (peaks.items.len != 0) try stats(self.a, peaks.items) else null });
         }
         var json = Io.Writer.Allocating.init(self.a);
         try std.json.Stringify.value(.{

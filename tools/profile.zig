@@ -38,18 +38,20 @@ pub fn main(init: std.process.Init) !void {
     var repeats: usize = 10;
     var out: ?[]const u8 = null;
     var study: ?[]const u8 = null;
+    var reference_cli: ?[]const u8 = null;
     var index: usize = 1;
     while (index < args.len) : (index += 2) {
         if (std.mem.eql(u8, args[index], "--help")) {
-            std.debug.print("profile [--study parser] [--repeat N] [--out FILE]\n", .{});
+            std.debug.print("profile [--study parser|invocation] [--reference-cli PATH] [--repeat N] [--out FILE]\n", .{});
             return;
         }
         if (index + 1 == args.len) return error.MissingOptionValue;
-        if (std.mem.eql(u8, args[index], "--repeat")) repeats = try std.fmt.parseInt(usize, args[index + 1], 10) else if (std.mem.eql(u8, args[index], "--out")) out = args[index + 1] else if (std.mem.eql(u8, args[index], "--study")) study = args[index + 1] else return error.UnknownOption;
+        if (std.mem.eql(u8, args[index], "--repeat")) repeats = try std.fmt.parseInt(usize, args[index + 1], 10) else if (std.mem.eql(u8, args[index], "--out")) out = args[index + 1] else if (std.mem.eql(u8, args[index], "--study")) study = args[index + 1] else if (std.mem.eql(u8, args[index], "--reference-cli")) reference_cli = args[index + 1] else return error.UnknownOption;
     }
     if (repeats < 1 or repeats > 100) return error.InvalidRepetitionCount;
     if (study) |kind| {
         if (std.mem.eql(u8, kind, "parser")) return @import("parser_study.zig").run(init, repeats, out);
+        if (std.mem.eql(u8, kind, "invocation")) return @import("invocation_study.zig").run(init, repeats, out, reference_cli);
         return error.UnknownStudy;
     }
     var hashes: std.ArrayList(Hash) = .empty;
@@ -314,4 +316,5 @@ test "profile summaries and shared fixture cardinalities are checked" {
 test {
     _ = @import("parser_study.zig");
     _ = @import("study_support.zig");
+    _ = @import("invocation_study.zig");
 }

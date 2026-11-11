@@ -106,7 +106,7 @@ and runtime optimizations are separate commits.
      allocation-failure checks for changed ownership paths.
    - Run matched before/after measurements, retain only a passing candidate,
      execute the functional checks and commit the accepted runtime change.
-4. [ ] Add controlled invocation-overhead measurements:
+4. [x] Add controlled invocation-overhead measurements:
    - Build minimal Zig exit and matched stdin/stdout baseline executables with
      the same compiler, mode and initialization conventions as jqz. Launch them,
      `jqz --version` and the null query through the same supervision/capture path.
@@ -230,3 +230,18 @@ checks cover malformed/UTF-8/duplicate errors and locations, small/indexed maps,
 exact tokens, retained caller buffers and allocation failures including the
 large-document region branch. The 45-case corpus smoke passes all 30 observed
 translations and ten probes. Source hashes match the accepted measurement.
+
+Slice 4, 0.20.0: [invocation evidence](../profiling/2026-11-11-invocation.json)
+has 110 checked samples, native Debug empty/echo binaries, current/version/null
+controls and the pinned original 0.18.1 CLI. Empty/echo medians are 6.106/6.079 ms;
+current null is 8.309 ms, its same-binary control 8.324 ms and original null
+8.276 ms. These bound combined process/runtime/supervision costs; they do not
+isolate loader time or identify a safe startup-code change, so none was made.
+
+Sixteen equivalent report projections take 135.828 ms across separate processes,
+11.544 ms with multiple files, 11.482 ms as NDJSON, 3.887 ms with one compiled
+Program and separate sessions, or 3.144 ms with one reused session. All outputs
+and statuses match; in-process cleanup reaches zero live requests. The projection
+has no aggregate/early-stop ambiguity. Child allocator/RSS metrics are null;
+in-process requests are measured. Build and 205 project checks pass. The existing
+batch/reuse interfaces address the measured cost without a new daemon/API.
