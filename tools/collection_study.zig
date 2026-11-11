@@ -93,7 +93,25 @@ fn components(comptime current: bool, report_a: A, backing: A, io: Io, case: Cas
     if (meter.counters.live_bytes != 0) return error.StudyAllocationLeak;
 }
 
-fn actual(report_a: A, backing: A, io: Io, case: Case, input: Value, program: *const engine.Program, expected: []const u8, variant: Variant, phase: []const u8, iteration: usize, records: *std.ArrayList(M.Record)) !void {
+// Full sort controls use actual source evaluation and current storage on both
+// sides, freezing only the sorter. Path setup on a successful outer unique node
+// is omitted; the separately timed ordinary evaluator retains that boundary.
+fn fullSort(a: A, evaluator: *engine.Evaluator, source_node: anytype, input: Value, current: bool) !Value {
+    const source = try evaluator.evalRequired(a, source_node, input);
+    const rows = try a.alloc(engine.RowOps.Row, source.array.items.len);
+    for (source.array.items, 0..) |item, index| {
+        _ = try evaluator.equal(item, item, 0, 0);
+        rows[index] = .{ .value = item, .key = try engine.JsonOrder.ordered(a, item) };
+    }
+    if (current) engine.RowOps.sortStructural(rows) else referenceSort(rows);
+    const selected = engine.RowOps.distinct(rows);
+    var result = std.json.Array.init(a);
+    try result.ensureTotalCapacity(selected.len);
+    for (selected) |row| result.appendAssumeCapacity(row.value);
+    return .{ .array = result };
+}
+
+fn actual(report_a: A, backing: A, io: Io, case: Case, input: Value, program: *const engine.Program, expected: []const u8, variant: Variant, phase: []const u8, sort_override: ?bool, iteration: usize, records: *std.ArrayList(M.Record)) !void {
     var meter: M.Meter = .{ .backing = backing };
     var arena = std.heap.ArenaAllocator.init(meter.allocator());
     var live = true;
@@ -103,7 +121,7 @@ fn actual(report_a: A, backing: A, io: Io, case: Case, input: Value, program: *c
     var evaluator: engine.Evaluator = .{ .patterns = program.patterns, .diagnostic = &diagnostic, .path = .root() };
     const before = meter.begin();
     const start = Io.Clock.awake.now(io);
-    const value = try evaluator.evalRequired(logical.allocator(), program.stages[0].expression, input);
+    const value = if (sort_override) |current| try fullSort(logical.allocator(), &evaluator, program.stages[0].expression, input, current) else try evaluator.evalRequired(logical.allocator(), program.stages[0].expression, input);
     const duration = M.elapsed(start, io);
     try verify(report_a, value, expected);
     const requests = logical.counters;
@@ -115,11 +133,17 @@ fn actual(report_a: A, backing: A, io: Io, case: Case, input: Value, program: *c
 
 fn measure(report_a: A, backing: A, io: Io, case: Case, input: Value, source_program: *const engine.Program, program: *const engine.Program, expected_source: []const u8, expected: []const u8, variant: Variant, iteration: usize, records: *std.ArrayList(M.Record)) !void {
     switch (variant) {
-        .reference, .control => try components(false, report_a, backing, io, case, input, expected_source, expected, variant, iteration, records),
-        .current, .current_control => try components(true, report_a, backing, io, case, input, expected_source, expected, variant, iteration, records),
+        .reference, .control => {
+            try components(false, report_a, backing, io, case, input, expected_source, expected, variant, iteration, records);
+            try actual(report_a, backing, io, case, input, source_program, expected, variant, "full-sort", false, iteration, records);
+        },
+        .current, .current_control => {
+            try components(true, report_a, backing, io, case, input, expected_source, expected, variant, iteration, records);
+            try actual(report_a, backing, io, case, input, source_program, expected, variant, "full-sort", true, iteration, records);
+        },
         .actual, .actual_control => {
-            try actual(report_a, backing, io, case, input, source_program, expected_source, variant, "source", iteration, records);
-            try actual(report_a, backing, io, case, input, program, expected, variant, "full", iteration, records);
+            try actual(report_a, backing, io, case, input, source_program, expected_source, variant, "source", null, iteration, records);
+            try actual(report_a, backing, io, case, input, program, expected, variant, "full", null, iteration, records);
         },
     }
 }
@@ -163,19 +187,19 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
         for (std.enums.values(Variant)) |variant| try measure(a, init.gpa, init.io, case, parsed.value, &source_program, &program, source_expected, expected, variant, 0, &warm);
         for (0..repeat) |iteration| for (0..std.enums.values(Variant).len) |step| try measure(a, init.gpa, init.io, case, parsed.value, &source_program, &program, source_expected, expected, M.balancedVariant(Variant, iteration, step), iteration, &records);
     }
-    try guard.publish("collections", repeat, "One warm-up; six-variant sequences balance positions and directed predecessors per six repetitions. reference/control component models freeze 0.22.0 keys/map reservation and stable block sorting; current/current_control use production storage/sort helpers. All models share validated canonical keys, stable distinct compaction and existing result reservation. Actual source/full evaluator intervals run in separate fresh arenas with paired controls. Component models omit AST/path traversal: their times are not substituted for actual full-query times, and intervals are not summed. Inputs parsed, ASTs compiled and ordinary outputs captured before measurement. Every model source/result and actual output matches public execution bytes. Encoding/checks/cleanup excluded from actual timers; component gaps include report work outside phase timers. Logical request deltas are above the temporary region, backing peaks include earlier live phases and cleanup reaches zero. Parse cost is outside these intervals; matched public CLI evidence covers complete invocations.", records.items, .{ .checks = checks.items }, out);
+    try guard.publish("collections", repeat, "One warm-up; six-variant sequences balance positions and directed predecessors per six repetitions. reference/control component models freeze 0.22.0 keys/map reservation and stable block sorting; current/current_control use production storage/sort helpers. All models share validated canonical keys, stable distinct compaction and existing result reservation. Paired full-sort controls use actual source evaluation and current storage on both sides, freezing only the sorter; successful outer unique path setup is omitted. Actual source/full evaluator intervals retain ordinary boundaries in separate fresh arenas. Component models omit AST/path traversal: their times are not substituted for actual full-query times, and intervals are not summed. Inputs parsed, ASTs compiled and ordinary outputs captured before measurement. Every model source/result and actual output matches public execution bytes. Encoding/checks/cleanup excluded from whole-query timers; component gaps include report work outside phase timers. Logical request deltas are above the temporary region, backing peaks include earlier live phases and cleanup reaches zero. Parse cost is outside these intervals; matched public CLI evidence covers complete invocations.", records.items, .{ .checks = checks.items }, out);
 }
 
 fn variation(a: A, kind: enum { sorted, reverse, late }) ![]const u8 {
     var writer = Io.Writer.Allocating.init(a);
     defer writer.deinit();
     try writer.writer.writeAll("{\"items\":[");
-    for (0..1024) |index| {
+    for (0..10000) |index| {
         if (index != 0) try writer.writer.writeByte(',');
         const value = switch (kind) {
             .sorted => index,
-            .reverse => 1023 - index,
-            .late => if (index == 1022) @as(usize, 1023) else if (index == 1023) @as(usize, 1022) else index,
+            .reverse => 9999 - index,
+            .late => if (index == 9998) @as(usize, 9999) else if (index == 9999) @as(usize, 9998) else index,
         };
         try writer.writer.print("{d}", .{value});
     }
@@ -203,6 +227,6 @@ test "collection components and actual evaluator preserve Unicode schemas and st
         defer program.deinit();
         var records: std.ArrayList(M.Record) = .empty;
         for (std.enums.values(Variant)) |variant| try measure(report.allocator(), t.allocator, t.io, case, parsed.value, &source_program, &program, source_expected, expected, variant, 0, &records);
-        for (records.items) |record| if (std.mem.endsWith(u8, record.variant, "/release") or std.mem.startsWith(u8, record.variant, "actual")) try t.expectEqual(@as(u64, 0), record.memory.?.end_live_bytes);
+        for (records.items) |record| if (std.mem.endsWith(u8, record.variant, "/release") or std.mem.endsWith(u8, record.variant, "/full-sort") or std.mem.startsWith(u8, record.variant, "actual")) try t.expectEqual(@as(u64, 0), record.memory.?.end_live_bytes);
     }
 }

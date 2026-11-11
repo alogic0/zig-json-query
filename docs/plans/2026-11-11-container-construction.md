@@ -269,3 +269,19 @@ Unicode object-key and identity-map results fit exactly their required value
 storage, including empty outputs. Existing path/type, retention, budget and
 allocation-failure checks remain unchanged and pass. Sorting is still the
 original stable block sorter; its candidate is a separate runtime slice.
+
+Sort controls, 0.26.0: the
+[3,072-interval baseline](../profiling/2026-11-11-collections-sort-baseline.json)
+adds paired whole-pipeline sorter controls with actual source evaluation and
+current storage on both sides. Only the sorter differs; ordinary full evaluator
+intervals remain separate because successful outer `unique` path setup is omitted
+from the controls. Sorted/reverse/late-inversion inputs now contain 10,000 values
+and record new hashes/cardinalities; earlier 1,024-value observations remain
+historical. Native Debug build and all 220 checks pass.
+
+Unchanged full-sort reference/current medians are 19.315/19.209 ms on repeated
+schemas, 21.200/21.256 ms sorted, 30.999/30.933 ms reverse and 21.204/21.088 ms
+with a late inversion. Ordinary repeated-schema full evaluation is 19.585 ms.
+This establishes the full-pipeline regression control before evaluating a
+validated sorted-input shortcut. The predeclared 20% targeted sort-time gate
+and 10% plus 0.5 ms full-pipeline regression investigation gate still apply.
