@@ -3,6 +3,6 @@ const std = @import("std");
 
 pub inline fn init(allocator: std.mem.Allocator, count: usize) !std.json.Array {
     var array = std.json.Array.init(allocator);
-    try array.ensureTotalCapacity(count);
+    try array.ensureTotalCapacityPrecise(count);
     return array;
 }

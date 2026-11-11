@@ -252,3 +252,20 @@ First evaluate exact reservation for `keys` and `map`, then evaluate the sort
 shortcut separately. Native Debug build and all 219 checks pass. Matched public
 CLI support now also includes backend key-array materialization/schema uniqueness
 and balances large-process predecessor pairs before runtime changes.
+
+Known-size storage, 0.25.1: `keys` and `map` now reserve their exact final value
+count through the shared helper. The [matched storage comparison](../profiling/2026-11-11-collections-storage.json)
+has 2,688 checked intervals. Repeated-schema source requests fall from 3,640,112
+to 1,680,000 logical bytes (54% less), and source backing peak from 6,002,172 to
+2,109,224 bytes. Later row allocation grows a fresh arena region: full pipeline
+peak is 5,687,684 versus 6,002,172 bytes, a smaller 5% reduction rather than the
+source-only 65%. All-distinct full peak falls from 771,094 to 575,962 bytes;
+nonmaterializing distributions keep their peaks. The allocation gate passes.
+Reference/current model source medians are 6.057/4.798 ms; actual source/full
+medians are 9.111/18.934 ms and remain separately labeled.
+
+Native Debug build and all 220 checks pass. A constrained allocator proves
+Unicode object-key and identity-map results fit exactly their required value
+storage, including empty outputs. Existing path/type, retention, budget and
+allocation-failure checks remain unchanged and pass. Sorting is still the
+original stable block sorter; its candidate is a separate runtime slice.

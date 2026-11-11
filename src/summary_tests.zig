@@ -2,6 +2,29 @@ const std = @import("std");
 const query = @import("root.zig");
 const t = std.testing;
 
+test "known-size keys and map results fit their exact value-storage budget" {
+    const cases = [_]struct { source: []const u8, input: []const u8, count: usize, expected: []const u8 }{
+        .{ .source = "keys(.)", .input = "{\"é\":0,\"a\":1,\"Z\":2}", .count = 3, .expected = "[\"Z\",\"a\",\"é\"]" },
+        .{ .source = "map(.,.)", .input = "[false,{},[],1.00,null,\"é\"]", .count = 6, .expected = "[false,{},[],1.00,null,\"é\"]" },
+        .{ .source = "keys(.)", .input = "{}", .count = 0, .expected = "[]" },
+        .{ .source = "map(.,.)", .input = "[]", .count = 0, .expected = "[]" },
+    };
+    for (cases) |case| {
+        var diagnostic: query.Diagnostic = .{};
+        var program = try query.Program.compile(t.allocator, case.source, &diagnostic);
+        defer program.deinit();
+        const parsed = try std.json.parseFromSlice(std.json.Value, t.allocator, case.input, .{ .parse_numbers = false });
+        defer parsed.deinit();
+        var storage: [6]std.json.Value = undefined;
+        var bounded = std.heap.FixedBufferAllocator.init(std.mem.sliceAsBytes(storage[0..case.count]));
+        var evaluator: @import("evaluator.zig").Evaluator = .{ .patterns = program.patterns, .diagnostic = &diagnostic, .path = .root() };
+        const result = try evaluator.evalRequired(bounded.allocator(), program.stages[0].expression, parsed.value);
+        const text = try std.json.Stringify.valueAlloc(t.allocator, result, .{});
+        defer t.allocator.free(text);
+        try t.expectEqualStrings(case.expected, text);
+    }
+}
+
 fn expectOutput(source: []const u8, input: []const u8, expected: []const u8) !void {
     var diagnostic: query.Diagnostic = .{};
     var program = try query.Program.compile(t.allocator, source, &diagnostic);

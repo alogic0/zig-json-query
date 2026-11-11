@@ -256,6 +256,9 @@ Parsed arena owner receives the caller allocator through an explicit source
 adapter; no allocator is recovered from Scanner internals. Profiling separates
 temporary/scanner traffic, logical arena requests and backing totals. Observation
 points specialize away in ordinary execution.
+Query `keys` and `map` results reserve their known final value count exactly.
+Filtering retains its existing upper-bound reservation. This reduces temporary
+capacity without changing evaluation order, paths or retained-value budgets.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
 fuzz coverage and benchmark evidence. Routine validation uses native x86_64
 Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.
