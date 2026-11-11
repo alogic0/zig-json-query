@@ -1,0 +1,2 @@
+# Run with -s -e: one boolean gate over all collected reports.
+all(., .passed and .cleanup_passed)

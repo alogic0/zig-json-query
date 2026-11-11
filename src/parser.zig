@@ -23,7 +23,7 @@ pub const Key = union(enum) { field: []const u8, index: Index, slice: Slice };
 pub const Field = struct { name: []const u8, value: *const Node };
 pub const BoundValue = struct { name: []const u8, value: std.json.Value };
 pub const Transform = struct {
-    kind: enum { map, filter },
+    kind: enum { map, filter, all, any },
     array: *const Node,
     body: *const Node,
 };
@@ -371,7 +371,9 @@ pub const Parser = struct {
                 const keys = self.word("keys");
                 const mapping = self.word("map");
                 const filtering = self.word("filter");
-                if (!exists and !matches and !length and !keys and !mapping and !filtering) return self.fail(offset, "unknown expression; fields start with .");
+                const all = self.word("all");
+                const any = self.word("any");
+                if (!exists and !matches and !length and !keys and !mapping and !filtering and !all and !any) return self.fail(offset, "unknown expression; fields start with .");
                 try self.advance();
                 try self.expect(.lparen, "expected ( after function name");
                 const value = try self.expression(0);
@@ -379,11 +381,11 @@ pub const Parser = struct {
                     try self.expect(.rparen, "expected ) after function argument");
                     return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else .{ .keys = value }, value.height + 1);
                 }
-                if (mapping or filtering) {
-                    try self.expect(.comma, "map/filter expects an array and a per-element expression");
+                if (mapping or filtering or all or any) {
+                    try self.expect(.comma, "array function expects an array and a per-element expression");
                     const body = try self.expression(0);
                     try self.expect(.rparen, "expected ) after per-element expression");
-                    return self.make(offset, .{ .transform = .{ .kind = if (mapping) .map else .filter, .array = value, .body = body } }, @max(value.height, body.height) + 1);
+                    return self.make(offset, .{ .transform = .{ .kind = if (mapping) .map else if (filtering) .filter else if (all) .all else .any, .array = value, .body = body } }, @max(value.height, body.height) + 1);
                 }
                 try self.expect(.comma, "matches expects a value and a constant JSON string pattern");
                 if (self.token.tag != .string) return self.fail(self.token.start, "regex pattern must be a constant JSON string");

@@ -161,6 +161,7 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `keys(.)` | Sorted object names, or ascending array indexes |
 | `map(.items, {name, id})` | One ordered array of results, evaluating the body with each item as `.` |
 | `filter(.items, .code != 0)` | One ordered array of original items whose boolean predicate is true |
+| `all(.checks, .ok)`, `any(.checks, .ok)` | One boolean; short-circuiting quantified predicates |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Equality and ordering comparisons |
 | `and`, `or`, `not` | Strict boolean logic; `and` and `or` short circuit |
 | `+`, `-`, `*`, `/`, `%`, unary `-` | Checked exact signed 128-bit integer arithmetic |
@@ -227,6 +228,19 @@ explicit. Arrays are materialized within the current expression stage; `each`
 explicitly expands an array into a stream. There is no outer-scope variable
 binding inside a body. `map`/`filter` are language functions, not jq-compatible
 generator expressions; pipes still separate top-level stages.
+
+`all(array, predicate)` and `any(array, predicate)` bind items in the same way.
+`all` stops at the first false predicate and `any` at the first true one; later
+predicates are skipped. Evaluated predicates require booleans. Empty `all` is
+true and empty `any` is false. They return a boolean without another array.
+To require every report to pass, run:
+
+```sh
+./zig-out/bin/jqz -s -e -f examples/qualify-reports.query examples/acceptance-passed.json
+```
+
+The query file contains `all(., .passed and .cleanup_passed)`; adding a failed
+report makes the gate print false and exit 1.
 
 Important semantic choices:
 

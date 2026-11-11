@@ -198,9 +198,9 @@ pub const Evaluator = struct {
             },
             .transform => |transform| blk: {
                 const source = try self.evalRequired(allocator, transform.array, input);
-                if (source != .array) return self.typeFailure(node, transform.array, "map/filter expects an array");
+                if (source != .array) return self.typeFailure(node, transform.array, "array function expects an array");
                 var result = std.json.Array.init(allocator);
-                try result.ensureTotalCapacity(source.array.items.len);
+                if (transform.kind == .map or transform.kind == .filter) try result.ensureTotalCapacity(source.array.items.len);
                 const caller_path = self.path;
                 defer self.path = caller_path;
                 const array_path = self.pathFor(transform.array);
@@ -212,9 +212,15 @@ pub const Evaluator = struct {
                         .filter => if (try self.booleanAt(try self.eval(allocator, transform.body, item), transform.body)) {
                             result.appendAssumeCapacity(item);
                         },
+                        .all => if (!try self.booleanAt(try self.eval(allocator, transform.body, item), transform.body)) break :blk Value{ .bool = false },
+                        .any => if (try self.booleanAt(try self.eval(allocator, transform.body, item), transform.body)) break :blk Value{ .bool = true },
                     }
                 }
-                break :blk Value{ .array = result };
+                break :blk switch (transform.kind) {
+                    .all => Value{ .bool = true },
+                    .any => Value{ .bool = false },
+                    .map, .filter => Value{ .array = result },
+                };
             },
             .matches => |match| blk: {
                 const value = try self.evalRequired(allocator, match.value, input);

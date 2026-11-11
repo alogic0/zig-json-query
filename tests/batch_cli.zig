@@ -120,3 +120,16 @@ test "CLI slurp evaluates one ordered array and has no unique filename" {
     try check(&.{ "-s", "." }, "", 2, "", "UnexpectedEndOfInput");
     try check(&.{ "-s", "-e", "length(.) > 2", a, b }, "", 1, "false\n", null);
 }
+
+test "CLI quantified predicates gate all reports with typed expectations" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const a = try files.write("passed.json", "{\"passed\":true,\"cleanup_passed\":true}");
+    const b = try files.write("failed.json", "{\"passed\":false,\"cleanup_passed\":true}");
+    try check(&.{ "-s", "-e", "all(., .passed and .cleanup_passed)", a, b }, "", 1, "false\n", null);
+    try check(&.{ "-s", "-e", "any(., .passed)", a, b }, "", 0, "true\n", null);
+    try check(&.{ "-s", "--argjson", "expected", "true", "-e", "all(., .passed == $expected)", a }, "", 0, "true\n", null);
+    try check(&.{ "-s", "--ndjson", "-e", "all(., .ok)" }, "", 0, "true\n", null);
+    try check(&.{ "-s", "--ndjson", "-e", "any(., .ok)" }, "", 1, "false\n", null);
+    try check(&.{ "-e", "all(., .ok)" }, "[{}]", 2, "", "$[0][\"ok\"]");
+}

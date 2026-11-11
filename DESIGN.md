@@ -75,6 +75,12 @@ children stay valid until synchronous downstream consumers finish, and retaining
 stages clone them. These functions materialize arrays; their temporary allocation
 is separate from the retention budget and the input-size limit.
 
+`all(array, predicate)` and `any(array, predicate)` reuse the same item scopes
+and diagnostics, return a single boolean without allocating a result array, and
+stop at the first decisive result. Their empty identities are true/false,
+respectively. Only evaluated predicates must be boolean; short-circuited bodies
+are skipped while complete JSON input still follows the usual validation rule.
+
 Execution uses a persistent session spanning all input records. A projection
 produces one value, a filter passes or drops it, and `each` invokes downstream
 stages once per array element. `count` maintains a checked u64 counter; `collect`

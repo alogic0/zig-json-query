@@ -71,13 +71,13 @@ uses native x86_64 Linux Debug only.
 
 ### 4. Quantified predicates (0.10.0)
 
-- [ ] Add `all(array, predicate)` and `any(array, predicate)` with the item binding
+- [x] Add `all(array, predicate)` and `any(array, predicate)` with the item binding
   and source paths of `filter`. Evaluate the array once and predicates in order.
   Require booleans for evaluated predicates. Empty all is true; empty any false.
-- [ ] Short-circuit on the first false (all) or true (any). Skipped predicates
+- [x] Short-circuit on the first false (all) or true (any). Skipped predicates
   are not evaluated. Return one boolean without materializing another array.
   Restore surrounding scopes on success/failure, including nested quantifiers.
-- [ ] Test empty/nested/short-circuit/type/missing cases, diagnostics, external
+- [x] Test empty/nested/short-circuit/type/missing cases, diagnostics, external
   bindings, batch-report validation with `-e`, and parser/evaluator fuzz seeds.
 
 ### 5. Fractional timing statistics (0.11.0)
@@ -130,3 +130,8 @@ plan's cross-reference when finished.
   output/error precedence, slurp admission/poisoning, metadata and value lifetimes,
   and allocation-failure cleanup. Build, formatting and the batch-provenance
   example passed. The test fixture preserves sentinel-terminated path ownership.
+- 0.10.0: native Debug suite passed 133 tests (97 library, 32 CLI, 4 version
+  workflow), including nested/short-circuit scopes, item paths, typed arguments,
+  strict booleans and slurped multi-report gates. A scalar check uses a zero-byte
+  allocator to verify that quantifiers do not allocate result arrays. Expanded
+  fuzz seeds, formatting, build and the passing report-gate example succeeded.
