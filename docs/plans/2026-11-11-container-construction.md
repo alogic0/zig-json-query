@@ -1,6 +1,6 @@
 # Container construction and structural materialization
 
-Status: authorized implementation in progress, starting from jqz 0.22.0.
+Status: completed on 2026-11-11 in jqz 0.26.2; authorized on 2026-11-11.
 
 ## Objective and evidence
 
@@ -104,7 +104,7 @@ temporary file, use `git commit -F`, then remove it with plain `rm`.
      original field order, invalid exponent/depth rejection, diagnostics, retained
      collections and allocation failures. Record rejected candidates honestly.
      Commit verified instrumentation and each accepted runtime change separately.
-5. [ ] Complete native Debug build/tests and the separate-package consumer.
+5. [x] Complete native Debug build/tests and the separate-package consumer.
    Run all 45 frozen corpus cases with five timing repetitions and repeat the
    parser/structural studies and matched public CLI comparisons. Preserve all
    30 selected observed translations and ten intentional probes. Publish raw
@@ -193,12 +193,12 @@ gate applies to combined arena-plus-temporary array traffic, not arena traffic
 alone. The explicit bridge and accounting are committed before the next runtime
 candidate.
 
-Slice 3, 0.24.1: arrays buffer sixteen values on the stack. A prefix with
-allocating children selects temporary chunks, growing from sixteen to at most
-1,024 values per chunk, followed by one exact arena-owned array. All chunks are
-freed on success/failure. Nonallocating scalar/empty-container prefixes retain
-ordinary arena growth after the stack prefix; late allocating children remain
-correct and use that selected path. Small arrays need one exact final allocation.
+Slice 3, 0.24.1: arrays buffer sixteen values on the stack. Allocating children
+in that prefix or the first spill item select temporary chunks, growing from
+sixteen to at most 1,024 values per chunk, followed by one exact arena-owned array. All chunks are
+freed on success/failure. Otherwise arrays retain ordinary arena growth after
+the stack prefix; late allocating children remain correct and use that selected
+path. Small arrays need one exact final allocation.
 
 The [720-sample comparison](../profiling/2026-11-11-builder-optimized.json) passes
 the memory gate: backend array traffic is 1,120,000 arena bytes plus 1,146,048
@@ -359,3 +359,22 @@ backend 52.643/52.169 versus 51.750/51.554 ms). The 22% backing-peak and 52%
 combined array-traffic reductions are unchanged. Escaped-case medians differ by
 0.042/0.050 ms (the latter is 0.049857 ms), below the absolute investigation
 threshold; broad ranges are retained and no uniform parser time gain is claimed.
+
+Slice 5, final 0.26.2 verification: native Debug build and all 220 project checks
+execute and pass; eight separate-package consumer checks pass. The
+[full qualification](../qualification/2026-11-11-container-construction.json)
+preserves all 45 frozen cases, 30/30 selected observed translations and ten probes,
+with RSS available for all 340 timed samples. Final runs record 490 ordinary
+phase intervals plus ten launches, 1,440 builder samples, 490 original-parser
+experiments, 3,072 collection intervals, 800 original structural intervals and
+276 invocation samples. All outputs, source/tool fingerprints and cleanup checks
+pass. Corpus and historical raw evidence remain unchanged.
+
+The [completed report](../profiling/container-construction-2026-11-11.md) records
+the accepted 52% combined backend array-traffic / 22% parser-peak reductions and
+54% repeated-schema source-traffic reduction. Matched 0.22.0/current CLI ranges
+overlap, so no general latency gain is claimed. Four rejected patches apply to
+their recorded bases; stable block sort and the original comparator remain.
+No extra tools or build modes were needed. Temporary experiments were removed,
+the ignored 0.22.0 binary is retained, and links/diff checks pass. The final
+evidence/documentation commit keeps version 0.26.2.

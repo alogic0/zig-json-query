@@ -1,9 +1,10 @@
 # Native Debug phase profile
 
-The completed [0.22.0 performance report](performance-2026-11-11.md) records the
-accepted parser/structural improvements, controlled invocation comparisons,
-rejected experiments and final verification. Its linked raw runs are the latest
-evidence. The phase tables below preserve the original 0.18.1 baseline.
+The completed [0.26.2 container-construction report](container-construction-2026-11-11.md)
+records accepted parser/materialization memory reductions, rejected sorting
+experiments and final verification. Its linked raw runs are the latest evidence.
+The earlier [0.22.0 report](performance-2026-11-11.md) and the phase tables below
+preserve historical results; these tables are the original 0.18.1 baseline.
 
 [2026-11-11.json](2026-11-11.json) records jqz 0.18.1, Zig 0.17.0,
 x86_64-linux-gnu, CPU `znver4`, Linux `7.0.0-42-generic`. This completes the
