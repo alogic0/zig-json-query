@@ -309,3 +309,18 @@ semantics remain unchanged. This introduces no extra row scan. Apply the same
 20% targeted sort-time gate and full-pipeline time/peak regression gates, using
 the frozen comparator for the reference sorter. Record this candidate before
 changing production comparison.
+
+Same-tag rank bypass rejected: the
+[3,072-interval run](../profiling/2026-11-11-same-tag-rejected.json) has repeated
+sort medians 6.807/7.341 ms reference/control and 6.624/6.818 ms current/control.
+This does not meet the predeclared 20% target. The
+[patch](../profiling/experiments/same-tag-comparison.patch) applies to `0423521`;
+production comparison is restored. Avoiding rank mapping alone is not sufficient.
+
+Next bounded comparator candidate: compare primitive container children inline
+instead of recursively dispatching the complete JSON comparator for each string,
+number, boolean or null. Nested containers and cross-type children keep the
+existing recursive comparator. Keep stable block sort and the same 20% sort-time,
+full-pipeline regression and memory gates. No extra pass or comparison-key storage
+is introduced. This is the last bounded comparator experiment in this plan;
+preserve a negative conclusion if it does not justify a runtime change.

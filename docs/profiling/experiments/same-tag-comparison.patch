@@ -1,0 +1,16 @@
+diff --git a/src/json_order.zig b/src/json_order.zig
+index 5133dd8..c74aabb 100644
+--- a/src/json_order.zig
++++ b/src/json_order.zig
+@@ -96,8 +96,9 @@ fn rank(value: Value) u8 {
+ /// comparator cannot fail or allocate during sorting. Original values are kept
+ /// separately so equal representatives preserve their spelling and field order.
+ pub fn compare(a: Value, b: Value) std.math.Order {
+-    const types = std.math.order(rank(a), rank(b));
+-    if (types != .eq) return types;
++    // Same-kind values need only their payload comparison. Keep explicit ranks
++    // for cross-kind values rather than depending on std.json.Value tag order.
++    if (@as(std.meta.Tag(Value), a) != @as(std.meta.Tag(Value), b)) return std.math.order(rank(a), rank(b));
+     return switch (a) {
+         .null => .eq,
+         .bool => std.math.order(@intFromBool(a.bool), @intFromBool(b.bool)),
