@@ -60,7 +60,7 @@ process/file helpers; no jqz language additions are assumed by this plan.
    measure equivalent cases and persist raw/summary evidence. Validate comparison
    and measurement parsing with focused checks. Steps 1 and 2 form one verified
    feature slice (0.12.0), because fixtures and runner qualify each other.
-3. [ ] Extend the separate package consumer for bindings, named feeds, slurp,
+3. [x] Extend the separate package consumer for bindings, named feeds, slurp,
    predicates, decimal statistics and predicate status. Verify fresh source
    packaging and consumer execution with isolated caches in native Debug. Commit
    the verified consumer/test slice independently; bump a patch version only if
@@ -98,3 +98,16 @@ The runner pins/checks binaries, source and fixture hashes. Native Debug suite
 checks passed (147 total: 107 language/library, 33 CLI, 4 version workflow and
 3 qualification-runner checks); build and formatting passed. Data/provenance and
 performance limitations are in the corpus/report documents.
+
+Slice 3: four public-API consumer tests pass in the checkout and in a separate
+temporary project depending only on the extracted archive. A fresh source tree
+with empty local/global caches and an initially absent local `zig-pkg` passes
+147/147 tests, builds jqz 0.12.0 and replays all 41 corpus cases (56 smoke
+measurement samples). Source/corpus fingerprints match the measured checkout.
+The consumer uses a different empty cache pair and local package directory.
+All three bundled dependency checksums pass. Rebuilding the source archive
+unchanged reproduces SHA-256
+`0412226d66bb709c641fc3e019b9b843eb005a0759785dcc882d2831766e0a08`.
+Zig 0.17.0 uses `ZIG_GLOBAL_CACHE_DIR` for the global cache; its package-cache
+override must stay relative (`ZIG_LOCAL_PKG_DIR=zig-pkg`). Formatting passed.
+No production defect or runtime-version change was needed for this test slice.
