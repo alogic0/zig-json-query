@@ -1,7 +1,7 @@
 # Null-input CLI execution
 
-Status: implementation verified as jqz 0.28.0; committed-corpus replay and final
-evidence documentation are next.
+Status: complete. Implemented and qualified as jqz 0.28.0 in native x86_64 Linux
+Debug.
 
 ## Objective and contract
 
@@ -42,7 +42,7 @@ are needed; reuse anonymous `Stream.feed("null")` and normal completion.
    `zig build version`, use the pinned tool to set minor version 0.28.0 with major
    0 unchanged, and include all updated markers. Validate native x86_64 Linux
    Debug with `zig build`, CLI tests and the full suite; commit this slice.
-3. [ ] Run the frozen corpus once with the committed feature and preserve the
+3. [x] Run the frozen corpus once with the committed feature and preserve the
    generated evidence. Check the unchanged argument-record oracle and all case
    exits/output, zero adaptations, 70 samples and source/tool identity. Document
    current versus historical evidence and mark the plan complete in a final
@@ -71,5 +71,20 @@ The documented artifact-record query runs successfully with typed bindings and
 no data input. Version markers are synchronized at 0.28.0, formatting/diff checks
 pass, and an independent comparison confirms that every case's jq invocation,
 origin and frozen jqz expected result remain unchanged. The argument-only case
-now uses `-n` without files and is eligible for timing; the replay below will
-validate that changed invocation before any new qualification claim.
+now uses `-n` without files and is eligible for timing; the committed replay
+below validates that changed invocation.
+
+The committed feature snapshot is
+`301a0f5c7aa8f84ea272c5b7d8c40c9a7e074e35`. The
+[one-repetition replay](../qualification/2026-11-11-null-input.json), generated
+with `zig build qualify -- --repeat 1 --out zig-out/qualification/2026-11-11-null-input.json`,
+passes all 45 cases, all 30 observed translations and ten intentional probes.
+Both argument-record invocations are identical, use `-n` with no input files,
+exit zero and emit the same 71-byte output hash. The case is measured with an
+unchanged frozen oracle: zero invocation adaptations, 35 equivalent measured
+cases and 70 samples. Source and CLI hashes match, and the preserved JSON is a
+byte-identical copy of the generated report. Historical evidence is unchanged.
+Report SHA-256:
+`b20e5b1be472117d8576dd89db156108676e91da30977798a0d42f561378ec41`.
+No additional implementation steps remain; these one-repetition observations
+establish functionality without a new performance claim.

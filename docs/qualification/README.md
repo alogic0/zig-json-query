@@ -3,8 +3,11 @@
 The [initial implementation plan](../plans/2026-11-10-workload-qualification.md),
 [scalar-aggregate follow-up](../plans/2026-11-10-scalar-aggregates.md) and
 [remaining-workflow plan](../plans/2026-11-10-remaining-workflows.md) track these
-checkpoints. [The latest evidence](2026-11-11-container-construction.json) records
-jqz 0.26.2 versus installed jq 1.7 after the
+checkpoints. [The latest functional evidence](2026-11-11-null-input.json) records
+jqz 0.28.0 versus installed jq 1.7 after the
+[null-input plan](../plans/2026-11-11-null-input.md): one repetition, all 45 cases
+and no invocation adaptations. The earlier repeated-performance
+[0.26.2 evidence](2026-11-11-container-construction.json) follows the
 [container-construction plan](../plans/2026-11-11-container-construction.md), including
 queries/flags, source/fixture/binary hashes and raw measurements. The historical
 [0.22.0 evidence](2026-11-11-performance.json),
@@ -33,15 +36,22 @@ This qualification uses native x86_64 Linux Debug only.
 | Observed workflow cases | 30 |
 | Equivalent translated cases | 30, up from 27 in 0.14.0 and 25 in 0.12.0 |
 | Unsupported observed cases | 0 |
-| Invocation adaptations included above | 1: argument-only construction needs a null input document |
+| Invocation adaptations included above | 0: argument-only construction now uses `-n` in both tools |
 | Isolated supported components | 3, outside observed-case coverage |
 | Intentional semantic/exit probes | 10, all match their separate expectations |
 | Generated scale cases | 2, outside observed-case coverage |
-| Timed equivalent cases | 34 |
-| Samples | 340: 34 cases × 2 tools × 5 repetitions |
+| Timed equivalent cases | 35 |
+| Latest smoke samples | 70: 35 cases × 2 tools × 1 repetition |
 
 Every reference and candidate was preflighted against frozen expectations before
-timing. The null-input adaptation is not timed because input handling differs.
+timing. The argument-only case now uses identical `-n` invocations without input
+files; its query, expected output and observed-case identity are unchanged. Both
+tools produce the same 71-byte output and exit zero. The current replay comes
+from clean feature snapshot `301a0f5c7aa8f84ea272c5b7d8c40c9a7e074e35`, and its
+source/CLI hashes match the implementation. The previous null-file adaptation
+was excluded from the historical 34-case timing runs. This new one-repetition
+replay establishes functional equivalence; the earlier repeated measurements
+below remain the performance checkpoint.
 This is a deliberately chosen, unweighted sample: 30/30 is not a replacement rate for all
 session invocations or general jq. Window/component adaptations are recorded per
 case. Available private inputs were structurally inspected; missing backend
@@ -56,14 +66,15 @@ The three remaining gaps now pass their unchanged frozen jq expectations:
 sorted-output component checks compact bytes, including nested object-key order.
 The earlier embedded grouping/totals translations still pass.
 
-Native Debug build/tests pass: 220 project checks (158 language/library, 37 CLI,
-four version-workflow, three qualification-runner and eighteen profiler checks),
-plus eight separate-package consumer tests on 0.26.2. Changed checks ran before
-their commits; all 220 executed on the final version.
+Native Debug build/tests pass on 0.28.0: 233 project checks (158 language/library,
+42 CLI, four version-workflow, three qualification-runner, eighteen profiler and
+eight distribution-verifier checks). Five new CLI tests cover null-input
+bindings/provenance, open stdin, skipped data files, query files, output options,
+completion and predicate/error status. The artifact-record query example passes.
 These checks include retention ownership, Unicode sizing, immutable edits and
 structural sets. The standalone checkpoints below verify extraction and an
-independent consumer with fresh caches. The current automated 0.27.1 checkpoint
-adds eight verifier tests to those 220 checks; the historical 0.26.2 and 0.12.0
+independent consumer with fresh caches. The frozen automated 0.27.1 checkpoint
+has 228 source checks and eight consumer checks; the historical 0.26.2 and 0.12.0
 evidence remains unchanged.
 
 ## Behavior differences
@@ -109,9 +120,10 @@ was available for all 340 samples.
 
 For the last two cases, jqz wall-time ranges were 35.057–41.828 ms and
 64.794–70.917 ms; jq ranges were 13.647–19.569 ms and 23.544–31.866 ms.
-All 34 timed cases had higher jqz median wall time. The larger report had
-lower peak RSS in this run. Small cases are strongly affected by startup and process
-supervision/capture. Scale fixtures preserve shapes/cardinalities, not original
+In the historical 0.26.2 run, all 34 timed cases had higher jqz median wall time.
+The larger report had lower peak RSS in this run. Small cases are strongly
+affected by startup and process supervision/capture. Scale fixtures preserve
+shapes/cardinalities, not original
 payload bytes/distributions. Five repetitions, warm caches, Debug versus an
 installed distribution binary, and these selected jobs do not establish general
 performance advantages. The separate
