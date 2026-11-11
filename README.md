@@ -530,8 +530,11 @@ in [vendor/README.md](vendor/README.md). Test support uses its existing vendored
 `zig-process`. Provider source was not modified. Scripty was considered, but its
 host-defined field/call grammar does
 not supply this language's pipeline and operator grammar. The parser here is
-small and language-specific; JSON parsing comes from the installed standard
-library.
+small and language-specific. JSON tokenization and syntax validation use the
+installed standard-library Scanner. A complete-input value builder borrows plain
+token text, owns decoded escapes/containers in the parsed arena, and checks
+duplicate decoded keys. It buffers small objects before allocating their map
+once and uses a bounded 16 KiB arena reservation for documents at least 64 KiB.
 
 ## Library and checks
 

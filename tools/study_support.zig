@@ -28,7 +28,7 @@ pub const Run = struct {
     pub fn init(a: A, io: Io, executable: []const u8, extra_paths: []const []const u8) !Run {
         if (builtin.os.tag != .linux or builtin.mode != .debug) return error.NativeDebugProfilingRequired;
         var self: Run = .{ .a = a, .io = io };
-        for ([_][]const u8{ "build.zig", "build.zig.zon", "src/root.zig", "src/main.zig", "src/input.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/collection_budget.zig", "src/diagnostic.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/study_support.zig", "tools/fixtures.zig", "vendor/SHA256SUMS" }) |path| try self.source(path);
+        for ([_][]const u8{ "build.zig", "build.zig.zon", "src/root.zig", "src/main.zig", "src/input.zig", "src/value_builder.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/collection_budget.zig", "src/diagnostic.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/study_support.zig", "tools/fixtures.zig", "vendor/SHA256SUMS" }) |path| try self.source(path);
         for (extra_paths) |path| try self.source(path);
         for ([_][]const u8{ options.compiler, options.exe, executable }) |path| try self.tool(path);
         return self;

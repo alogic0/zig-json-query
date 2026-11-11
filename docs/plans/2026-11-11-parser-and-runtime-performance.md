@@ -91,7 +91,7 @@ and runtime optimizations are separate commits.
      Validate malformed/duplicate input independently of timing runs.
    - Record the component breakdown, measurement overhead and the largest
      actionable cost. Commit the verified instrumentation and baseline evidence.
-3. [ ] Implement the highest-value measured parser improvement as a focused
+3. [x] Implement the highest-value measured parser improvement as a focused
    runtime slice:
    - Evaluate a bounded change to the identified hot operation, such as container
      capacity growth, repeated work or token/value handling. The installed Zig
@@ -206,3 +206,27 @@ regressions exceeding both 10% and 0.05 ms; do not silently accept them. This
 targets measured copying/builder work without replacing JSON tokenization or
 changing the document-emission contract. An independent baseline checkout at
 commit `e8dde1d` retains the original CLI for final process comparisons.
+
+Slice 3, 0.19.1: a complete-input value adapter reuses the standard validating
+Scanner, parsed arena owner and EOF checks. It borrows plain tokens, owns decoded
+escapes, buffers up to four fields before exact map allocation, and uses a bounded
+16 KiB arena reservation on inputs at least 64 KiB. Duplicate detection retains
+the standard location/timing after completing each field value.
+
+Two rejected variants and patches are preserved: borrowing alone raised backend
+backing peak from 14,319,481 to 15,226,867 bytes; small-object buffering alone
+still failed that gate. The accepted region/builder combination has fourteen
+balanced rotations (490 samples) in the [matched comparison](../profiling/2026-11-11-parser-optimized.json).
+Command parsing is 25.452 ms versus 48.585 ms reference, with peak 4,223,391 versus
+9,900,333 bytes. Backend parsing is 52.522 versus 92.036 ms, with peak 10,517,879
+versus 14,319,481 bytes. Both exceed the predeclared 15% time gate and reduce
+memory. The escaped/nested case is 0.436 versus 0.422 ms reference; its 0.014 ms
+absolute difference is below the 0.05 ms investigation threshold. An initial
+ten-repetition block is retained; the balanced follow-up investigated the
+reference/control variation rather than hiding it.
+
+Native Debug build, 204 project checks and eight consumer tests pass. Differential
+checks cover malformed/UTF-8/duplicate errors and locations, small/indexed maps,
+exact tokens, retained caller buffers and allocation failures including the
+large-document region branch. The 45-case corpus smoke passes all 30 observed
+translations and ten probes. Source hashes match the accepted measurement.

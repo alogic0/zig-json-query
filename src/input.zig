@@ -1,6 +1,7 @@
 //! Shared strict document parsing used by ordinary feeds and phase profiling.
 const std = @import("std");
 const Diagnostic = @import("diagnostic.zig").Diagnostic;
+const ValueBuilder = @import("value_builder.zig");
 pub const max_bytes = 64 * 1024 * 1024;
 
 pub fn parse(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagnostic) !std.json.Parsed(std.json.Value) {
@@ -10,12 +11,13 @@ pub fn parse(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagn
     defer scanner.deinit();
     var json_diagnostic: std.json.Diagnostics = .{};
     scanner.enableDiagnostics(&json_diagnostic);
-    return std.json.parseFromTokenSource(std.json.Value, allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
+    const parsed = std.json.parseFromTokenSource(ValueBuilder, allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
         diagnostic.input_offset = @intCast(json_diagnostic.getByteOffset());
         diagnostic.input_line = json_diagnostic.getLine();
         diagnostic.input_column = json_diagnostic.getColumn();
         return err;
     };
+    return .{ .arena = parsed.arena, .value = parsed.value.value };
 }
 
 pub fn checkDepth(input: []const u8, diagnostic: *Diagnostic) error{InputTooDeep}!void {

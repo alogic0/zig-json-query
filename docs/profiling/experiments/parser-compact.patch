@@ -1,0 +1,124 @@
+diff --git a/src/input.zig b/src/input.zig
+index c5867be..72a4109 100644
+--- a/src/input.zig
++++ b/src/input.zig
+@@ -1,6 +1,7 @@
+ //! Shared strict document parsing used by ordinary feeds and phase profiling.
+ const std = @import("std");
+ const Diagnostic = @import("diagnostic.zig").Diagnostic;
++const ValueBuilder = @import("value_builder.zig");
+ pub const max_bytes = 64 * 1024 * 1024;
+ 
+ pub fn parse(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagnostic) !std.json.Parsed(std.json.Value) {
+@@ -10,12 +11,13 @@ pub fn parse(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagn
+     defer scanner.deinit();
+     var json_diagnostic: std.json.Diagnostics = .{};
+     scanner.enableDiagnostics(&json_diagnostic);
+-    return std.json.parseFromTokenSource(std.json.Value, allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
++    const parsed = std.json.parseFromTokenSource(ValueBuilder, allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
+         diagnostic.input_offset = @intCast(json_diagnostic.getByteOffset());
+         diagnostic.input_line = json_diagnostic.getLine();
+         diagnostic.input_column = json_diagnostic.getColumn();
+         return err;
+     };
++    return .{ .arena = parsed.arena, .value = parsed.value.value };
+ }
+ 
+ pub fn checkDepth(input: []const u8, diagnostic: *Diagnostic) error{InputTooDeep}!void {
+diff --git a/tools/study_support.zig b/tools/study_support.zig
+index fb3991b..84ade26 100644
+--- a/tools/study_support.zig
++++ b/tools/study_support.zig
+@@ -28,7 +28,7 @@ pub const Run = struct {
+     pub fn init(a: A, io: Io, executable: []const u8, extra_paths: []const []const u8) !Run {
+         if (builtin.os.tag != .linux or builtin.mode != .debug) return error.NativeDebugProfilingRequired;
+         var self: Run = .{ .a = a, .io = io };
+-        for ([_][]const u8{ "build.zig", "build.zig.zon", "src/root.zig", "src/main.zig", "src/input.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/collection_budget.zig", "src/diagnostic.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/study_support.zig", "tools/fixtures.zig", "vendor/SHA256SUMS" }) |path| try self.source(path);
++        for ([_][]const u8{ "build.zig", "build.zig.zon", "src/root.zig", "src/main.zig", "src/input.zig", "src/value_builder.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/collection_budget.zig", "src/diagnostic.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/study_support.zig", "tools/fixtures.zig", "vendor/SHA256SUMS" }) |path| try self.source(path);
+         for (extra_paths) |path| try self.source(path);
+         for ([_][]const u8{ options.compiler, options.exe, executable }) |path| try self.tool(path);
+         return self;
+diff --git a/src/value_builder.zig b/src/value_builder.zig
+new file mode 100644
+index 0000000..161c693
+--- /dev/null
++++ b/src/value_builder.zig
+@@ -0,0 +1,78 @@
++//! Complete-input DOM construction over Zig's validating JSON Scanner. Plain
++//! token text borrows input; decoded escapes and containers use the parsed arena.
++//! Input must outlive the Parsed value, as it does during synchronous feeds.
++const std = @import("std");
++const A = std.mem.Allocator;
++const Scanner = std.json.Scanner;
++const Error = std.json.ParseError(Scanner);
++
++value: std.json.Value,
++
++pub fn jsonParse(a: A, source: *Scanner, options: std.json.ParseOptions) Error!@This() {
++    std.debug.assert(source.is_end_of_input);
++    std.debug.assert(!options.parse_numbers and options.duplicate_field_behavior == .@"error");
++    return .{ .value = try read(a, source, options.max_value_len.?, try source.nextAllocMax(a, .alloc_if_needed, options.max_value_len.?)) };
++}
++
++fn read(a: A, source: *Scanner, max: usize, token: std.json.Token) Error!std.json.Value {
++    return switch (token) {
++        .null => .null,
++        .true => .{ .bool = true },
++        .false => .{ .bool = false },
++        .string, .allocated_string => |text| .{ .string = text },
++        .number, .allocated_number => |text| .{ .number_string = text },
++        .array_begin => blk: {
++            var array = std.json.Array.init(a);
++            while (true) {
++                const next = try source.nextAllocMax(a, .alloc_if_needed, max);
++                if (next == .array_end) break;
++                try array.append(try read(a, source, max, next));
++            }
++            break :blk .{ .array = array };
++        },
++        .object_begin => try readObject(a, source, max),
++        else => error.UnexpectedToken,
++    };
++}
++
++fn readObject(a: A, source: *Scanner, max: usize) Error!std.json.Value {
++    // Most report objects are small. Buffer a few fields on the stack and
++    // allocate their final map once, avoiding successive arena-backed growth.
++    const Field = struct { key: []const u8, value: std.json.Value };
++    var small: [4]Field = undefined;
++    var count: usize = 0;
++    var object: std.json.ObjectMap = .empty;
++    var large = false;
++    while (true) {
++        const next = try source.nextAllocMax(a, .alloc_if_needed, max);
++        const key = switch (next) {
++            .object_end => break,
++            .string, .allocated_string => |text| text,
++            else => return error.UnexpectedToken,
++        };
++        const item = try read(a, source, max, try source.nextAllocMax(a, .alloc_if_needed, max));
++        // Finish the value before duplicate detection to preserve diagnostics.
++        if (!large) {
++            for (small[0..count]) |field| if (std.mem.eql(u8, field.key, key)) return error.DuplicateField;
++            if (count < small.len) {
++                small[count] = .{ .key = key, .value = item };
++                count += 1;
++                continue;
++            }
++            try object.ensureTotalCapacity(a, count + 1);
++            for (small[0..count]) |field| object.putAssumeCapacityNoClobber(field.key, field.value);
++            large = true;
++        }
++        const entry = try object.getOrPut(a, key);
++        if (entry.found_existing) return error.DuplicateField;
++        entry.value_ptr.* = item;
++    }
++    if (!large and count != 0) {
++        // Public entry storage supports exact capacity. Rebuild any required
++        // index through the map API before inserting the buffered fields.
++        try object.entries.setCapacity(a, count);
++        try object.reIndex(a);
++        for (small[0..count]) |field| object.putAssumeCapacityNoClobber(field.key, field.value);
++    }
++    return .{ .object = object };
++}

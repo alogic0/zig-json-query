@@ -235,6 +235,16 @@ emission to an allocating writer. Input IO, expectations and report allocations
 are excluded.
 Tiny CLI measurements include supervision/capture rather than isolating loader
 startup. Raw samples, source/input/tool hashes and environment describe the scope.
+
+The complete-input value builder keeps the standard Scanner, arena owner and
+end-of-document checks while borrowing plain token text. Decoded escapes and
+containers remain arena-owned. Up to four object fields are buffered on the
+stack, duplicate-checked after their values, then stored in one exact-capacity
+map with its public index rebuild. Larger objects use ordinary map growth.
+For documents of at least 64 KiB, a 16 KiB reservation is immediately released
+back to the arena for reuse, bounding initial capacity while reducing tiny
+growth/fragmentation. Parsed input still lives through synchronous feed; retained
+values own copies. No installed standard-library code was changed.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
 fuzz coverage and benchmark evidence. Routine validation uses native x86_64
 Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.
