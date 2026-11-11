@@ -257,6 +257,10 @@ pub const Evaluator = struct {
                 };
             },
             .keyed_array => |operation| try self.keyedArray(allocator, node, input, operation),
+            .edit => |edit| blk: {
+                const value = try self.evalRequired(allocator, edit.base, input);
+                break :blk try self.editValue(allocator, edit, value, 0, self.pathFor(edit.base));
+            },
             .mean => |mean| blk: {
                 const source = try self.evalRequired(allocator, mean.array, input);
                 if (source != .array) return self.typeFailure(node, mean.array, "mean expects an array of numbers");
@@ -308,6 +312,59 @@ pub const Evaluator = struct {
                 for (children) |child| try array.append(try self.evalRequired(allocator, child, input));
                 break :blk Value{ .array = array };
             },
+        };
+    }
+
+    fn editValue(self: *Evaluator, allocator: A, edit: syntax.Edit, value: Value, position: usize, base_path: Path) Error!Value {
+        const step = edit.path[position];
+        var path = base_path;
+        const selected: ?Value = switch (step.key) {
+            .field => |key| blk: {
+                if (path.len != 0) path.field(key);
+                if (value != .object) return self.failPath(step.offset, "edit field path expects an object", path);
+                break :blk value.object.get(key);
+            },
+            .index => |index| blk: {
+                if (path.len != 0) {
+                    if (index.negative) path.indexFromEnd(index.magnitude) else path.index(index.magnitude);
+                }
+                if (value != .array) return self.failPath(step.offset, "edit index path expects an array", path);
+                break :blk if (index.resolve(value.array.items.len)) |absolute| value.array.items[absolute] else null;
+            },
+            .slice => unreachable,
+        };
+        const child = selected orelse return self.failPath(step.offset, "edit field or index is absent", path);
+        const replacement: ?Value = if (position + 1 < edit.path.len)
+            try self.editValue(allocator, edit, child, position + 1, path)
+        else if (edit.body) |body| blk: {
+            const caller_path = self.path;
+            defer self.path = caller_path;
+            self.path = path;
+            break :blk try self.evalRequired(allocator, body, child);
+        } else null;
+        return switch (step.key) {
+            .field => |key| blk: {
+                var result: std.json.ObjectMap = .empty;
+                var iterator = value.object.iterator();
+                while (iterator.next()) |entry| {
+                    if (std.mem.eql(u8, entry.key_ptr.*, key)) {
+                        if (replacement) |item| try result.put(allocator, entry.key_ptr.*, item);
+                    } else try result.put(allocator, entry.key_ptr.*, entry.value_ptr.*);
+                }
+                break :blk .{ .object = result };
+            },
+            .index => |index| blk: {
+                const absolute = index.resolve(value.array.items.len).?;
+                var result = std.json.Array.init(allocator);
+                try result.ensureTotalCapacity(value.array.items.len - @intFromBool(replacement == null));
+                for (value.array.items, 0..) |item, i| {
+                    if (i == absolute) {
+                        if (replacement) |next| result.appendAssumeCapacity(next);
+                    } else result.appendAssumeCapacity(item);
+                }
+                break :blk .{ .array = result };
+            },
+            .slice => unreachable,
         };
     }
 

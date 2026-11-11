@@ -2,6 +2,7 @@ const std = @import("std");
 const regex = @import("regex");
 const syntax = @import("parser.zig");
 const scalar = @import("evaluator.zig");
+const json_order = @import("json_order.zig");
 const Budget = @import("collection_budget.zig");
 const Buffered = @import("buffered.zig");
 const number = @import("number.zig");
@@ -14,6 +15,7 @@ pub const Options = struct {
     /// Shared live retained capacity across collect, sort and group stages.
     max_collect_bytes: usize = 64 * 1024 * 1024,
     raw_output: bool = false,
+    sort_keys: bool = false,
 };
 pub const Error = error{ EvaluationFailed, OutOfMemory, StreamFailed, StreamFinished } || std.Io.Writer.Error;
 const Collector = struct { arena: std.heap.ArenaAllocator, items: std.ArrayList(Value) = .empty };
@@ -26,6 +28,7 @@ evaluator: scalar.Evaluator,
 writer: *std.Io.Writer,
 budget: Budget,
 raw_output: bool,
+sort_keys: bool,
 last_output: enum { none, false_or_null, other } = .none,
 lifecycle: enum { active, failed, finished } = .active,
 // Exhausting take at index i closes every stage through i. Stages after i can
@@ -44,6 +47,7 @@ pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.
         .writer = writer,
         .budget = .{ .backing = allocator, .limit = options.max_collect_bytes },
         .raw_output = options.raw_output,
+        .sort_keys = options.sort_keys,
     };
     // Self and states have stable addresses before an allocator can borrow them.
     for (stages, states, 0..) |stage_kind, *state, index| {
@@ -202,6 +206,10 @@ fn stageInner(self: *Self, index: usize, input: Value) Error!void {
         if (!scalar.withinDepth(input, 0)) return self.fail(0, "output nesting exceeds 128 levels");
         if (self.raw_output and input == .string) {
             try self.writer.writeAll(input.string);
+        } else if (self.sort_keys) {
+            var arena = std.heap.ArenaAllocator.init(self.allocator);
+            defer arena.deinit();
+            try std.json.Stringify.value(try json_order.ordered(arena.allocator(), input), .{}, self.writer);
         } else try std.json.Stringify.value(input, .{}, self.writer);
         try self.writer.writeByte('\n');
         self.last_output = switch (input) {

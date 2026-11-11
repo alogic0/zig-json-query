@@ -99,6 +99,15 @@ bound as output. It allocates encoded text in the scalar arena, preserving
 numeric tokens and insertion order. `byte_length` counts UTF-8 bytes separately
 from `length`'s Unicode scalar count; neither includes a CLI output newline.
 
+`update` and `del` compile literal paths into field/index steps. Only existing
+targets are edited; optional/sliced/computed paths are rejected. Replacement
+bodies use the selected value's scope and path. Ancestor containers are copied
+into the scalar arena while untouched children are borrowed. Input is immutable.
+`StreamOptions.sort_keys` (`-S`) uses `json_order.zig` to copy containers with
+recursively sorted object keys before compact output. Raw/encoded string contents
+and numeric spellings are unchanged. Output copies use a temporary arena, and
+the serializer enforces depth before copying.
+
 `sum` and scalar arithmetic operate on checked signed 128-bit integers. Decimal
 tokens are converted by digit/exponent normalization only if their mathematical
 value is an in-range integer. Division is exact, fractions and overflow are

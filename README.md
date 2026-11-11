@@ -163,6 +163,8 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `length(.items)` | Array element count, object field count, or string Unicode scalar-value count |
 | `tojson(.value)` | Compact JSON text as a string, preserving exact number tokens |
 | `byte_length(.text)` | UTF-8 byte count of a string |
+| `update(., .groups, filter(., .keep))` | Replace an existing path with a body evaluated on its selected value |
+| `del(., .debug)` | Remove an existing field or array item, preserving other values |
 | `keys(.)` | Sorted object names, or ascending array indexes |
 | `map(.items, {name, id})` | One ordered array of results, evaluating the body with each item as `.` |
 | `filter(.items, .code != 0)` | One ordered array of original items whose boolean predicate is true |
@@ -334,6 +336,33 @@ For actual serialized sample bytes, use:
 
 `-r 'tojson(.)'` writes the compact text directly, followed by the ordinary CLI
 output newline, which is not included in `byte_length(tojson(.))`.
+
+## Immutable path edits and sorted output
+
+`update(value, path, body)` selects an existing value and replaces it with the
+body's result. The body sees that selected value as `.`; nested array functions
+and external bindings work normally. `del(value, path)` removes a selected
+object field or array element. Both copy ancestor containers and preserve all
+other fields, insertion order, number tokens and array order without mutating
+the input. For a configuration whose other fields must survive:
+
+```sh
+./zig-out/bin/jqz -S --arg remove calendar.journey \
+  'update(., .groups, filter(., .id != $remove))' config.json
+```
+
+Paths start with `.` and contain at least one literal field/index. Quoted fields
+and negative indexes work, for example `.groups[-1]["a-b"]`. Missing targets,
+wrong containers and missing replacement values fail with source paths. Optional
+access, slices and computed selectors are not edit paths. `del` of an absent
+field is an error; use an explicit presence check before choosing to edit.
+
+`-S` / `--sort-keys` recursively sort output object names by UTF-8 bytes, keeping
+array order and number spelling. JSON remains compact; raw strings are unchanged,
+and keys inside already encoded `tojson` strings are not reordered. Library
+callers select this using `StreamOptions.sort_keys`. Sorting uses temporary
+storage outside the retention budget; retained edit results use the ordinary
+shared budget and ownership rules.
 
 ## Integer arithmetic
 

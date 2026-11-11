@@ -52,7 +52,7 @@ All implementation and helpers use Zig. Validate native x86_64 Linux Debug only.
    check and translate `serialized-sample-size`, keeping its jq oracle unchanged.
    Validate build/tests and a corpus smoke run; increment the minor version via
    `zig build version -- set` and commit the verified feature.
-3. [ ] Implement path updates/deletion and recursive sorted-key output. Cover
+3. [x] Implement path updates/deletion and recursive sorted-key output. Cover
    preservation of unknown fields, immutable siblings, nested scopes and paths,
    negative indexes, strict failures, raw/NDJSON/exit-status output and allocation
    cleanup. Qualify `normalize-config`, including exact compact sorted bytes in
@@ -103,3 +103,13 @@ output. All 43 corpus cases passed in a one-repetition smoke run: 28/30 observed
 translations, two unsupported, nine intentional probes and 62 samples. The new
 Unicode probe keeps the ASCII sizing case's unchanged oracle honest. Formatting
 and diff checks passed; no additional tool was needed.
+
+Slice 3, 0.16.0: native Debug build, 181 project tests (138 language/library,
+36 CLI, four version-workflow, three qualification-runner) and seven consumer
+tests passed. Nine edit tests cover immutable siblings, unknown fields, nested
+replacement scopes, signed indexes, strict paths, ordered/raw output, independent
+filter models, retained lifetimes and exhaustive allocation failures. All 45
+corpus cases passed: 29/30 observed translations, one unsupported, ten probes
+and 66 smoke samples. The normalization oracle is unchanged; an additional
+component checks exact compact sorted bytes and a probe records strict deletion
+of missing fields. Formatting and diff checks passed.

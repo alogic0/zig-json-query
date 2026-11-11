@@ -31,6 +31,18 @@ test "CLI serializes JSON text and distinguishes Unicode bytes from characters" 
     try check(&.{"byte_length(.)"}, "null", 2, "", "expects a string");
 }
 
+test "CLI immutable configuration edits preserve unknown fields and support sorted keys" {
+    try check(&.{ "-S", "--arg", "remove", "calendar.journey", "update(.,.groups,filter(.,.id != $remove))" }, "{\"meta\":{\"z\":9007199254740993,\"a\":true},\"groups\":[{\"id\":\"calendar.journey\"},{\"id\":\"keep\",\"done\":false}]}", 0, "{\"groups\":[{\"done\":false,\"id\":\"keep\"}],\"meta\":{\"a\":true,\"z\":9007199254740993}}\n", null);
+    try check(&.{ "--sort-keys", "--ndjson", "." }, "{\"z\":{\"y\":2,\"a\":1},\"a\":[]}\n{\"b\":0,\"a\":-0}\n", 0, "{\"a\":[],\"z\":{\"a\":1,\"y\":2}}\n{\"a\":-0,\"b\":0}\n", null);
+    try check(&.{"del(.,.missing)"}, "{}", 2, "", "edit field or index is absent");
+}
+
+test "CLI sorted keys compose with raw output predicate status and skipped input" {
+    try check(&.{ "-S", "-r", "-e", "." }, "\"false\"", 0, "false\n", null);
+    try check(&.{ "--sort-keys", "-e", "." }, "false", 1, "false\n", null);
+    try check(&.{ "-S", "-e", "take(0) | collect" }, "{bad}", 0, "[]\n", null);
+}
+
 test "CLI exit-status mode uses the last value without changing output" {
     try check(&.{ "-e", "." }, "false", 1, "false\n", null);
     try check(&.{ "--exit-status", "." }, "null", 1, "null\n", null);

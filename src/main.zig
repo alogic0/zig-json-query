@@ -11,6 +11,7 @@ const usage =
     \\  --ndjson                  Parse one JSON record per nonblank line
     \\  -s, --slurp               Query one array containing all input values
     \\  -r, --raw-output          Write strings raw; other values as JSON
+    \\  -S, --sort-keys           Sort object names recursively in JSON output
     \\  -e, --exit-status         Status 1 for false/null, 4 for no output
     \\  --arg NAME VALUE         Bind $NAME to a string
     \\  --argjson NAME JSON      Bind $NAME to one exact JSON value
@@ -62,6 +63,7 @@ fn run(init: std.process.Init) !u8 {
     var errors = std.Io.File.stderr().writer(io, &error_buffer);
     var ndjson = false;
     var raw_output = false;
+    var sort_keys = false;
     var exit_status = false;
     var slurp_input = false;
     var options = true;
@@ -89,6 +91,8 @@ fn run(init: std.process.Init) !u8 {
             slurp_input = true;
         } else if (options and (std.mem.eql(u8, arg, "-r") or std.mem.eql(u8, arg, "--raw-output"))) {
             raw_output = true;
+        } else if (options and (std.mem.eql(u8, arg, "-S") or std.mem.eql(u8, arg, "--sort-keys"))) {
+            sort_keys = true;
         } else if (options and (std.mem.eql(u8, arg, "-e") or std.mem.eql(u8, arg, "--exit-status"))) {
             exit_status = true;
         } else if (options and (std.mem.eql(u8, arg, "--arg") or std.mem.eql(u8, arg, "--argjson"))) {
@@ -141,7 +145,7 @@ fn run(init: std.process.Init) !u8 {
         return err;
     };
     defer program.deinit();
-    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output });
+    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .sort_keys = sort_keys });
     defer stream.deinit();
     const slurp = if (slurp_input and stream.needsInput()) try query.Slurp.init(allocator, query.max_input_bytes) else null;
     defer if (slurp) |collector| collector.deinit();

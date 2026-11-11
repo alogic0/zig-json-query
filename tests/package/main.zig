@@ -43,6 +43,22 @@ test "external consumer serializes exact values with explicit Unicode byte sizin
     try t.expectEqualStrings("[{\"text\":\"\\\"é😀\\\"\",\"bytes\":8,\"characters\":4}]\n", output.written());
 }
 
+test "external consumer edits immutable paths and requests recursive sorted output" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "del(update(.,.groups,filter(.,.id != \"remove\")),.debug) | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var stream = try program.start(t.allocator, &output.writer, &diagnostic, .{ .sort_keys = true });
+    defer stream.deinit();
+    var input = "{\"meta\":{\"z\":1,\"a\":9007199254740993},\"debug\":null,\"groups\":[{\"id\":\"remove\"},{\"id\":\"keep\",\"done\":false}]}".*;
+    _ = try stream.feed(&input);
+    @memset(&input, 'x');
+    try stream.finish();
+    try t.expectEqualStrings("[{\"groups\":[{\"done\":false,\"id\":\"keep\"}],\"meta\":{\"a\":9007199254740993,\"z\":1}}]\n", output.written());
+}
+
 test "external consumer combines owned bindings named feeds predicates and decimal statistics" {
     const t = std.testing;
     var diagnostic: query.Diagnostic = .{};

@@ -32,6 +32,8 @@ pub const KeyedArray = struct {
     array: *const Node,
     key: *const Node,
 };
+pub const EditStep = struct { key: Key, offset: usize };
+pub const Edit = struct { base: *const Node, path: []const EditStep, body: ?*const Node };
 pub const Node = struct {
     offset: usize,
     height: usize,
@@ -53,6 +55,7 @@ pub const Node = struct {
         sum: *const Node,
         transform: Transform,
         keyed_array: KeyedArray,
+        edit: Edit,
         mean: struct { array: *const Node, places: u8 },
         decimal_divide: struct { lhs: *const Node, rhs: *const Node, places: u8 },
         matches: struct { value: *const Node, pattern: usize },
@@ -328,6 +331,18 @@ pub const Parser = struct {
         return self.make(offset, .{ .keyed_array = .{ .kind = kind, .array = source, .key = key } }, @max(source.height, key.height) + 1);
     }
 
+    fn editPath(self: *Parser, node: *const Node, steps: *std.ArrayList(EditStep)) Error!void {
+        switch (node.data) {
+            .current => {},
+            .access => |access| {
+                if (access.optional or access.key == .slice) return self.fail(node.offset, "edit paths require literal fields/indexes without optional access or slices");
+                try self.editPath(access.base, steps);
+                try steps.append(self.allocator, .{ .key = access.key, .offset = node.offset });
+            },
+            else => return self.fail(node.offset, "edit path must start at . and contain only literal fields/indexes"),
+        }
+    }
+
     fn jsonLiteral(self: *Parser) Error!std.json.Value {
         return std.json.parseFromSliceLeaky(std.json.Value, self.allocator, self.text(), .{ .parse_numbers = false }) catch |err| switch (err) {
             error.OutOfMemory => error.OutOfMemory,
@@ -382,6 +397,23 @@ pub const Parser = struct {
             .lbrace => return self.object(),
             .lbracket => return self.array(),
             .identifier => {
+                if (self.word("update") or self.word("del")) {
+                    const updating = self.word("update");
+                    try self.advance();
+                    try self.expect(.lparen, "expected ( after edit function");
+                    const base = try self.expression(0);
+                    try self.expect(.comma, "edit expects a value and a literal path");
+                    const path = try self.expression(0);
+                    var steps: std.ArrayList(EditStep) = .empty;
+                    try self.editPath(path, &steps);
+                    if (steps.items.len == 0) return self.fail(path.offset, "edit path must select at least one field or index");
+                    const body = if (updating) blk: {
+                        try self.expect(.comma, "update expects a replacement expression");
+                        break :blk try self.expression(0);
+                    } else null;
+                    try self.expect(.rparen, "expected ) after edit arguments");
+                    return self.make(offset, .{ .edit = .{ .base = base, .path = try steps.toOwnedSlice(self.allocator), .body = body } }, @max(@max(base.height, path.height), if (body) |child| child.height else 0) + 1);
+                }
                 if (self.word("input_filename")) {
                     try self.advance();
                     try self.expect(.lparen, "expected ( after input_filename");
