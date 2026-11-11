@@ -544,7 +544,7 @@ test "audit comparison preserves exact decimal values and ordered results" {
     try std.testing.expect(!try jsonLinesEqual(a, "1\n\n", "1\n"));
 }
 
-const Fixture = struct { id: []const u8, input: []const u8, expected: []const u8, ndjson: bool = false, code: i32 = 0, jq_flags: []const []const u8 = &.{}, jqz_flags: []const []const u8 = &.{}, equivalent: bool = true };
+const Fixture = struct { id: []const u8, input: []const u8, expected: []const u8, ndjson: bool = false, code: i32 = 0, jq_flags: []const []const u8 = &.{}, jqz_flags: []const []const u8 = &.{}, equivalent: bool = true, raw: bool = false };
 
 fn fixture(spec: Fixture) !void {
     var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
@@ -579,7 +579,7 @@ fn fixture(spec: Fixture) !void {
     try std.testing.expectEqualStrings("", r.stderr);
     try std.testing.expectEqualStrings("", c.stderr);
     try std.testing.expectEqualStrings(spec.expected, r.stdout);
-    if (spec.equivalent) try std.testing.expect(try jsonLinesEqual(a, r.stdout, c.stdout)) else try std.testing.expect(!std.mem.eql(u8, r.stdout, c.stdout));
+    if (spec.equivalent) try std.testing.expect(try jsonLinesEqual(a, r.stdout, c.stdout)) else if (spec.raw) try std.testing.expect(!std.mem.eql(u8, r.stdout, c.stdout)) else try std.testing.expect(!try jsonLinesEqual(a, r.stdout, c.stdout));
 }
 
 test "compiler translations preserve multiple results and negative gate exits" {
@@ -619,5 +619,9 @@ test "grouped compiler translations preserve sorted tie order and null keys" {
 }
 
 test "raw path protocol counterexample exposes mandatory newline difference" {
-    try fixture(.{ .id = "nul-path-protocol", .input = "{\"files\":{\"a.zig\":\"hash-a\",\"b.zig\":\"hash-b\"}}", .expected = "a.zig\x00b.zig\x00", .jq_flags = &.{"-jr"}, .jqz_flags = &.{"-r"}, .equivalent = false });
+    try fixture(.{ .id = "nul-path-protocol", .input = "{\"files\":{\"a.zig\":\"hash-a\",\"b.zig\":\"hash-b\"}}", .expected = "a.zig\x00b.zig\x00", .jq_flags = &.{"-jr"}, .jqz_flags = &.{"-r"}, .equivalent = false, .raw = true });
+}
+
+test "duration counterexample isolates precision lost before floating division" {
+    try fixture(.{ .id = "provenance-duration", .input = "{\"started_ns\":9007199254740992,\"finished_ns\":9007199254740993}", .expected = "{\"file\":\"<stdin>\",\"status\":null,\"returncode\":null,\"elapsed_seconds\":0}\n", .equivalent = false });
 }
