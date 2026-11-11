@@ -73,7 +73,7 @@ temporary file, use `git commit -F`, then remove it with plain `rm`.
      coverage and allocation-failure cleanup. Run native Debug build/tests,
      publish raw evidence and record a candidate-specific gate before coding
      the runtime optimization. Commit instrumentation and baseline first.
-3. [ ] Optimize the largest actionable parser construction cost:
+3. [x] Optimize the largest actionable parser construction cost:
    - Evaluate a bounded allocation/construction change supported by the baseline,
      avoiding an extra full token pass unless its measured total cost wins.
    - Default gate: at least 10% lower median full-parser time on both large
@@ -192,3 +192,30 @@ backing peaks. Native Debug build and all 213 checks pass. The unchanged candida
 gate applies to combined arena-plus-temporary array traffic, not arena traffic
 alone. The explicit bridge and accounting are committed before the next runtime
 candidate.
+
+Slice 3, 0.24.1: arrays buffer sixteen values on the stack. A prefix with
+allocating children selects temporary chunks, growing from sixteen to at most
+1,024 values per chunk, followed by one exact arena-owned array. All chunks are
+freed on success/failure. Nonallocating scalar/empty-container prefixes retain
+ordinary arena growth after the stack prefix; late allocating children remain
+correct and use that selected path. Small arrays need one exact final allocation.
+
+The [720-sample comparison](../profiling/2026-11-11-builder-optimized.json) passes
+the memory gate: backend array traffic is 1,120,000 arena bytes plus 1,146,048
+temporary bytes, 2,266,048 total versus 4,705,792 (52% less). Backing peak is
+8,223,471 versus 10,517,879 bytes (22% lower). Command peak is 3,868,573 versus
+4,223,391 bytes. Backend ordinary medians are 48.956/49.515 ms current/control
+versus 48.482/48.425 ms reference/control, within the 5% time bound. This is a
+memory improvement, not a claim of a faster backend parser.
+
+Empty-container and late-allocating fixtures extend the comparison to ten cases.
+Boundary, logical-arena/temporary allocation-failure and retained-buffer tests
+pass: 216 project checks, eight separate-consumer checks and all 45 corpus cases.
+The [24-repetition follow-up](../profiling/2026-11-11-builder-optimized-followup.json)
+confirms the large memory result. The small escaped case has current/control
+medians 0.425/0.467 ms versus reference/control 0.435/0.385 ms; it does not support
+a uniform timing conclusion. Temporary live bytes return to zero; its 1,057-byte
+temporary peak and arena remap variation explain the small overlapping capacity
+ranges. Improve predecessor balance in the measurement order before final timing
+claims, and preserve these raw observations rather than selecting a favorable
+control. The primary memory gates remain satisfied.

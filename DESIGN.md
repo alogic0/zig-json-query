@@ -247,6 +247,15 @@ For documents of at least 64 KiB, a 16 KiB reservation is immediately released
 back to the arena for reuse, bounding initial capacity while reducing tiny
 growth/fragmentation. Parsed input still lives through synchronous feed; retained
 values own copies. No installed standard-library code was changed.
+Arrays first buffer sixteen values on the stack. For a larger array, allocating
+children in that prefix select caller-allocated temporary chunks, bounded to
+1,024 values each, then one exact arena-owned array. Chunks are freed on success
+and failure. Scalar or empty-container prefixes use ordinary arena growth after
+the prefix, avoiding a final duplicate for flat nonallocating inputs. The standard
+Parsed arena owner receives the caller allocator through an explicit source
+adapter; no allocator is recovered from Scanner internals. Profiling separates
+temporary/scanner traffic, logical arena requests and backing totals. Observation
+points specialize away in ordinary execution.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
 fuzz coverage and benchmark evidence. Routine validation uses native x86_64
 Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.

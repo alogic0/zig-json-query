@@ -155,8 +155,8 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
     const a = init.arena.allocator();
     const args = try init.minimal.args.toSlice(a);
     var guard = try M.Run.init(a, init.io, args[0], &.{ "tools/builder_study.zig", "tools/reference_value_builder.zig", "tools/parser_study.zig", "tests/qualification/backend.json" });
-    const inputs = [_][]const u8{ "null", try Io.Dir.cwd().readFileAlloc(init.io, "tests/qualification/backend.json", a, .limited(4096)), try generated.generate(a, .commands, 2837), try generated.generate(a, .backend, 10000), try @import("parser_study.zig").variation(a), try variation(a, .flat), try variation(a, .nested), try variation(a, .wide) };
-    const ids = [_][]const u8{ "null", "small-report", "commands", "backend", "escaped-nested-long-numbers", "flat-array", "nested-arrays", "wide-object" };
+    const inputs = [_][]const u8{ "null", try Io.Dir.cwd().readFileAlloc(init.io, "tests/qualification/backend.json", a, .limited(4096)), try generated.generate(a, .commands, 2837), try generated.generate(a, .backend, 10000), try @import("parser_study.zig").variation(a), try variation(a, .flat), try variation(a, .nested), try variation(a, .wide), try variation(a, .empty), try variation(a, .late) };
+    const ids = [_][]const u8{ "null", "small-report", "commands", "backend", "escaped-nested-long-numbers", "flat-array", "nested-arrays", "wide-object", "empty-containers", "late-allocating-children" };
     var records: std.ArrayList(M.Record) = .empty;
     var observations: std.ArrayList(Observation) = .empty;
     const Check = struct { case: []const u8, bytes: usize, input_sha256: []const u8, output_sha256: []const u8 };
@@ -182,7 +182,7 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
     try guard.publish("builder", repeat, "One warm-up; rotated six variants. reference/control freeze the 0.22.0 builder; current/current_control use ordinary production parsing. counters/timed observe that same production builder above its arena; timed adds per-operation clocks. Logical operations are exclusive: recursive child parsing is outside append/object intervals. Indexed insertion includes hashing, duplicate lookup and any growth. EOF/depth/owner work is outside operation buckets. Narrow timings include instrumentation and are not an additive uninstrumented CPU budget; full-parser controls govern acceptance. Observed timing excludes arena-owner setup; ordinary timing includes it. Output checks and cleanup are outside timers. Backing allocation counts include the owner/scanner and must reach zero; logical arena requests are bulk reclaimed. Temporary counters independently wrap the caller allocator used by the scanner and temporary builder storage; temporary live bytes must return to zero. Compare arena plus temporary traffic when storage moves between owners. No production clocks or counters.", records.items, .{ .checks = checks.items, .observations = observations.items }, out);
 }
 
-fn variation(a: A, kind: enum { flat, nested, wide }) ![]const u8 {
+fn variation(a: A, kind: enum { flat, nested, wide, empty, late }) ![]const u8 {
     var text = Io.Writer.Allocating.init(a);
     defer text.deinit();
     try text.writer.writeByte(if (kind == .wide) '{' else '[');
@@ -193,6 +193,8 @@ fn variation(a: A, kind: enum { flat, nested, wide }) ![]const u8 {
             .flat => try text.writer.print("{d}", .{index}),
             .nested => try text.writer.writeAll("[0,1]"),
             .wide => try text.writer.print("\"field-{d}\":[0,1]", .{index}),
+            .empty => try text.writer.writeAll(if (index % 2 == 0) "[]" else "{}"),
+            .late => try text.writer.writeAll(if (index < 32) "0" else "{\"n\":[0,1]}"),
         }
     }
     try text.writer.writeByte(if (kind == .wide) '}' else ']');

@@ -123,3 +123,96 @@ test "input adapter bounded large-document reservation cleans up on allocation f
         try t.expectEqual(failing.allocated_bytes, failing.freed_bytes);
     }
 }
+
+test "input arrays preserve standard values and diagnostics across storage boundaries" {
+    for ([_]usize{ 0, 1, 2, 3, 4, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 255, 256, 257, 511, 512, 513, 1023, 1024, 1025, 2049 }) |length| {
+        for (0..3) |shape| {
+            var text = std.Io.Writer.Allocating.init(t.allocator);
+            defer text.deinit();
+            try text.writer.writeByte('[');
+            for (0..length) |index| {
+                if (index != 0) try text.writer.writeByte(',');
+                try text.writer.writeAll(switch (shape) {
+                    0 => if (index < 32) "1.00" else "{\"é\":[-0,\"\\u0061\"]}",
+                    1 => "{\"n\":1e+2,\"array\":[\"é\\n\",false]}",
+                    2 => if (index % 2 == 0) "[]" else "{}",
+                    else => unreachable,
+                });
+            }
+            try text.writer.writeByte(']');
+            try compare(text.written());
+            if (length != 0) {
+                text.writer.end -= 1;
+                try text.writer.writeAll(",]");
+                try compare(text.written());
+            }
+        }
+    }
+}
+
+fn buildWithAllocators(a: std.mem.Allocator, temporary: std.mem.Allocator, bytes: []const u8) !void {
+    var scanner = std.json.Scanner.initCompleteInput(temporary, bytes);
+    defer scanner.deinit();
+    _ = try @import("value_builder.zig").build(a, temporary, &scanner, bytes.len, {});
+    try t.expectEqual(.end_of_document, try scanner.next());
+}
+
+fn allocationTrial(bytes: []const u8, failure: ?struct { temporary: bool, index: usize }) !struct { arena: usize, temporary: usize } {
+    var region = std.heap.ArenaAllocator.init(t.allocator);
+    defer region.deinit();
+    var arena = t.FailingAllocator.init(region.allocator(), .{ .fail_index = if (failure != null and !failure.?.temporary) failure.?.index else std.math.maxInt(usize), .resize_fail_index = 0 });
+    var temporary = t.FailingAllocator.init(t.allocator, .{ .fail_index = if (failure != null and failure.?.temporary) failure.?.index else std.math.maxInt(usize), .resize_fail_index = 0 });
+    buildWithAllocators(arena.allocator(), temporary.allocator(), bytes) catch |err| {
+        if (failure == null) return err;
+        try t.expectEqual(error.OutOfMemory, err);
+        try t.expect(if (failure.?.temporary) temporary.has_induced_failure else arena.has_induced_failure);
+        try t.expectEqual(temporary.allocated_bytes, temporary.freed_bytes);
+        return .{ .arena = arena.alloc_index, .temporary = temporary.alloc_index };
+    };
+    try t.expect(failure == null);
+    try t.expectEqual(temporary.allocated_bytes, temporary.freed_bytes);
+    return .{ .arena = arena.alloc_index, .temporary = temporary.alloc_index };
+}
+
+test "input array failures release temporary chunks and partially parsed arena storage" {
+    var text = std.Io.Writer.Allocating.init(t.allocator);
+    defer text.deinit();
+    try text.writer.writeByte('[');
+    for (0..65) |index| {
+        if (index != 0) try text.writer.writeByte(',');
+        try text.writer.writeAll("{\"n\":1.00,\"s\":\"é\\n\"}");
+    }
+    try text.writer.writeByte(']');
+    const counts = try allocationTrial(text.written(), null);
+    for (0..counts.arena) |index| _ = try allocationTrial(text.written(), .{ .temporary = false, .index = index });
+    for (0..counts.temporary) |index| _ = try allocationTrial(text.written(), .{ .temporary = true, .index = index });
+}
+
+test "input temporary array storage is released before retained caller buffers are reused" {
+    var text = std.Io.Writer.Allocating.init(t.allocator);
+    defer text.deinit();
+    try text.writer.writeByte('[');
+    for (0..70) |index| {
+        if (index != 0) try text.writer.writeByte(',');
+        try text.writer.writeAll("{\"n\":1.00,\"s\":\"é\\n\"}");
+    }
+    try text.writer.writeByte(']');
+    var diagnostic: query.Diagnostic = .{};
+    const parsed = try reference(t.allocator, text.written(), &diagnostic);
+    defer parsed.deinit();
+    var expected = std.Io.Writer.Allocating.init(t.allocator);
+    defer expected.deinit();
+    try expected.writer.writeByte('[');
+    try std.json.Stringify.value(parsed.value, .{}, &expected.writer);
+    try expected.writer.writeAll("]\n");
+    var program = try query.Program.compile(t.allocator, ". | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var stream = try program.start(t.allocator, &output.writer, &diagnostic, .{});
+    defer stream.deinit();
+    _ = try stream.feed(text.written());
+    @memset(text.written(), 'x');
+    try stream.finish();
+    try t.expectEqualStrings(expected.written(), output.written());
+}

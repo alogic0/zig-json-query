@@ -33,7 +33,6 @@ pub fn jsonParse(a: A, source: *Source, options: std.json.ParseOptions) Error!@T
 /// Internal observation points compile away when observer is void. Observers
 /// belong to profiling only; children are parsed outside container intervals.
 pub fn build(a: A, temporary: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Value {
-    _ = temporary;
     // A bounded initial region avoids many tiny arena growth attempts on large
     // documents. Free the reservation immediately so DOM storage can reuse it.
     if (max >= 64 * 1024) {
@@ -42,7 +41,7 @@ pub fn build(a: A, temporary: A, source: *Scanner, max: usize, observer: anytype
         const reservation = try a.alloc(u8, 16 * 1024);
         a.free(reservation);
     }
-    return read(a, source, max, try next(a, source, max, observer), observer);
+    return read(a, temporary, source, max, try next(a, source, max, observer), observer);
 }
 
 inline fn begin(observer: anytype, event: Event) @TypeOf(if (@TypeOf(observer) == void) {} else observer.begin(event)) {
@@ -60,32 +59,114 @@ inline fn next(a: A, source: *Scanner, max: usize, observer: anytype) Error!std.
     return source.nextAllocMax(a, .alloc_if_needed, max);
 }
 
-fn read(a: A, source: *Scanner, max: usize, token: std.json.Token, observer: anytype) Error!std.json.Value {
+fn read(a: A, temporary: A, source: *Scanner, max: usize, token: std.json.Token, observer: anytype) Error!std.json.Value {
     return switch (token) {
         .null => .null,
         .true => .{ .bool = true },
         .false => .{ .bool = false },
         .string, .allocated_string => |text| .{ .string = text },
         .number, .allocated_number => |text| .{ .number_string = text },
-        .array_begin => blk: {
-            var array = std.json.Array.init(a);
-            while (true) {
-                const token_next = try next(a, source, max, observer);
-                if (token_next == .array_end) break;
-                const item = try read(a, source, max, token_next, observer);
-                const event: Event = if (@TypeOf(observer) == void) .array_append else if (array.items.len == array.capacity) .array_growth else .array_append;
-                const stamp = begin(observer, event);
-                defer end(observer, event, stamp);
-                try array.append(item);
-            }
-            break :blk .{ .array = array };
-        },
-        .object_begin => try readObject(a, source, max, observer),
+        .array_begin => .{ .array = try readArray(a, temporary, source, max, observer) },
+        .object_begin => try readObject(a, temporary, source, max, observer),
         else => error.UnexpectedToken,
     };
 }
 
-fn readObject(a: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Value {
+// Array growth interleaved with allocating children strands old arena buffers.
+// A small stack prefix needs one exact allocation. For larger arrays, allocating
+// prefixes select bounded temporary chunks; scalar prefixes keep ordinary arena
+// growth so flat scalar arrays do not pay for an unnecessary final duplicate.
+const ArrayBuilder = struct {
+    const Chunk = struct { items: []std.json.Value, used: usize = 0, next: ?*Chunk = null };
+    small: [16]std.json.Value = undefined,
+    count: usize = 0,
+    allocating_prefix: bool = false,
+    flat: ?std.json.Array = null,
+    first: ?*Chunk = null,
+    last: ?*Chunk = null,
+
+    fn grows(self: *const ArrayBuilder) bool {
+        if (self.count < self.small.len) return false;
+        if (self.flat) |flat| return flat.items.len == flat.capacity;
+        return self.last == null or self.last.?.used == self.last.?.items.len;
+    }
+
+    inline fn append(self: *ArrayBuilder, a: A, temporary: A, item: std.json.Value, allocating: bool) !void {
+        if (self.count <= self.small.len) self.allocating_prefix = self.allocating_prefix or allocating;
+        if (self.count < self.small.len) {
+            self.small[self.count] = item;
+        } else {
+            if (self.count == self.small.len and !self.allocating_prefix) {
+                self.flat = std.json.Array.init(a);
+                try self.flat.?.appendSlice(&self.small);
+            }
+            if (self.flat) |*flat| {
+                try flat.append(item);
+            } else {
+                if (self.last == null or self.last.?.used == self.last.?.items.len) {
+                    const capacity: usize = if (self.last) |last| @min(last.items.len * 2, 1024) else 16;
+                    const chunk = try temporary.create(Chunk);
+                    errdefer temporary.destroy(chunk);
+                    chunk.* = .{ .items = try temporary.alloc(std.json.Value, capacity) };
+                    if (self.last) |last| last.next = chunk else self.first = chunk;
+                    self.last = chunk;
+                }
+                const last = self.last.?;
+                last.items[last.used] = item;
+                last.used += 1;
+            }
+        }
+        self.count += 1;
+    }
+
+    fn finish(self: *const ArrayBuilder, a: A) !std.json.Array {
+        if (self.flat) |flat| return flat;
+        if (self.count == 0) return std.json.Array.init(a);
+        const items = try a.alloc(std.json.Value, self.count);
+        var offset: usize = @min(self.count, self.small.len);
+        @memcpy(items[0..offset], self.small[0..offset]);
+        var chunk = self.first;
+        while (chunk) |part| : (chunk = part.next) {
+            @memcpy(items[offset..][0..part.used], part.items[0..part.used]);
+            offset += part.used;
+        }
+        std.debug.assert(offset == items.len);
+        return std.json.Array.fromOwnedSlice(a, items);
+    }
+
+    fn deinit(self: *ArrayBuilder, temporary: A) void {
+        var chunk = self.first;
+        while (chunk) |part| {
+            chunk = part.next;
+            temporary.free(part.items);
+            temporary.destroy(part);
+        }
+    }
+};
+
+fn readArray(a: A, temporary: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Array {
+    var array: ArrayBuilder = .{};
+    defer array.deinit(temporary);
+    while (true) {
+        const token = try next(a, source, max, observer);
+        if (token == .array_end) break;
+        const item = try read(a, temporary, source, max, token, observer);
+        const event: Event = if (@TypeOf(observer) == void) .array_append else if (array.grows()) .array_growth else .array_append;
+        const stamp = begin(observer, event);
+        defer end(observer, event, stamp);
+        try array.append(a, temporary, item, switch (token) {
+            .array_begin => item.array.items.len != 0,
+            .object_begin => item.object.count() != 0,
+            .allocated_string, .allocated_number => true,
+            else => false,
+        });
+    }
+    const stamp = begin(observer, .array_growth);
+    defer end(observer, .array_growth, stamp);
+    return array.finish(a);
+}
+
+fn readObject(a: A, temporary: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Value {
     // Most report objects are small. Buffer a few fields on the stack and
     // allocate their final map once, avoiding successive arena-backed growth.
     const Field = struct { key: []const u8, value: std.json.Value };
@@ -100,7 +181,7 @@ fn readObject(a: A, source: *Scanner, max: usize, observer: anytype) Error!std.j
             .string, .allocated_string => |text| text,
             else => return error.UnexpectedToken,
         };
-        const item = try read(a, source, max, try next(a, source, max, observer), observer);
+        const item = try read(a, temporary, source, max, try next(a, source, max, observer), observer);
         // Finish the value before duplicate detection to preserve diagnostics.
         if (!large) {
             {
