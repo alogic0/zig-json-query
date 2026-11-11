@@ -284,3 +284,12 @@ unchanged siblings/original values, output capacity following distinct count and
 cleanup at every logical allocation in a partially copied region. Existing exact
 equality, representative, invalid-exponent/depth and generated-model checks pass
 for `unique`, `sort_values` and sorted output. Source fingerprints match the run.
+
+Public-process comparison support, 0.22.0: the invocation study now alternates
+the original CLI, current CLI and a same-current control on both large fixtures.
+The [170-sample invocation run](../profiling/2026-11-11-invocation-final.json)
+checks real stdin/output/exit behavior against ordinary execution. Command count
+median is 44.330 ms current versus 66.436 ms original; backend count is 81.794
+versus 121.714 ms, about 33% lower in each case. Current controls are 42.639 and
+80.846 ms. This confirms the complete invocation benefits while keeping its
+combined startup/IO/supervision costs explicit. Twelve profiler checks pass.

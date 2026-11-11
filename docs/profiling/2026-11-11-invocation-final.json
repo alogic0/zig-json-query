@@ -1,0 +1,2314 @@
+{
+  "schema_version": 1,
+  "study": "invocation",
+  "version": "0.22.0",
+  "zig": "0.17.0",
+  "optimization": "debug",
+  "target": "x86_64-linux-gnu",
+  "cpu_model": "znver4",
+  "kernel_release": "7.0.0-42-generic",
+  "measured_at_unix_seconds": 1794388833,
+  "repeat": 10,
+  "method": "One warm-up; rotated variants. Native Debug empty/echo baselines use the same std.process.Init type and buffering conventions; their work differs explicitly. Parent supervised wall time includes child lifetime and IO capture, excludes output validation/report release. Separate-process time sums identical per-document intervals. No loader-only or child self-time claim. Sixteen identical compact reports, same projection without aggregates/early stops, byte-identical ordered output. Reused Program intervals include one compile, all feeds/outputs and cleanup; in-process validation is included. Optional reference CLI also enables matched large command/backend input comparisons, checking both outputs against ordinary execution. Parent allocator/RSS are not inferred from child intervals (memory=null).",
+  "source_hashes": [
+    {
+      "path": "build.zig",
+      "sha256": "877db2547e101d24d9ae48961d84640ad8ff52942c9c37f20778c2d3cb728001"
+    },
+    {
+      "path": "build.zig.zon",
+      "sha256": "fec0e197fef8f40a4b1d4be50ef78e3c7bbb639837cfae1b8f7e10afb7d56fc1"
+    },
+    {
+      "path": "src/root.zig",
+      "sha256": "c29bee5d2d367a816b8d6faea8d5f6b225e06b2a4dab2a1da727960ef7bb356f"
+    },
+    {
+      "path": "src/main.zig",
+      "sha256": "11542b8e3e1742c67e4276196f71672e688977d55258bf380ed0780f4d9f0878"
+    },
+    {
+      "path": "src/input.zig",
+      "sha256": "448272a7de5dc8e2503c01c5ded5aa06bd2191bb6bc5b1ef68cc4d2458b5a034"
+    },
+    {
+      "path": "src/value_builder.zig",
+      "sha256": "c100ab9cf0fbc0c025eacd731322e73c07d184bde467052b897ade13b2bd10b2"
+    },
+    {
+      "path": "src/parser.zig",
+      "sha256": "c503a08eab1dcfa280717bceb34835737776cdc9ae6c6819080a286da9a4834a"
+    },
+    {
+      "path": "src/evaluator.zig",
+      "sha256": "3fb7a7fe37e001206c63df996187de04ed18453bd10b23f237f21a16a1a5bd6a"
+    },
+    {
+      "path": "src/execution.zig",
+      "sha256": "6b2173778fbefdf20a407d9ec344631f67fd57c08b42fe7d05193d49141eb0b7"
+    },
+    {
+      "path": "src/number.zig",
+      "sha256": "d633847bf3da38397c0b3f3ab46a71aed12d31eb2a4e44424253078628f4bc8f"
+    },
+    {
+      "path": "src/statistics.zig",
+      "sha256": "5a6680e5c2b4f0fb8872a892ab181e09a5d8421cb0c9e75b78d4597e0ed232e4"
+    },
+    {
+      "path": "src/rows.zig",
+      "sha256": "cf0e1a5ce5b492f7e288188593a13e9d122515af2c9dd2efc813ef318caa1798"
+    },
+    {
+      "path": "src/buffered.zig",
+      "sha256": "7727d1af39d52e164c3b422d8f7e7e37506ae3b71f45de470c2007c0fce363a2"
+    },
+    {
+      "path": "src/json_order.zig",
+      "sha256": "7ced25e7715f79d27956ede1d3720f938208779f7c93cf7bb806b6d33466a9bd"
+    },
+    {
+      "path": "src/collection_budget.zig",
+      "sha256": "6f2f3ba38af43c983788b36549a6c9621151b95cfa5a569de50ea039096dcefb"
+    },
+    {
+      "path": "src/diagnostic.zig",
+      "sha256": "2f292c75463ca99243de1dfb96487b61595d8f750d1e2836041e8dc95038728a"
+    },
+    {
+      "path": "src/profile_engine.zig",
+      "sha256": "1c8ce2db2c2623718dad1716e11296de69c05a1ff6bf4658c2653aab5cdef54b"
+    },
+    {
+      "path": "tools/profile.zig",
+      "sha256": "138f234d8dddf8acef56a8b274a9ebf89e67ac2f9789dde0929800010aac8587"
+    },
+    {
+      "path": "tools/allocation_meter.zig",
+      "sha256": "bee434bb88d3d121d7b6c66175283aa929a15b979fe36f6769fc4767cb246fb4"
+    },
+    {
+      "path": "tools/study_support.zig",
+      "sha256": "3524b3a9f77aa6d5b34280a6efe30df55f6ae672fb4ffb75bf0ebe5e06f1d296"
+    },
+    {
+      "path": "tools/fixtures.zig",
+      "sha256": "a7bc622ac56fc49858d7fb1ba437efeff92997446d982037cfc9b7ad7fbbd6b6"
+    },
+    {
+      "path": "vendor/SHA256SUMS",
+      "sha256": "59470be14e8a9a97d3d1dfdc0dc6493f04692d0833860186c31db762e0720f05"
+    },
+    {
+      "path": "tools/invocation_study.zig",
+      "sha256": "18a596e96cd18b7d986f9e73ae10617650890a8d6d519f38ff0e69bebd21689a"
+    },
+    {
+      "path": "tools/launch_fixture.zig",
+      "sha256": "5e0f6a676fed8b5c1245b451deabc4601795522e7126a50ee1aaca99b60594f4"
+    },
+    {
+      "path": "tests/qualification/backend.json",
+      "sha256": "b9da476bef6a50de9d73f069d257dcab09f363dc2fb804025f464fb589d6f651"
+    }
+  ],
+  "tool_hashes": [
+    {
+      "path": "/home/oleg/.zig/0.17.0/files/zig",
+      "sha256": "7c61539af19fa4082c94848f1c2b57b89e76dc6cfd5bd4c57764c3caf8f82272"
+    },
+    {
+      "path": ".zig-cache/o/45cafcbc3ca1c94b2a24a3492b15492f/jqz",
+      "sha256": "461abf174280cb39f4825e655f381107a39aabe5cd175fe4373e97d0ca4004ec"
+    },
+    {
+      "path": "./.zig-cache/o/ed44ab0768eb3f102d0963f2119af879/query-profile",
+      "sha256": "a5dc66a9b5c8599ef5075018d534babe9279dc2566fe364db78005c3b76ec9ab"
+    },
+    {
+      "path": ".zig-cache/o/7c7c40176af312e8744f94b3b4334a16/profile-exit",
+      "sha256": "df6a5354ce6ab1ec772641e8871c794cb8b341a2c40446507ab0824f8b80ee3b"
+    },
+    {
+      "path": ".zig-cache/o/8073a95a52aeb58faf19e46fc3330405/profile-echo",
+      "sha256": "74bd560e2ccd8443005bed00e2bd9ddb394f973f2cf88cb27130c12143bd3af4"
+    },
+    {
+      "path": "/tmp/jqz-performance.rXgUR4/baseline/zig-out/bin/jqz",
+      "sha256": "166c963e2d06d670be7518eeb020f8b3a69114d4afcb3ac99f60218911efe3d4"
+    }
+  ],
+  "details": {
+    "documents": 16,
+    "query": "{passed,cleanup_passed,result,http_count:length(.http)}",
+    "input_sha256": "8dea3c6d89ed6214153922054ca531cab834d3b2bae22bca68ee8d4115f722cc",
+    "output_sha256": "8e33c930002ecb1479966f17cd519191d0cba8384a989544cfd1e8418bc57ff2",
+    "output_bytes": 1552,
+    "reference_cli": "/tmp/jqz-performance.rXgUR4/baseline/zig-out/bin/jqz",
+    "large_checks": [
+      {
+        "case": "large-commands-cli",
+        "query": "{commands:length(.),last:.[-1].argv}",
+        "bytes": 507825,
+        "input_sha256": "81c811339ac8305f0a36226dd52d59696763a7a28eef591c651e028e2d3200e9",
+        "output_sha256": "e86424c037b5f9049bf08b2374e39ff4c61bc2e8fa7ae73104c99a42b79c7053"
+      },
+      {
+        "case": "large-backend-cli",
+        "query": "{passed,cleanup_passed,result,http_count:length(.http)}",
+        "bytes": 860080,
+        "input_sha256": "8dd2adef77aa99ee9b54d857662453ae2fe02e7edf04a7615a774d0f382bee53",
+        "output_sha256": "299b7d051a2a587beadb6e163e8966dda4edd0ffea18b588687bed66f5408f1f"
+      }
+    ]
+  },
+  "samples": [
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 0,
+      "elapsed_ns": 7255498,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 0,
+      "elapsed_ns": 8152291,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 0,
+      "elapsed_ns": 8201738,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 0,
+      "elapsed_ns": 8163292,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 0,
+      "elapsed_ns": 9452562,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 0,
+      "elapsed_ns": 6378174,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 0,
+      "elapsed_ns": 12778752,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 0,
+      "elapsed_ns": 14161935,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 0,
+      "elapsed_ns": 4630399,
+      "memory": {
+        "allocations": 121,
+        "allocation_failures": 0,
+        "resize_attempts": 142,
+        "remap_attempts": 4,
+        "frees": 121,
+        "requested_bytes": 231823,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 23780
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 0,
+      "elapsed_ns": 3103244,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 0,
+      "elapsed_ns": 154067433,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 1,
+      "elapsed_ns": 8644673,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 1,
+      "elapsed_ns": 8329016,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 1,
+      "elapsed_ns": 8337974,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 1,
+      "elapsed_ns": 8760148,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 1,
+      "elapsed_ns": 6069692,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 1,
+      "elapsed_ns": 6066776,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 1,
+      "elapsed_ns": 12541448,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 1,
+      "elapsed_ns": 3601819,
+      "memory": {
+        "allocations": 119,
+        "allocation_failures": 0,
+        "resize_attempts": 147,
+        "remap_attempts": 4,
+        "frees": 119,
+        "requested_bytes": 237643,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24028
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 1,
+      "elapsed_ns": 4136312,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 1,
+      "elapsed_ns": 159700517,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 1,
+      "elapsed_ns": 16213754,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 2,
+      "elapsed_ns": 9461700,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 2,
+      "elapsed_ns": 8272094,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 2,
+      "elapsed_ns": 8878149,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 2,
+      "elapsed_ns": 6184776,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 2,
+      "elapsed_ns": 6177582,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 2,
+      "elapsed_ns": 8216306,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 2,
+      "elapsed_ns": 3491723,
+      "memory": {
+        "allocations": 119,
+        "allocation_failures": 0,
+        "resize_attempts": 147,
+        "remap_attempts": 4,
+        "frees": 119,
+        "requested_bytes": 237643,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24028
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 2,
+      "elapsed_ns": 3064860,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 2,
+      "elapsed_ns": 155358625,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 2,
+      "elapsed_ns": 12767560,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 2,
+      "elapsed_ns": 13487306,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 3,
+      "elapsed_ns": 10555737,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 3,
+      "elapsed_ns": 8399634,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 3,
+      "elapsed_ns": 7552188,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 3,
+      "elapsed_ns": 6296915,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 3,
+      "elapsed_ns": 8565248,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 3,
+      "elapsed_ns": 9574500,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 3,
+      "elapsed_ns": 4167103,
+      "memory": {
+        "allocations": 92,
+        "allocation_failures": 0,
+        "resize_attempts": 160,
+        "remap_attempts": 4,
+        "frees": 92,
+        "requested_bytes": 255162,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 3,
+      "elapsed_ns": 154122720,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 3,
+      "elapsed_ns": 13773104,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 3,
+      "elapsed_ns": 11666418,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 3,
+      "elapsed_ns": 5325777,
+      "memory": {
+        "allocations": 121,
+        "allocation_failures": 0,
+        "resize_attempts": 148,
+        "remap_attempts": 4,
+        "frees": 121,
+        "requested_bytes": 239031,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24028
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 4,
+      "elapsed_ns": 8602941,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 4,
+      "elapsed_ns": 7435049,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 4,
+      "elapsed_ns": 7330405,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 4,
+      "elapsed_ns": 10666424,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 4,
+      "elapsed_ns": 13281734,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 4,
+      "elapsed_ns": 8615115,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 4,
+      "elapsed_ns": 155686527,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 4,
+      "elapsed_ns": 13677758,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 4,
+      "elapsed_ns": 12685730,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 4,
+      "elapsed_ns": 4962779,
+      "memory": {
+        "allocations": 121,
+        "allocation_failures": 0,
+        "resize_attempts": 139,
+        "remap_attempts": 4,
+        "frees": 121,
+        "requested_bytes": 232995,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24952
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 4,
+      "elapsed_ns": 3769576,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 5,
+      "elapsed_ns": 8985820,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 5,
+      "elapsed_ns": 6357303,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 5,
+      "elapsed_ns": 8450184,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 5,
+      "elapsed_ns": 8491895,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 5,
+      "elapsed_ns": 8279820,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 5,
+      "elapsed_ns": 8381088,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 5,
+      "elapsed_ns": 12681672,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 5,
+      "elapsed_ns": 12988692,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 5,
+      "elapsed_ns": 4637342,
+      "memory": {
+        "allocations": 121,
+        "allocation_failures": 0,
+        "resize_attempts": 142,
+        "remap_attempts": 4,
+        "frees": 121,
+        "requested_bytes": 231823,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 23780
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 5,
+      "elapsed_ns": 4402212,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 5,
+      "elapsed_ns": 154472652,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 6,
+      "elapsed_ns": 6497286,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 6,
+      "elapsed_ns": 8500521,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 6,
+      "elapsed_ns": 8725812,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 6,
+      "elapsed_ns": 9677492,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 6,
+      "elapsed_ns": 8340688,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 6,
+      "elapsed_ns": 6154547,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 6,
+      "elapsed_ns": 11426288,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 6,
+      "elapsed_ns": 4710285,
+      "memory": {
+        "allocations": 119,
+        "allocation_failures": 0,
+        "resize_attempts": 147,
+        "remap_attempts": 4,
+        "frees": 119,
+        "requested_bytes": 237643,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24028
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 6,
+      "elapsed_ns": 3273658,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 6,
+      "elapsed_ns": 149279026,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 6,
+      "elapsed_ns": 12561778,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 7,
+      "elapsed_ns": 8598463,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 7,
+      "elapsed_ns": 8875985,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 7,
+      "elapsed_ns": 8764237,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 7,
+      "elapsed_ns": 9402965,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 7,
+      "elapsed_ns": 6274241,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 7,
+      "elapsed_ns": 6193964,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 7,
+      "elapsed_ns": 4539050,
+      "memory": {
+        "allocations": 119,
+        "allocation_failures": 0,
+        "resize_attempts": 147,
+        "remap_attempts": 4,
+        "frees": 119,
+        "requested_bytes": 237643,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24028
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 7,
+      "elapsed_ns": 4035617,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 7,
+      "elapsed_ns": 153108066,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 7,
+      "elapsed_ns": 12721069,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 7,
+      "elapsed_ns": 13447379,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 8,
+      "elapsed_ns": 8350358,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 8,
+      "elapsed_ns": 8485382,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 8,
+      "elapsed_ns": 8402880,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 8,
+      "elapsed_ns": 7046610,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 8,
+      "elapsed_ns": 8443089,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 8,
+      "elapsed_ns": 8410064,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 8,
+      "elapsed_ns": 3532292,
+      "memory": {
+        "allocations": 92,
+        "allocation_failures": 0,
+        "resize_attempts": 160,
+        "remap_attempts": 4,
+        "frees": 92,
+        "requested_bytes": 255162,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 8,
+      "elapsed_ns": 152871433,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 8,
+      "elapsed_ns": 13845306,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 8,
+      "elapsed_ns": 12642435,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 8,
+      "elapsed_ns": 4615118,
+      "memory": {
+        "allocations": 121,
+        "allocation_failures": 0,
+        "resize_attempts": 148,
+        "remap_attempts": 4,
+        "frees": 121,
+        "requested_bytes": 239031,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24028
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "iteration": 9,
+      "elapsed_ns": 9822014,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "iteration": 9,
+      "elapsed_ns": 10159133,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "iteration": 9,
+      "elapsed_ns": 6229424,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "iteration": 9,
+      "elapsed_ns": 6196880,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "iteration": 9,
+      "elapsed_ns": 8389445,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "iteration": 9,
+      "elapsed_ns": 10777801,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "iteration": 9,
+      "elapsed_ns": 153175670,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "iteration": 9,
+      "elapsed_ns": 14901981,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "iteration": 9,
+      "elapsed_ns": 15441676,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "iteration": 9,
+      "elapsed_ns": 4834578,
+      "memory": {
+        "allocations": 121,
+        "allocation_failures": 0,
+        "resize_attempts": 139,
+        "remap_attempts": 4,
+        "frees": 121,
+        "requested_bytes": 232995,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 24952
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "iteration": 9,
+      "elapsed_ns": 3857598,
+      "memory": {
+        "allocations": 93,
+        "allocation_failures": 0,
+        "resize_attempts": 162,
+        "remap_attempts": 4,
+        "frees": 93,
+        "requested_bytes": 257456,
+        "start_live_bytes": 0,
+        "end_live_bytes": 0,
+        "peak_live_bytes": 22874
+      },
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 0,
+      "elapsed_ns": 45098730,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 0,
+      "elapsed_ns": 42316453,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 0,
+      "elapsed_ns": 67662753,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 1,
+      "elapsed_ns": 44869241,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 1,
+      "elapsed_ns": 66995649,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 1,
+      "elapsed_ns": 44175225,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 2,
+      "elapsed_ns": 66750090,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 2,
+      "elapsed_ns": 43401453,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 2,
+      "elapsed_ns": 42962456,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 3,
+      "elapsed_ns": 42769027,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 3,
+      "elapsed_ns": 41503795,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 3,
+      "elapsed_ns": 64389457,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 4,
+      "elapsed_ns": 41521099,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 4,
+      "elapsed_ns": 68448950,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 4,
+      "elapsed_ns": 46541189,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 5,
+      "elapsed_ns": 66122283,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 5,
+      "elapsed_ns": 39503476,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 5,
+      "elapsed_ns": 43883966,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 6,
+      "elapsed_ns": 44484239,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 6,
+      "elapsed_ns": 45439887,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 6,
+      "elapsed_ns": 65205422,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 7,
+      "elapsed_ns": 42081073,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 7,
+      "elapsed_ns": 65752911,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 7,
+      "elapsed_ns": 45176552,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 8,
+      "elapsed_ns": 67691199,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 8,
+      "elapsed_ns": 42245253,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 8,
+      "elapsed_ns": 41900090,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "iteration": 9,
+      "elapsed_ns": 44982793,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "iteration": 9,
+      "elapsed_ns": 46073064,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "iteration": 9,
+      "elapsed_ns": 62884266,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 0,
+      "elapsed_ns": 81711577,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 0,
+      "elapsed_ns": 79953371,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 0,
+      "elapsed_ns": 122486959,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 1,
+      "elapsed_ns": 81739381,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 1,
+      "elapsed_ns": 117854265,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 1,
+      "elapsed_ns": 76571943,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 2,
+      "elapsed_ns": 123589794,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 2,
+      "elapsed_ns": 78940763,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 2,
+      "elapsed_ns": 78426748,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 3,
+      "elapsed_ns": 84437644,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 3,
+      "elapsed_ns": 83828633,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 3,
+      "elapsed_ns": 120189058,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 4,
+      "elapsed_ns": 78500152,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 4,
+      "elapsed_ns": 120941528,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 4,
+      "elapsed_ns": 81876539,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 5,
+      "elapsed_ns": 120885378,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 5,
+      "elapsed_ns": 82363231,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 5,
+      "elapsed_ns": 79864237,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 6,
+      "elapsed_ns": 81506687,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 6,
+      "elapsed_ns": 79699054,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 6,
+      "elapsed_ns": 130472393,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 7,
+      "elapsed_ns": 82040610,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 7,
+      "elapsed_ns": 126413802,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 7,
+      "elapsed_ns": 80899480,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 8,
+      "elapsed_ns": 125270157,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 8,
+      "elapsed_ns": 85487797,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 8,
+      "elapsed_ns": 83355390,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "iteration": 9,
+      "elapsed_ns": 83105441,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "iteration": 9,
+      "elapsed_ns": 84089764,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "iteration": 9,
+      "elapsed_ns": 120916610,
+      "memory": null,
+      "logical": null,
+      "logical_delta": null,
+      "token_traffic": null
+    }
+  ],
+  "summaries": [
+    {
+      "case": "tiny-launch",
+      "variant": "matched-echo",
+      "samples": 10,
+      "wall_ns": {
+        "min": 6066776,
+        "median": 6327109,
+        "max": 8443089
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "version",
+      "samples": 10,
+      "wall_ns": {
+        "min": 8152291,
+        "median": 8475352,
+        "max": 10666424
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null",
+      "samples": 10,
+      "wall_ns": {
+        "min": 8201738,
+        "median": 8800898,
+        "max": 13281734
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "null-control",
+      "samples": 10,
+      "wall_ns": {
+        "min": 8163292,
+        "median": 8550248,
+        "max": 10555737
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "reference-null",
+      "samples": 10,
+      "wall_ns": {
+        "min": 8340688,
+        "median": 8681544,
+        "max": 10159133
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "tiny-launch",
+      "variant": "empty-zig",
+      "samples": 10,
+      "wall_ns": {
+        "min": 6069692,
+        "median": 6326207,
+        "max": 8985820
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "multi-file",
+      "samples": 10,
+      "wall_ns": {
+        "min": 12561778,
+        "median": 13228255,
+        "max": 16213754
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "ndjson",
+      "samples": 10,
+      "wall_ns": {
+        "min": 11426288,
+        "median": 12837211,
+        "max": 15441676
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-reused-sessions",
+      "samples": 10,
+      "wall_ns": {
+        "min": 3491723,
+        "median": 4633870,
+        "max": 5325777
+      },
+      "allocations": {
+        "min": 119,
+        "median": 121,
+        "max": 121
+      },
+      "requested_bytes": {
+        "min": 231823,
+        "median": 237643,
+        "max": 239031
+      },
+      "peak_live_bytes": {
+        "min": 23780,
+        "median": 24028,
+        "max": 24952
+      }
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "program-one-session",
+      "samples": 10,
+      "wall_ns": {
+        "min": 3064860,
+        "median": 3813587,
+        "max": 4402212
+      },
+      "allocations": {
+        "min": 92,
+        "median": 93,
+        "max": 93
+      },
+      "requested_bytes": {
+        "min": 255162,
+        "median": 257456,
+        "max": 257456
+      },
+      "peak_live_bytes": {
+        "min": 22874,
+        "median": 22874,
+        "max": 22874
+      }
+    },
+    {
+      "case": "sixteen-reports",
+      "variant": "separate-processes",
+      "samples": 10,
+      "wall_ns": {
+        "min": 149279026,
+        "median": 154095076,
+        "max": 159700517
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current",
+      "samples": 10,
+      "wall_ns": {
+        "min": 39503476,
+        "median": 44329732,
+        "max": 46541189
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "current-control",
+      "samples": 10,
+      "wall_ns": {
+        "min": 41503795,
+        "median": 42639454,
+        "max": 46073064
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "large-commands-cli",
+      "variant": "reference",
+      "samples": 10,
+      "wall_ns": {
+        "min": 62884266,
+        "median": 66436186,
+        "max": 68448950
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current",
+      "samples": 10,
+      "wall_ns": {
+        "min": 76571943,
+        "median": 81794058,
+        "max": 85487797
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "current-control",
+      "samples": 10,
+      "wall_ns": {
+        "min": 78426748,
+        "median": 80846376,
+        "max": 84089764
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    },
+    {
+      "case": "large-backend-cli",
+      "variant": "reference",
+      "samples": 10,
+      "wall_ns": {
+        "min": 117854265,
+        "median": 121714243,
+        "max": 130472393
+      },
+      "allocations": null,
+      "requested_bytes": null,
+      "peak_live_bytes": null
+    }
+  ]
+}

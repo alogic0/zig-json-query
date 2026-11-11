@@ -623,6 +623,8 @@ compares native Debug launch controls, repeated processes, multi-file/NDJSON
 batching and compiled-Program reuse. An optional `--reference-cli PATH` pins an
 older CLI for the null-query control. Child memory is unavailable in these
 supervised intervals and is reported as null rather than zero.
+Supplying the reference also compares the two large generated documents through
+both real CLIs, with alternating current/reference controls and exact outputs.
 `zig build profile -- --study structural --repeat 10 --out .zig-cache/structural.json`
 measures source/key materialization, comparison preparation, sorting, reservation
 and deduplication on repeated, distinct, mixed and nested inputs. Full-query

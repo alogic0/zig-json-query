@@ -3,6 +3,7 @@ const S = @import("test_support");
 const engine = @import("profile_engine");
 const options = @import("profile_options");
 const M = @import("study_support.zig");
+const generated = @import("fixtures.zig");
 const A = std.mem.Allocator;
 const Io = std.Io;
 const query = "{passed,cleanup_passed,result,http_count:length(.http)}";
@@ -116,13 +117,34 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8, reference_cl
             if (round != 0) try records.append(a, record);
         }
     }
-    try guard.publish("invocation", repeat, "One warm-up; rotated variants. Native Debug empty/echo baselines use the same std.process.Init type and buffering conventions; their work differs explicitly. Parent supervised wall time includes child lifetime and IO capture, excludes output validation/report release. Separate-process time sums identical per-document intervals. No loader-only or child self-time claim. Sixteen identical compact reports, same projection without aggregates/early stops, byte-identical ordered output. Reused Program intervals include one compile, all feeds/outputs and cleanup; in-process validation is included. Parent allocator/RSS are not inferred from child intervals (memory=null).", records.items, .{
+    const LargeCheck = struct { case: []const u8, query: []const u8, bytes: usize, input_sha256: []const u8, output_sha256: []const u8 };
+    var large_checks: std.ArrayList(LargeCheck) = .empty;
+    if (reference_cli) |reference| {
+        for ([_]generated.Kind{ .commands, .backend }) |kind| {
+            const bytes = try generated.generate(a, kind, if (kind == .commands) 2837 else 10000);
+            const expression = if (kind == .commands) "{commands:length(.),last:.[-1].argv}" else query;
+            var compiled = try engine.Program.compile(a, expression, &diagnostic);
+            defer compiled.deinit();
+            var wanted = Io.Writer.Allocating.init(a);
+            try compiled.run(a, bytes, &wanted.writer, &diagnostic);
+            const id = if (kind == .commands) "large-commands-cli" else "large-backend-cli";
+            try large_checks.append(a, .{ .case = id, .query = expression, .bytes = bytes.len, .input_sha256 = try M.digest(a, bytes), .output_sha256 = try M.digest(a, wanted.written()) });
+            for (0..repeat + 1) |round| for (0..3) |step| {
+                const variant = (round + step) % 3;
+                const binary = if (variant == 0) reference else options.exe;
+                const duration = try invoke(a, io, &.{ binary, expression }, bytes, wanted.written());
+                if (round != 0) try records.append(a, .{ .case = id, .variant = if (variant == 0) "reference" else if (variant == 1) "current" else "current-control", .iteration = round - 1, .elapsed_ns = duration, .memory = null });
+            };
+        }
+    }
+    try guard.publish("invocation", repeat, "One warm-up; rotated variants. Native Debug empty/echo baselines use the same std.process.Init type and buffering conventions; their work differs explicitly. Parent supervised wall time includes child lifetime and IO capture, excludes output validation/report release. Separate-process time sums identical per-document intervals. No loader-only or child self-time claim. Sixteen identical compact reports, same projection without aggregates/early stops, byte-identical ordered output. Reused Program intervals include one compile, all feeds/outputs and cleanup; in-process validation is included. Optional reference CLI also enables matched large command/backend input comparisons, checking both outputs against ordinary execution. Parent allocator/RSS are not inferred from child intervals (memory=null).", records.items, .{
         .documents = documents,
         .query = query,
         .input_sha256 = try M.digest(a, input),
         .output_sha256 = try M.digest(a, expected.written()),
         .output_bytes = expected.written().len,
         .reference_cli = reference_cli,
+        .large_checks = large_checks.items,
     }, out);
 }
 
