@@ -219,3 +219,16 @@ temporary peak and arena remap variation explain the small overlapping capacity
 ranges. Improve predecessor balance in the measurement order before final timing
 claims, and preserve these raw observations rather than selecting a favorable
 control. The primary memory gates remain satisfied.
+
+Measurement correction, 0.24.2: rotating a fixed sequence balances positions but
+retains the same neighbors. The builder now uses six-variant sequences that also
+balance every directed predecessor pair; a focused schedule test verifies both
+properties. The [720-sample balanced run](../profiling/2026-11-11-builder-balanced.json)
+has escaped-case medians 0.392/0.392 ms current/control versus 0.366/0.373 ms
+reference/control, below the 0.05 ms investigation threshold. Its small capacity
+increase is 96–226 bytes against reference/control, within the independently
+accounted temporary peak. The large backing peaks and combined traffic gate are
+unchanged. Backend ordinary medians are 47.526/47.233 versus 47.743/47.535 ms;
+commands 22.685/23.091 versus 22.684/22.839 ms. Native Debug build and all 217
+checks pass. This correction is a separate profiling fix, not another parser
+runtime optimization; earlier raw order/results remain intact.

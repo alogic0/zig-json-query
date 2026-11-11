@@ -19,6 +19,16 @@ pub const Record = struct {
 };
 pub const Hash = struct { path: []const u8, sha256: []const u8 };
 pub const Stats = struct { min: u64, median: u64, max: u64 };
+
+/// For an even variant count, each block balances positions and every directed
+/// predecessor pair. Rotating positions alone keeps the same neighbors.
+pub fn balancedVariant(comptime T: type, iteration: usize, step: usize) T {
+    const values = std.enums.values(T);
+    if (values.len % 2 != 0) @compileError("balancedVariant requires an even variant count");
+    std.debug.assert(step < values.len);
+    const offset = if (step == 0) 0 else if (step % 2 == 1) (step + 1) / 2 else values.len - step / 2;
+    return values[(offset + iteration) % values.len];
+}
 const Summary = struct { case: []const u8, variant: []const u8, samples: usize, wall_ns: Stats, allocations: ?Stats, requested_bytes: ?Stats, peak_live_bytes: ?Stats };
 pub const Run = struct {
     a: A,
@@ -98,6 +108,20 @@ pub const Run = struct {
 
 fn same(a: Record, b: Record) bool {
     return std.mem.eql(u8, a.case, b.case) and std.mem.eql(u8, a.variant, b.variant);
+}
+
+test "study variant schedule balances positions and directed predecessors" {
+    const T = enum { a, b, c, d, e, f };
+    const n = std.enums.values(T).len;
+    var positions: [n][n]usize = @splat(@splat(0));
+    var pairs = positions;
+    for (0..n) |iteration| for (0..n) |step| {
+        const current = @backingInt(balancedVariant(T, iteration, step));
+        positions[step][current] += 1;
+        if (step != 0) pairs[@backingInt(balancedVariant(T, iteration, step - 1))][current] += 1;
+    };
+    for (positions) |position| for (position) |count| try std.testing.expectEqual(@as(usize, 1), count);
+    for (pairs, 0..) |row, previous| for (row, 0..) |count, current| try std.testing.expectEqual(@as(usize, if (previous == current) 0 else 1), count);
 }
 pub fn elapsed(start: Io.Timestamp, io: Io) u64 {
     return @intCast(start.untilNow(io, .awake).nanoseconds);
