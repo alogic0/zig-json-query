@@ -68,7 +68,7 @@ with plain `rm`, without flags.
    - Replay all 45 frozen corpus cases at one repetition (68 timing smoke
      samples). Preserve 30/30 observed translations and ten intentional probes;
      compare runtime/corpus fingerprints with the current checkout evidence.
-4. [ ] Verify an independent consumer:
+4. [x] Verify an independent consumer:
    - Copy its files from the archive, adjust only the dependency path and
      initialize its own sibling repository. Confirm unchanged main/build files.
    - Move source caches/package directory/build outputs aside. Run all eight
@@ -131,3 +131,15 @@ its different Debug build paths explain the difference from the checkout binary.
 Raw logs and commands are recorded in the checkpoint. A retained qualified copy
 at `zig-out/qualification/zig-json-query-0.26.2-db25365.tar.gz` protects this
 snapshot if a later `zig build dist` replaces the standard output filename.
+
+Slice 4: a sibling independent Git repository passes all eight consumer tests
+using fresh consumer local/global/package caches. Source local/global caches,
+package directory and build output are quarantined and their original paths
+remain absent after the consumer build. An initial setup check also found an
+empty source `.zig-cache/tmp` directory; an inadvertently started consumer attempt
+is excluded. That directory and all consumer caches were moved aside before the
+reported fresh rerun. Both attempt logs and the isolation audit are retained.
+The consumer build/main files match the archive; the
+[only manifest change](../qualification/2026-11-11-package-consumer-manifest.patch)
+points `json_query` to `../source`. All 159 source file fingerprints still match
+after the consumer check. No code/package fix or version increment was needed.

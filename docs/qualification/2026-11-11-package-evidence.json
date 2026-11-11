@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "status": "source_verified",
+  "status": "consumer_verified",
   "version": "0.26.2",
   "verified_at_utc": "2026-11-11T13:07:36Z",
   "target": "x86_64-linux-gnu",
@@ -178,6 +178,41 @@
       "runtime_corpus_fingerprints_match": "docs/qualification/2026-11-11-container-construction.json",
       "purpose": "Packaged runner/data smoke verification, not a new performance baseline.",
       "raw_sha256": "d56e3b52afeaf2259a0647a052c0ba88b14e06874610e98eb9172916cd20525e"
+    },
+    {
+      "id": "separate-consumer-tests",
+      "cwd": "<workspace>/consumer",
+      "env": {
+        "ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/consumer-global",
+        "ZIG_LOCAL_PKG_DIR": "zig-pkg"
+      },
+      "argv": [
+        "zig",
+        "build",
+        "test",
+        "--summary",
+        "all",
+        "--cache-dir",
+        "<workspace>/caches/consumer-local"
+      ],
+      "exit_code": 0,
+      "tests": 8,
+      "log": "docs/qualification/2026-11-11-package-consumer-tests.log",
+      "dependency_override": "json_query.path = ../source",
+      "dependency_patch": "docs/qualification/2026-11-11-package-consumer-manifest.patch",
+      "copy_note": "build.zig and main.zig copied unchanged from the archive; only the manifest dependency path changed.",
+      "build_sha256": "7a5cb1ba7bb1d7e9de9d60449ae6cf137f2b52cdfab18431481a0be4e8fd7ae3",
+      "main_sha256": "ab85c65343d8b9113f0bc406c5232d41d0bafb4e4abbc2740cda1865026dbd4b",
+      "original_manifest_sha256": "a735314834495d24ee315d1c1179cba6509a90f0e16c310ff448c68166c5b109",
+      "adapted_manifest_sha256": "eeb4ccc04dc01be850c2d1753546d265f5e184d838a325ccd42bf7b8d5ea3a32",
+      "test_binary_sha256": "82ad7f75d9dc816e4526704f469469c257ae3979929283a900cf7edd2f0f1c8f",
+      "source_snapshot_unchanged_after_consumer": true,
+      "excluded_attempt": {
+        "reason": "Setup/postcondition audit found the empty source default temporary directory; final run repeated with all caches reset.",
+        "zig_tests_passed": 8,
+        "verification_script_exit_code": 1,
+        "log": "docs/qualification/2026-11-11-package-consumer-discarded-tests.log"
+      }
     }
   ],
   "required_checks": {
@@ -200,6 +235,20 @@
     "consumer_local_cache": "<workspace>/caches/consumer-local",
     "consumer_global_cache": "<workspace>/caches/consumer-global",
     "source_and_consumer_cache_paths_distinct": true,
-    "package_cache_setting": "ZIG_LOCAL_PKG_DIR=zig-pkg, relative to each build working directory."
+    "package_cache_setting": "ZIG_LOCAL_PKG_DIR=zig-pkg, relative to each build working directory.",
+    "consumer_repository_initialized": true,
+    "consumer_local_cache_initially_empty": true,
+    "consumer_global_cache_initially_empty": true,
+    "consumer_package_directory_initially_absent": true,
+    "source_artifacts_quarantined_before_final_consumer": true,
+    "source_artifact_paths_remain_absent_after_consumer": true,
+    "quarantined_paths": [
+      "<workspace>/caches/source-local",
+      "<workspace>/caches/source-global",
+      "<workspace>/source/zig-pkg",
+      "<workspace>/source/zig-out",
+      "<workspace>/source/.zig-cache"
+    ],
+    "isolation_audit": "The initial setup detected an empty source .zig-cache/tmp directory left by tests. A consumer attempt was inadvertently started before that setup result was checked; its eight passing tests are excluded. The empty default directory and every consumer cache/package directory were moved aside, and the reported consumer run started fresh with all source artifact paths absent."
   }
 }

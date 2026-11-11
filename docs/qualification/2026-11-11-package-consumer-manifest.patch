@@ -1,0 +1,10 @@
+--- archive/tests/package/build.zig.zon
++++ consumer/build.zig.zon
+@@ -3,6 +3,6 @@
+     .fingerprint = 0x3ca2ffa55bc11acc,
+     .version = "0.0.0",
+     .minimum_zig_version = "0.17.0",
+-    .dependencies = .{ .json_query = .{ .path = "../.." } },
++    .dependencies = .{ .json_query = .{ .path = "../source" } },
+     .paths = .{ "build.zig", "build.zig.zon", "main.zig" },
+ }
