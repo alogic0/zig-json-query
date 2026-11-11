@@ -52,6 +52,8 @@ pub fn main(init: std.process.Init) !void {
     const compiler_hash = try digestFile(a, io, options.compiler);
     const cli_hash = try digestFile(a, io, options.exe);
     const profiler_hash = try digestFile(a, io, args[0]);
+    const kernel_release = std.mem.trim(u8, try readStream(a, io, "/proc/sys/kernel/osrelease"), " \r\n");
+    if (kernel_release.len == 0) return error.MissingKernelRelease;
     const version = try S.command.runReport(a, io, .{ .run = .{ .spawn = .{ .argv = &.{ options.exe, "--version" } }, .timeout_ms = 5000 }, .stdin = "" });
     defer version.deinit(a);
     try S.Diagnostic.expectExit(version, .{ .assertion = "profile CLI version", .code = 0 });
@@ -131,7 +133,7 @@ pub fn main(init: std.process.Init) !void {
         .zig = builtin.zig_version_string,
         .target = options.target,
         .cpu_model = builtin.cpu.model.name,
-        .kernel_release = std.mem.trim(u8, try Io.Dir.cwd().readFileAlloc(io, "/proc/sys/kernel/osrelease", a, .limited(4096)), " \r\n"),
+        .kernel_release = kernel_release,
         .optimization = @tagName(builtin.mode),
         .measured_at_unix_seconds = Io.Clock.real.now(io).toSeconds(),
         .repeat = repeats,
@@ -230,6 +232,15 @@ fn launch(a: A, io: Io) !u64 {
     return elapsed;
 }
 
+// procfs files can report a zero stat size while providing nonempty contents.
+fn readStream(a: A, io: Io, path: []const u8) ![]const u8 {
+    const file = try Io.Dir.cwd().openFile(io, path, .{});
+    defer file.close(io);
+    var buffer: [1024]u8 = undefined;
+    var reader = file.readerStreaming(io, &buffer);
+    return reader.interface.allocRemaining(a, .limited(4096));
+}
+
 fn digest(a: A, bytes: []const u8) ![]const u8 {
     var hash: [32]u8 = undefined;
     std.crypto.hash.sha2.Sha256.hash(bytes, &hash, .{});
@@ -244,6 +255,13 @@ fn stats(a: A, input: []const u64) !Stats {
     std.sort.pdq(u64, values, {}, std.sort.asc(u64));
     const mid = values.len / 2;
     return .{ .min = values[0], .median = if (values.len % 2 == 1) values[mid] else values[mid - 1] + (values[mid] - values[mid - 1]) / 2, .max = values[values.len - 1] };
+}
+
+test "profile streams kernel metadata from zero-sized virtual files" {
+    const t = std.testing;
+    const release = try readStream(t.allocator, t.io, "/proc/sys/kernel/osrelease");
+    defer t.allocator.free(release);
+    try t.expect(std.mem.trim(u8, release, " \r\n").len > 0);
 }
 
 test "profile phases match ordinary output and release every tracked allocation" {

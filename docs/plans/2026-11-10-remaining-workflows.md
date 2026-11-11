@@ -136,3 +136,11 @@ supervised launch; all outputs match ordinary execution and all cleanup live
 counts are zero. Tests cover request growth/shrink/failure, phase baselines,
 strict parsing, output mismatches, raw sample order and exhaustive allocation
 cleanup. Formatting/diff checks passed; no additional external tool was needed.
+
+Profiling metadata correction, 0.18.1: procfs reports a zero stat size for the
+kernel-release file, so the ordinary positional file reader returned empty text.
+Use an explicit streaming reader and reject missing kernel metadata. A dedicated
+Linux regression check passes, along with all six profiler checks and the other
+189 project checks; build passed. The smoke profile records kernel release
+`7.0.0-42-generic`. The initial 0.18.0 measurements are discarded before the
+final evidence run, which will use the corrected source and binary fingerprints.
