@@ -1,0 +1,9 @@
+{
+  "qualification": {"total_selected_http": 84},
+  "reports": [
+    {"passed": true, "cleanup_passed": true, "source_dirty": false},
+    {"passed": true, "cleanup_passed": true, "source_dirty": false},
+    {"passed": true, "cleanup_passed": true, "source_dirty": false},
+    {"passed": true, "cleanup_passed": true, "source_dirty": false}
+  ]
+}

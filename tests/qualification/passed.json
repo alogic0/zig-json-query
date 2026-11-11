@@ -1,0 +1,6 @@
+{
+  "suite": "backend", "passed": true, "cleanup_passed": true,
+  "source_revision": "revision-2", "source_dirty": false,
+  "coordinator_optimize": "debug", "api_binary_sha256": "hash-a",
+  "result": {"code": 0, "frontend_dirty": false}, "http": [], "fixtures": [], "workers": []
+}

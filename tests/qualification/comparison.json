@@ -1,0 +1,9 @@
+{
+  "status": "reviewed", "commands_per_suite": {"left": 5, "right": 5}, "byte_identical_compiler_artifacts": 3,
+  "artifact_differences": [
+    {"kind": "object", "argv": ["bin/cc", "a.c"], "changed_moves": 1},
+    {"kind": "object", "argv": ["bin/cc", "b.c"], "changed_moves": 2},
+    {"kind": "object", "argv": ["bin/cc", "c.c"], "changed_moves": 0}
+  ],
+  "timing_and_duplication": {"left_ns": 1000000, "right_ns": 1100000}
+}

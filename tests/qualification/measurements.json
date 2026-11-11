@@ -1,0 +1,6 @@
+[
+  {"records": 10, "repeat": 0, "serialization_ns": 1000000, "publication_ns": 2000, "bytes_written": 100, "final_bytes": 100},
+  {"records": 10, "repeat": 1, "sample_elapsed_ns": null, "serialization_ns": 2000000},
+  {"records": 10, "repeat": 2, "sample_elapsed_ns": 3000000},
+  {"records": 10, "repeat": 3, "sample_elapsed_ns": 4000000}
+]

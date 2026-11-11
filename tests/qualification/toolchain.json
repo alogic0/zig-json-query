@@ -1,0 +1,5 @@
+{
+  "status": "passed",
+  "toolchain": {"zllvm": "bin/z_llvm", "zig_emitter": "bin/zig", "zig_source": "zig-source", "zig_revision": "revision-1"},
+  "zllvm": "bin/z_llvm"
+}

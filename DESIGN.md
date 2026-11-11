@@ -168,6 +168,13 @@ depends on correct ownership and bounds; it does not come automatically from Zig
 
 ## Next useful increments
 
+The [session-derived qualification](docs/qualification/README.md) checks sanitized
+workflows against frozen per-tool results and exit codes before timing equivalent
+translations. Exact decimal comparison preserves precision; array/result ordering
+and raw bytes remain observable. Unsupported jobs and deliberate contract probes
+are distinct from successful translations. Input/source/tool hashes and raw
+native Debug timing/RSS samples make the selected-case evidence reproducible.
+
 The [stream execution plan](docs/plans/2026-11-09-stream-runtime.md) and
 [follow-up plan](docs/plans/2026-11-09-followups.md) record implemented milestones.
 The [practical report-query plan](docs/plans/2026-11-09-language-summaries.md)

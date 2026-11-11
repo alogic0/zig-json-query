@@ -10,7 +10,7 @@ const scalar = @import("evaluator.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = 64 * 1024 * 1024;
-pub const version = "0.11.0";
+pub const version = "0.12.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.

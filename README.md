@@ -428,6 +428,13 @@ library.
 
 ## Library and checks
 
+`zig build qualify -- --repeat 5 --out .zig-cache/qualification/local.json`
+checks the sanitized session-derived workflow corpus against installed jq 1.7,
+then records native Debug wall-time and peak-RSS samples for equivalent cases.
+The [qualification report](docs/qualification/README.md) separates selected-case
+coverage, unsupported jobs, semantic differences and generated scale checks.
+Reproduction uses repository data, not private session storage.
+
 `build.zig` exports the `query` module. `Program.compile(allocator, source,
 &diagnostic)` owns its query text, AST and compiled regexes; call `deinit` once.
 `program.run(allocator, json_bytes, writer, &diagnostic)` remains a one-document

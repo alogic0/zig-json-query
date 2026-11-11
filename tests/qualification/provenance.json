@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "sessions": {
+    "backend": "01a1be00-ab98-7b72-b24c-b385d5ff701e",
+    "compiler": "01a1c2a9-b739-7e13-b134-3167995ee5d1"
+  },
+  "origins": [
+    {
+      "session": "backend",
+      "record": 285,
+      "query": "{passed,cleanup_passed,http_count:(.http|length),fixtures:[.fixtures[]|{case,result:.result.code}],source_dirty}",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 395,
+      "query": "{passed,cleanup_passed,result,http_count:(.http|length)}",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 518,
+      "query": "{passed,cleanup_passed,source_revision,source_dirty,http:(.http|length)}",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 1264,
+      "query": ".qualification.total_selected_http == 84 and (.reports|length)==4 and all(.reports[]; .passed and .cleanup_passed and (.source_dirty|not))",
+      "flags": [
+        "-e"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 3526,
+      "query": "{passed,result,cleanup_passed,http:(.http|length),last_http:.http[-1]}",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 3659,
+      "query": ".api_failure_log",
+      "flags": [
+        "-r"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 3659,
+      "query": ".http[-5:] | map({case,path,status})",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 9389,
+      "query": "keys",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 9389,
+      "query": "{git_revision,source_revision,source_dirty,compiler,coordinator_optimize,api_binary_sha256,executable_sha256,cleanup_passed,limits}",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 17876,
+      "query": ".qualification and (.artifact_bindings|length)==92 and (.execution.reports|length)==12",
+      "flags": [
+        "-e"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 17876,
+      "query": "del(.groups[] | select(.id==\"calendar.journey\"))",
+      "flags": [
+        "-S"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 19444,
+      "query": "[.fixtures[]|keys]|unique",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 19444,
+      "query": "[.workers[]|keys]|unique",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 20680,
+      "query": "{path:input_filename,suite,passed,cleanup_passed,source_revision,source_dirty,coordinator_optimize,binary_sha256,api_binary_sha256,http_count:(.http|length),statuses:(.http|group_by(.status)|map({status:.[0].status,count:length})),result,source_service_profiles:([.fixtures[]|select(.actual_source_result?)]|length),source_service_statuses:([.fixtures[]|.actual_source_result? // empty]|group_by(.status)|map({status:.[0].status,count:length})),source_service_fault_commands:([.fixtures[]|select(.actual_source_update? and .command? and .command.code!=0)]|length),source_delivery_profiles:([.fixtures[]|select(.source_delivery_result?)]|length),source_delivery_seed_only:([.fixtures[]|select(.source_delivery_result? and .source_delivery_job.dispatch==false)]|length),source_delivery_fault_commands:([.fixtures[]|select(.source_delivery_job? and .command? and .command.code!=0)]|length),native_worker_outcomes:(.workers|length),images:[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}],front:([.result|select(.frontend_revision?)|{revision:.frontend_revision,dirty:.frontend_dirty,wasm_sha256}])}",
+      "flags": [
+        "-c"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 20697,
+      "query": "[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}]",
+      "flags": [
+        "-c"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 23763,
+      "query": "{file:input_filename,passed,cleanup_passed,http:(.http|length)}",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 26535,
+      "query": ".",
+      "flags": [
+        "-s"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 26535,
+      "query": "{name:$name,path:$path,sha256:$sha256,bytes:$bytes}",
+      "flags": [
+        "-n",
+        "--arg",
+        "--arg",
+        "--arg",
+        "--argjson"
+      ]
+    },
+    {
+      "session": "backend",
+      "record": 33179,
+      "query": "[.fixtures[]|keys[]]|unique",
+      "flags": []
+    },
+    {
+      "session": "backend",
+      "record": 33238,
+      "query": ".passed and .cleanup_passed and (.source_dirty|not) and (.result.frontend_dirty|not) and .api_binary_sha256==$api and .coordinator_optimize==\"debug\"",
+      "flags": [
+        "-e",
+        "--arg"
+      ]
+    },
+    {
+      "session": "compiler",
+      "record": 238,
+      "query": "{status,failure_stage,backend,source: .compiler_ir}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 245,
+      "query": "keys",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 253,
+      "query": ".invocation",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 366,
+      "query": "{status,wall_ns,samples: (.samples|length)}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 402,
+      "query": "{status, toolchain: (.toolchain | {zllvm,zig_emitter,zig_source,zig_revision})}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 463,
+      "query": "{status,returncode}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 497,
+      "query": "{commands:length,compiler_calls:([.[]|select(.argv[0]|endswith(\"/z_llvm\"))]|length),last:.[-1].argv}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 542,
+      "query": ".samples|length",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 542,
+      "query": "length",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 542,
+      "query": "{commands:length,last:.[-1].argv}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 549,
+      "query": ".[-4:]|map({argv,wall_ns,returncode})",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 667,
+      "query": "{air_roots,sample_bytes:(.samples[0]|tojson|length)}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 667,
+      "query": "{commands:length,last:.[-1].argv}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 718,
+      "query": "{status,matched_program_modes,program_modes,reference_case_executions,local_case_executions,toolchain:(.toolchain|{zllvm,zig_source,zig_emitter})}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 805,
+      "query": "{status,commands_per_suite,byte_identical_compiler_artifacts,differences:(.artifact_differences|length),examples:(.artifact_differences[:10]|map({kind,argv})),timing_and_duplication}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 872,
+      "query": "{status,commands_per_suite,byte_identical_compiler_artifacts,reviewed_object_differences:(.artifact_differences|length)}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 897,
+      "query": "{status,byte_identical_compiler_artifacts,reviewed_objects:(.artifact_differences|length),reviewed_moves:([.artifact_differences[].changed_moves]|add)}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 920,
+      "query": ".[-3:]",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 990,
+      "query": "{commands:length,last:.[-1].argv[1:4]}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 1154,
+      "query": "map(.sample_elapsed_ns? // .serialization_ns?)",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 1180,
+      "query": "{samples,mean_ms:([.sample_elapsed_ns[]]|add/length/1000000)}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 1180,
+      "query": "{status,samples:(.samples|length)}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 1246,
+      "query": "{status,returncode,actual_returncode,outcome,wall_ns}",
+      "flags": []
+    },
+    {
+      "session": "compiler",
+      "record": 1436,
+      "query": ".zllvm == \"/bin/false\"",
+      "flags": [
+        "-e"
+      ]
+    },
+    {
+      "session": "compiler",
+      "record": 1468,
+      "query": "{status,samples:(.samples|length)}",
+      "flags": []
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+[
+  {"argv": ["bin/z_llvm", "compile", "a.zig"], "cwd": "workspace", "returncode": 0, "wall_ns": 1000000},
+  {"argv": ["bin/zig", "emit", "b.zig"], "cwd": "workspace", "returncode": 0, "wall_ns": 3000000},
+  {"argv": ["bin/z_llvm", "compile", "b.zig"], "cwd": "workspace", "returncode": 0, "wall_ns": 2000000},
+  {"argv": ["bin/cc", "compile", "bridge.c"], "cwd": "workspace", "returncode": 0, "wall_ns": 4000000},
+  {"argv": ["bin/z_llvm", "link", "a.o", "b.o"], "cwd": "workspace", "returncode": 1, "wall_ns": 5000000}
+]

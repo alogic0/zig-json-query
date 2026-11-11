@@ -8,6 +8,11 @@ performance or portability claim.
 
 ## Reproduce
 
+For current session-derived qualification in native Debug, see
+[the workflow report](../qualification/README.md). The command below reproduces
+the historical ReleaseSafe benchmark checkpoint and is not a routine build-mode
+requirement.
+
 ```sh
 zig build bench -Doptimize=ReleaseSafe -- \
   --rows 100000 --repeat 5 \

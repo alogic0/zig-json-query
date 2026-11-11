@@ -1,0 +1,4 @@
+{
+  "status": "passed", "failure_stage": null, "backend": "native",
+  "invocation": {"argv": ["bin/z_llvm", "compile", "main.zig"], "cwd": "workspace"}
+}

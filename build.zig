@@ -95,14 +95,35 @@ pub fn build(b: *std.Build) void {
     run_bench.addPassthruArgs();
     b.step("bench", "Compare pinned jq/jaq tools, output equivalence, elapsed time and peak RSS").dependOn(&run_bench.step);
 
+    const qualification_options = b.addOptions();
+    qualification_options.addOptionPath("exe", exe.getEmittedBin());
+    qualification_options.addOption([]const u8, "version", @import("build.zig.zon").version);
+    qualification_options.addOption([]const u8, "target", b.fmt("{s}-{s}-{s}", .{ @tagName(target.result.cpu.arch), @tagName(target.result.os.tag), @tagName(target.result.abi) }));
+    const exact_number = b.createModule(.{ .root_source_file = b.path("src/number.zig"), .target = b.graph.host, .optimize = optimize });
+    const qualification_module = b.createModule(.{
+        .root_source_file = b.path("tools/qualify.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+        .imports = &.{ .{ .name = "test_support", .module = support }, .{ .name = "exact_number", .module = exact_number } },
+    });
+    qualification_module.addOptions("qualification_options", qualification_options);
+    const qualification = b.addExecutable(.{ .name = "query-qualify", .root_module = qualification_module });
+    const run_qualification = b.addRunArtifact(qualification);
+    run_qualification.setCwd(b.path("."));
+    run_qualification.addPassthruArgs();
+    b.step("qualify", "Qualify sanitized session workflows against jq and record Debug timing/RSS").dependOn(&run_qualification.step);
+    const qualification_tests = b.addTest(.{ .root_module = qualification_module });
+    const run_qualification_tests = b.addRunArtifact(qualification_tests);
+    tests.dependOn(&run_qualification_tests.step);
+
     const archive = b.addSystemCommand(&.{
         "tar",                  "--format=gnu",      "--sort=name",       "--mtime=@0", "--owner=0", "--group=0", "--numeric-owner", "--mode=u+rwX,go+rX,go-w",
         "--exclude=.zig-cache", "--exclude=zig-pkg", "--exclude=zig-out", "-czf",
     });
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.11.0.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.12.0.tar.gz");
     archive.addArgs(&.{ "build.zig", "build.zig.zon", ".zigversion", ".gitignore", "AGENTS.md", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" });
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.11.0.tar.gz");
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.12.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

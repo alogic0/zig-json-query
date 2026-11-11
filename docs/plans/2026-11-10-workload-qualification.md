@@ -1,6 +1,6 @@
 # Qualification against practical report workflows
 
-Status: planned; authorized on 2026-11-10.
+Status: in progress; authorized on 2026-11-10.
 
 ## Objective and scope
 
@@ -52,10 +52,10 @@ process/file helpers; no jqz language additions are assumed by this plan.
 
 ## Implementation slices
 
-1. [ ] Audit selected source records/artifacts and create sanitized fixtures,
+1. [x] Audit selected source records/artifacts and create sanitized fixtures,
    a traced case manifest and expected results. Include unsupported workflows
    and semantic probes. Document sampling, sanitization and reconstruction.
-2. [ ] Add a reusable Zig qualification runner/build step using the existing
+2. [x] Add a reusable Zig qualification runner/build step using the existing
    test-support package. Preflight behavior/exit statuses, compute coverage,
    measure equivalent cases and persist raw/summary evidence. Validate comparison
    and measurement parsing with focused checks. Steps 1 and 2 form one verified
@@ -89,4 +89,12 @@ do not change the package version. No routine build-mode/architecture matrix.
 - All tools needed are either already installed or explicitly reported missing;
   no new interpreter-based helper is introduced.
 
-Implementation and qualification have not started.
+Slices 1–2, 0.12.0: 30 observed cases, 2 isolated components, 7 contract probes
+and 2 generated scale cases are traced to the two sessions. All frozen checks
+passed: 25 observed translations (one null-input adaptation), five explicit
+unsupported jobs, and seven expected semantic differences. Five repetitions
+produced 280 samples over 28 equivalent cases, with RSS available throughout.
+The runner pins/checks binaries, source and fixture hashes. Native Debug suite
+checks passed (147 total: 107 language/library, 33 CLI, 4 version workflow and
+3 qualification-runner checks); build and formatting passed. Data/provenance and
+performance limitations are in the corpus/report documents.
