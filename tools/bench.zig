@@ -83,7 +83,7 @@ pub fn main(init: std.process.Init) !void {
     if (rows == 0 or rows > 100000 or repeat == 0 or repeat > 100) return error.InvalidBenchmarkSize;
     if ((jaq == null) != (jaq_version == null)) return error.JaqPathAndPinnedVersionRequired;
     var tools: std.ArrayList(Tool) = .empty;
-    try tools.append(a, try pin(a, io, "jqz", exe, "jqz 0.16.0"));
+    try tools.append(a, try pin(a, io, "jqz", exe, "jqz 0.17.0"));
     try tools.append(a, try pin(a, io, "jq", jq, jq_version));
     if (jaq) |path| try tools.append(a, try pin(a, io, "jaq", path, jaq_version.?));
     const time_hash = try hex(a, try S.files.sha256(io, "/usr/bin/time"));

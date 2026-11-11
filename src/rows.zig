@@ -2,6 +2,7 @@
 //! are borrowed; the caller chooses the lifetime and allocator for group arrays.
 const std = @import("std");
 const number = @import("number.zig");
+const json_order = @import("json_order.zig");
 const Value = std.json.Value;
 
 pub const Row = struct { value: Value, key: Value };
@@ -9,6 +10,14 @@ pub const Row = struct { value: Value, key: Value };
 pub fn sort(rows: []Row) void {
     // Stable, in-place, and infallible after key validation.
     std.sort.block(Row, rows, {}, less);
+}
+
+pub fn sortStructural(rows: []Row) void {
+    std.sort.block(Row, rows, {}, struct {
+        fn less(_: void, a: Row, b: Row) bool {
+            return json_order.compare(a.key, b.key) == .lt;
+        }
+    }.less);
 }
 
 fn less(_: void, a: Row, b: Row) bool {

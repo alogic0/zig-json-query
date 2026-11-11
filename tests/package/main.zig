@@ -59,6 +59,17 @@ test "external consumer edits immutable paths and requests recursive sorted outp
     try t.expectEqualStrings("[{\"groups\":[{\"done\":false,\"id\":\"keep\"}],\"meta\":{\"a\":9007199254740993,\"z\":1}}]\n", output.written());
 }
 
+test "external consumer discovers sorted distinct structural schemas" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "{schemas:unique(map(.fixtures,keys(.))),ordered:sort_values(.values)} | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    try program.run(t.allocator, "{\"fixtures\":[{\"b\":0},{\"b\":1,\"a\":2},{\"a\":3,\"b\":4}],\"values\":[[2],[1],null]}", &output.writer, &diagnostic);
+    try t.expectEqualStrings("[{\"schemas\":[[\"a\",\"b\"],[\"b\"]],\"ordered\":[null,[1],[2]]}]\n", output.written());
+}
+
 test "external consumer combines owned bindings named feeds predicates and decimal statistics" {
     const t = std.testing;
     var diagnostic: query.Diagnostic = .{};

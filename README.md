@@ -157,6 +157,8 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `group_by(.team)` | Emit one array per equal key, in first-seen key order |
 | `sort_by(.items, .age)` | One stably sorted array, with `.` bound to each item for its key |
 | `group_by(.items, .team)` | One array of groups, in first-seen key order |
+| `sort_values(.items)` | One stably sorted array using a total structural JSON order |
+| `unique(.items)` | Distinct structural values in sorted order, keeping first equal representatives |
 | `{name: .name, age: .age}` | Construct one object |
 | `{name, age, count: length(.items)}` | Shorthand strict fields mixed with computed values |
 | `[.name, .age]` | Construct one array; does not collect a stream |
@@ -452,11 +454,26 @@ Sorting is stable and in-place after buffering; grouping uses a quadratic scan
 of keys. The scalar forms reuse these algorithms with temporary rows and keys.
 There is no spill-to-disk fallback.
 
+`sort_values(array)` and `unique(array)` support structural ordering separately
+from the stream stages. The total order is null, booleans (false before true),
+numbers, strings, arrays, objects. Arrays compare lexicographically. Objects
+compare their sorted key sequences, then corresponding values; field insertion
+order does not affect comparison. Numeric comparisons stay exact. Both return
+`[]` for empty input and reject missing/nonarray inputs, excessive comparison
+depth and unsupported numeric exponents.
+
+`sort_values` is stable. `unique` sorts and removes equal adjacent values,
+preserving the first original representative's number spelling and field order.
+For sorted distinct schemas, use `unique(map(.fixtures, keys(.)))`. Comparison
+copies use the scalar arena; output items borrow the originals until retained
+or synchronously emitted. The existing stream `sort` and `sort_by` still require
+uniform numeric/string keys.
+
 ## Scope and limits
 
 This is a tested prototype, not a jq-compatible replacement or a finished CLI.
 It currently lacks local bindings, user-defined functions,
-updates, general reduction, disk spilling, and a REPL.
+general assignment, general reduction, disk spilling, and a REPL.
 The syntax and library API may change.
 
 NDJSON is parsed one record at a time. A single JSON document is parsed in full
@@ -574,6 +591,8 @@ Fault injection covers every allocation in a sorting/grouping/arithmetic handoff
 The separate `tests/package` consumer checks the exported module boundary.
 The [scalar-aggregate plan](docs/plans/2026-11-10-scalar-aggregates.md) records
 implementation and qualification of report totals and grouped summaries.
+The [remaining-workflow plan](docs/plans/2026-11-10-remaining-workflows.md) tracks
+serialization, immutable edits, structural distinctness and Debug profiling.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 

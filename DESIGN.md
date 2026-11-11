@@ -146,6 +146,14 @@ The parser distinguishes top-level stage calls from scalar calls by arity;
 scalar calls support postfix access and operators in the ordinary expression
 parser. Retaining stages clone their results into the existing shared budget.
 
+`sort_values` and `unique` use a total JSON order, separate from the homogeneous
+stream sort keys. Prevalidation checks every nested number and comparison depth.
+`json_order.zig` creates ordered comparison copies once, and an infallible stable
+row comparator compares types, scalar values, lexicographic arrays and sorted
+object key sets/values. Original values are kept separately; deduplication keeps
+the first original representative in sorted order. Scratch remains scalar-arena
+storage, and downstream retention copies original values as usual.
+
 When `take(n)` is satisfied, every stage up to that point stops accepting work.
 The last accepted value still travels downstream, and later aggregates finish.
 `take(0)` needs no source input. A scalar error after the last accepted value is

@@ -4,6 +4,7 @@ const syntax = @import("parser.zig");
 const number = @import("number.zig");
 const statistics = @import("statistics.zig");
 const row_ops = @import("rows.zig");
+const json_order = @import("json_order.zig");
 const Diagnostic = @import("diagnostic.zig").Diagnostic;
 const Path = @import("diagnostic.zig").Path;
 const Value = std.json.Value;
@@ -257,6 +258,34 @@ pub const Evaluator = struct {
                 };
             },
             .keyed_array => |operation| try self.keyedArray(allocator, node, input, operation),
+            .structural => |operation| blk: {
+                const source = try self.evalRequired(allocator, operation.array, input);
+                if (source != .array) return self.typeFailure(node, operation.array, "sort_values/unique expects an array");
+                const rows = try allocator.alloc(row_ops.Row, source.array.items.len);
+                const source_path = self.pathFor(operation.array);
+                for (source.array.items, 0..) |item, index| {
+                    _ = self.equal(item, item, node.offset, 0) catch |err| {
+                        var path = source_path;
+                        if (path.len != 0) path.index(index);
+                        self.diagnostic.path = path;
+                        self.diagnostic.path_reported = true;
+                        return err;
+                    };
+                    rows[index] = .{ .value = item, .key = try json_order.ordered(allocator, item) };
+                }
+                row_ops.sortStructural(rows);
+                var result = std.json.Array.init(allocator);
+                try result.ensureTotalCapacity(rows.len);
+                var previous: ?Value = null;
+                for (rows) |row| {
+                    if (operation.unique) if (previous) |key| {
+                        if (json_order.compare(key, row.key) == .eq) continue;
+                    };
+                    result.appendAssumeCapacity(row.value);
+                    previous = row.key;
+                }
+                break :blk Value{ .array = result };
+            },
             .edit => |edit| blk: {
                 const value = try self.evalRequired(allocator, edit.base, input);
                 break :blk try self.editValue(allocator, edit, value, 0, self.pathFor(edit.base));

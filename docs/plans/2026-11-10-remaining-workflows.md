@@ -57,7 +57,7 @@ All implementation and helpers use Zig. Validate native x86_64 Linux Debug only.
    negative indexes, strict failures, raw/NDJSON/exit-status output and allocation
    cleanup. Qualify `normalize-config`, including exact compact sorted bytes in
    a separate output check. Validate and commit with the next minor version.
-4. [ ] Add structural sorting and uniqueness with shared ordered-object support.
+4. [x] Add structural sorting and uniqueness with shared ordered-object support.
    Cover mixed types, lexicographic arrays/objects, numeric spellings, stable
    representatives, independent generated models and allocation failures. Qualify
    `distinct-schema-shapes`; validate and commit with the next minor version.
@@ -113,3 +113,13 @@ corpus cases passed: 29/30 observed translations, one unsupported, ten probes
 and 66 smoke samples. The normalization oracle is unchanged; an additional
 component checks exact compact sorted bytes and a probe records strict deletion
 of missing fields. Formatting and diff checks passed.
+
+Slice 4, 0.17.0: native Debug build, 189 project tests (145 language/library,
+37 CLI, four version-workflow, three qualification-runner) and eight consumer
+tests passed. Seven new structural tests cover full type/array/object order,
+normalized equality with original representatives, schema composition, strict
+source failures, comparison depth, 300 generated finite-universe models and
+exhaustive allocation failures with retained input lifetimes. All 45 corpus
+cases passed: 30/30 observed translations, zero unsupported, ten probes and 68
+smoke samples. The distinct-schema oracle and its array order are unchanged.
+Formatting and diff checks passed.

@@ -43,6 +43,12 @@ test "CLI sorted keys compose with raw output predicate status and skipped input
     try check(&.{ "-S", "-e", "take(0) | collect" }, "{bad}", 0, "[]\n", null);
 }
 
+test "CLI structural sets order nested arrays while stream sorting stays strict" {
+    try check(&.{"unique(.)"}, "[[2],[1],[2],false,null]", 0, "[null,false,[1],[2]]\n", null);
+    try check(&.{"sort_values(.)"}, "[{\"b\":0},{\"a\":1},[]]", 0, "[[],{\"a\":1},{\"b\":0}]\n", null);
+    try check(&.{"each | sort"}, "[[2],[1]]", 2, "", "sort keys must all be numbers or all strings");
+}
+
 test "CLI exit-status mode uses the last value without changing output" {
     try check(&.{ "-e", "." }, "false", 1, "false\n", null);
     try check(&.{ "--exit-status", "." }, "null", 1, "null\n", null);
