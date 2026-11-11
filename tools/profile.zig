@@ -27,7 +27,7 @@ const cases = [_]Case{
     .{ .id = "report-encode-scale", .query = "byte_length(tojson(.))", .fixture = .backend },
 };
 const source_paths = [_][]const u8{
-    "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/input.zig", "src/value_builder.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/diagnostic.zig", "src/collection_budget.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/fixtures.zig", "vendor/SHA256SUMS",
+    "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/input.zig", "src/value_builder.zig", "src/parser.zig", "src/evaluator.zig", "src/array_storage.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/diagnostic.zig", "src/collection_budget.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/fixtures.zig", "vendor/SHA256SUMS",
 };
 
 pub fn main(init: std.process.Init) !void {
@@ -42,7 +42,7 @@ pub fn main(init: std.process.Init) !void {
     var index: usize = 1;
     while (index < args.len) : (index += 2) {
         if (std.mem.eql(u8, args[index], "--help")) {
-            std.debug.print("profile [--study parser|builder|invocation|structural] [--reference-cli PATH] [--repeat N] [--out FILE]\n", .{});
+            std.debug.print("profile [--study parser|builder|collections|invocation|structural] [--reference-cli PATH] [--repeat N] [--out FILE]\n", .{});
             return;
         }
         if (index + 1 == args.len) return error.MissingOptionValue;
@@ -52,6 +52,7 @@ pub fn main(init: std.process.Init) !void {
     if (study) |kind| {
         if (std.mem.eql(u8, kind, "parser")) return @import("parser_study.zig").run(init, repeats, out);
         if (std.mem.eql(u8, kind, "builder")) return @import("builder_study.zig").run(init, repeats, out);
+        if (std.mem.eql(u8, kind, "collections")) return @import("collection_study.zig").run(init, repeats, out);
         if (std.mem.eql(u8, kind, "invocation")) return @import("invocation_study.zig").run(init, repeats, out, reference_cli);
         if (std.mem.eql(u8, kind, "structural")) return @import("structural_study.zig").run(init, repeats, out);
         return error.UnknownStudy;
@@ -318,6 +319,7 @@ test "profile summaries and shared fixture cardinalities are checked" {
 test {
     _ = @import("parser_study.zig");
     _ = @import("builder_study.zig");
+    _ = @import("collection_study.zig");
     _ = @import("study_support.zig");
     _ = @import("invocation_study.zig");
     _ = @import("structural_study.zig");

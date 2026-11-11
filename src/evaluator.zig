@@ -1,4 +1,5 @@
 const std = @import("std");
+const array_storage = @import("array_storage.zig");
 const regex = @import("regex");
 const syntax = @import("parser.zig");
 const number = @import("number.zig");
@@ -193,7 +194,7 @@ pub const Evaluator = struct {
                 var array = std.json.Array.init(allocator);
                 switch (value) {
                     .object => |object| {
-                        try array.ensureTotalCapacity(object.count());
+                        array = try array_storage.init(allocator, object.count());
                         for (object.keys()) |key| array.appendAssumeCapacity(.{ .string = key });
                         std.sort.pdq(Value, array.items, {}, struct {
                             fn less(_: void, a: Value, b: Value) bool {
@@ -202,7 +203,7 @@ pub const Evaluator = struct {
                         }.less);
                     },
                     .array => |items| {
-                        try array.ensureTotalCapacity(items.items.len);
+                        array = try array_storage.init(allocator, items.items.len);
                         for (0..items.items.len) |index| array.appendAssumeCapacity(try integerValue(allocator, @intCast(index)));
                     },
                     else => return self.typeFailure(node, child, "keys expects an object or array"),
@@ -235,7 +236,7 @@ pub const Evaluator = struct {
                 const source = try self.evalRequired(allocator, transform.array, input);
                 if (source != .array) return self.typeFailure(node, transform.array, "array function expects an array");
                 var result = std.json.Array.init(allocator);
-                if (transform.kind == .map or transform.kind == .filter) try result.ensureTotalCapacity(source.array.items.len);
+                if (transform.kind == .map) result = try array_storage.init(allocator, source.array.items.len) else if (transform.kind == .filter) try result.ensureTotalCapacity(source.array.items.len);
                 const caller_path = self.path;
                 defer self.path = caller_path;
                 const array_path = self.pathFor(transform.array);

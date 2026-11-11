@@ -628,13 +628,18 @@ observes token/container operations with counters alone and with clocks. Narrow
 operation timings include probe overhead; acceptance uses ordinary full parses.
 Temporary caller-allocator requests are separate from parsed-arena logical
 requests; backing peaks include both owners.
+`zig build profile -- --study collections --repeat 12 --out .zig-cache/collections.json`
+compares frozen/current known-size storage and structural sorting on eight
+distributions. Models omit AST/path traversal; separate actual source/full-query
+intervals preserve those costs. Six-variant order also balances predecessors.
 `zig build profile -- --study invocation --repeat 10 --out .zig-cache/invocation.json`
 compares native Debug launch controls, repeated processes, multi-file/NDJSON
 batching and compiled-Program reuse. An optional `--reference-cli PATH` pins an
 older CLI for the null-query control. Child memory is unavailable in these
 supervised intervals and is reported as null rather than zero.
 Supplying the reference also compares the two large generated documents through
-both real CLIs, with alternating current/reference controls and exact outputs.
+both real CLIs, with balanced current/reference controls and exact outputs.
+Backend key-array materialization and schema uniqueness are included as well.
 `zig build profile -- --study structural --repeat 10 --out .zig-cache/structural.json`
 measures source/key materialization, comparison preparation, sorting, reservation
 and deduplication on repeated, distinct, mixed and nested inputs. Full-query

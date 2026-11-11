@@ -31,7 +31,7 @@ fn referenceOrder(a: A, value: Value) error{OutOfMemory}!Value {
     };
 }
 
-const Trace = struct {
+pub const Trace = struct {
     backing: *M.Meter,
     logical: *M.Meter,
     io: Io,
@@ -165,7 +165,7 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
     try guard.publish("structural", repeat, "One warm-up; rotated variants for each distribution. Inputs parsed and ASTs compiled before timers. Reference/control freeze deep comparison copies and full-size result reservation; full-current calls the actual evaluator. Components expose source materialization, validated comparison preparation and sorting. Reference reserves full output then deduplicates/fills; current compacts distinct rows, reserves distinct output and fills. Preparation includes validation and rows. Logical phase deltas count requests above the same temporary arena; backing peaks include earlier live phases. Region release frees backing capacity in bulk, not individual logical requests. Full-query intervals include map/keys plus unique and exclude encoding, parse, compilation and cleanup. Every result matches public execution bytes; backing cleanup must reach zero. Components are not summed as independent microbenchmarks or new observed workflows.", records.items, .{ .checks = checks.items }, out);
 }
 
-fn variation(a: A, kind: enum { distinct, mixed, ordered, unordered }) ![]const u8 {
+pub fn variation(a: A, kind: enum { distinct, mixed, ordered, unordered }) ![]const u8 {
     var output = Io.Writer.Allocating.init(a);
     defer output.deinit();
     try output.writer.writeAll(if (kind == .distinct) "{\"fixtures\":[" else "{\"items\":[");

@@ -232,3 +232,23 @@ unchanged. Backend ordinary medians are 47.526/47.233 versus 47.743/47.535 ms;
 commands 22.685/23.091 versus 22.684/22.839 ms. Native Debug build and all 217
 checks pass. This correction is a separate profiling fix, not another parser
 runtime optimization; earlier raw order/results remain intact.
+
+Slice 4 instrumentation, 0.25.0: the
+[collections baseline](../profiling/2026-11-11-collections-baseline.json) records
+2,688 checked intervals across eight distributions and twelve balanced
+repetitions. Reference/control models freeze 0.22.0 reservation and stable block
+sort; current/control use extracted production helpers with unchanged behavior.
+Separate actual source/full evaluator intervals expose AST/path costs omitted
+from the models. Every source/result matches public execution bytes, logical
+traffic is distinct from backing capacity and cleanup reaches zero.
+
+Repeated-schema source requests 3,640,112 logical bytes in 10,001 allocations
+for both models and the actual evaluator. Model source medians are 5.726/5.759 ms
+reference/control; actual source is 10.205 ms and full query 20.240 ms. These
+different timer boundaries are not interchangeable. Sort is 6.805/6.828 ms on
+repeated schemas, 1.029/1.025 ms sorted, 1.547/1.555 ms reverse and 1.027/1.028 ms
+with a late inversion. The allocation/sort gates from slice 4 remain unchanged.
+First evaluate exact reservation for `keys` and `map`, then evaluate the sort
+shortcut separately. Native Debug build and all 219 checks pass. Matched public
+CLI support now also includes backend key-array materialization/schema uniqueness
+and balances large-process predecessor pairs before runtime changes.
