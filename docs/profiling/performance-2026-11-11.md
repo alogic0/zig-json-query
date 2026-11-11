@@ -193,6 +193,9 @@ a 15.757 MiB live backing-capacity peak during feed. Remaining candidates are
 complete-document construction and upstream key-array materialization/sorting,
 if future work warrants them. Additional query syntax needs new workflow evidence.
 
+The authorized [container-construction follow-up](../plans/2026-11-11-container-construction.md)
+records the next implementation slices and their measurement gates.
+
 Instrumentation, an allocating output writer, allocator state, warm caches,
 selected repetitive distributions and one machine limit these measurements.
 Scanner experiments overlap; structural full-query intervals exclude parsing;

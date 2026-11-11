@@ -615,6 +615,8 @@ the original experiments suggested by them. The completed
 parser/structural improvements and matched original/current CLI comparisons.
 The [parser/runtime performance plan](docs/plans/2026-11-11-parser-and-runtime-performance.md)
 records those completed experiments and measured optimization steps.
+The [container-construction follow-up](docs/plans/2026-11-11-container-construction.md)
+tracks current-builder measurements and bounded parser/materialization/sort work.
 `zig build profile -- --study parser --repeat 14 --out .zig-cache/parser.json`
 separates depth/scanner experiments, standard DOM allocation traffic and matched
 full-parser controls. Scanner experiments overlap full parsing; they are not
