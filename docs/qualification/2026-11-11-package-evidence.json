@@ -1,0 +1,85 @@
+{
+  "schema_version": 2,
+  "status": "archive_verified",
+  "version": "0.26.2",
+  "verified_at_utc": "2026-11-11T13:07:36Z",
+  "target": "x86_64-linux-gnu",
+  "optimization": "debug",
+  "snapshot_commit": "db25365997c63c95d4ad6c4243c377a1cea78230",
+  "runtime_baseline_commit": "44af031287129a96fce5a562a7cd8937dcb3bde4",
+  "archive": {
+    "path": "zig-out/dist/zig-json-query-0.26.2.tar.gz",
+    "bytes": 1713603,
+    "sha256": "4af915486f4f1a0e046edf663461252d405105a9f19b480e76b6b6f495cd4d58",
+    "unchanged_rebuild_identical": true,
+    "tracked_payload_files": 159,
+    "member_list_matches_tracked_payload": true,
+    "caches_build_outputs_and_git_excluded": true,
+    "regular_files_and_directories_only": true,
+    "file_manifest": "docs/qualification/2026-11-11-package-files.sha256",
+    "file_manifest_sha256": "97d0d0ccac92e35d2814b35d0c6ad22868fb3344e7f92ba52a5a455791558c44",
+    "snapshot_note": "Qualified snapshot at the plan commit. Package-result documents are written after archiving to avoid a self-referential hash. Later documentation commits do not have this complete archive hash; runtime/corpus identity is checked separately."
+  },
+  "toolchain": {
+    "zig_version": "0.17.0",
+    "zig_path": "/home/oleg/.zig/0.17.0/files/zig",
+    "zig_sha256": "7c61539af19fa4082c94848f1c2b57b89e76dc6cfd5bd4c57764c3caf8f82272",
+    "tar_version": "tar (GNU tar) 1.35",
+    "tar_sha256": "3ee2c3c0b4dd9aacebfd2f0fbae44bad36348203acff78a44888dd58c05f811c",
+    "gzip_sha256": "afea077ce127d4fa9ad410d3066ba2b54dea19c0b44f04adf56c72d5f7b7a9bb"
+  },
+  "dependencies": {
+    "top_level": "Three bundled file:vendor archives pinned by Zig hashes and SHA256SUMS.",
+    "transitive": "test_support uses its bundled vendor/zig-process path dependency; regex and package_version have no dependencies.",
+    "license_files_inspected": true,
+    "network_dependency_urls": false
+  },
+  "checks": [
+    {
+      "id": "archive-first",
+      "cwd": "<checkout>",
+      "argv": [
+        "zig",
+        "build",
+        "dist",
+        "--summary",
+        "all"
+      ],
+      "exit_code": 0,
+      "log": "docs/qualification/2026-11-11-package-archive-first.log"
+    },
+    {
+      "id": "archive-second",
+      "cwd": "<checkout>",
+      "argv": [
+        "zig",
+        "build",
+        "dist",
+        "--summary",
+        "all"
+      ],
+      "exit_code": 0,
+      "log": "docs/qualification/2026-11-11-package-archive-second.log"
+    },
+    {
+      "id": "archive-members",
+      "exit_code": 0,
+      "files": 159,
+      "file_manifest_matches_archive": true,
+      "excluded": [
+        ".git",
+        ".zig-cache",
+        "zig-pkg",
+        "zig-out"
+      ]
+    }
+  ],
+  "required_checks": {
+    "source_project": 220,
+    "consumer": 8,
+    "corpus_cases": 45,
+    "observed_translations": 30,
+    "intentional_probes": 10,
+    "corpus_smoke_samples": 68
+  }
+}

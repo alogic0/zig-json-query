@@ -54,7 +54,7 @@ with plain `rm`, without flags.
 1. [x] Record this plan and link it from project/package documentation. Review
    the existing archive recipe, dependency manifests and separate consumer;
    verify links/diff and commit the snapshot before qualification.
-2. [ ] Build and inspect the current archive:
+2. [x] Build and inspect the current archive:
    - Run `zig build dist` twice on the frozen snapshot; compare SHA-256 and bytes.
    - Match archive members to the intended tracked files, check exclusion of
      caches/Git/build outputs, and preserve a complete SHA-256 file manifest.
@@ -104,3 +104,15 @@ all three relative `file:vendor` dependencies, current 220 project checks,
 ownership, stream/binding/provenance APIs, scalar aggregates, Unicode sizing,
 immutable edits, structural sets and predicate status. No code change has been
 found necessary before qualification.
+
+Slice 2: snapshot `db25365997c63c95d4ad6c4243c377a1cea78230` builds the same
+1,713,603-byte archive twice, SHA-256
+`4af915486f4f1a0e046edf663461252d405105a9f19b480e76b6b6f495cd4d58`.
+All 159 archive files match the intended tracked payload; no cache, build output,
+Git metadata or special/link member is included. The
+[complete file manifest](../qualification/2026-11-11-package-files.sha256) and
+[checkpoint record](../qualification/2026-11-11-package-evidence.json) preserve
+the snapshot and normalized archive commands/logs. Vendor manifests use only
+bundled file/path dependencies; their license/notice files are present. Remaining
+qualification results are recorded after this frozen archive, without rebuilding
+it to include its own result hash. Version remains 0.26.2.

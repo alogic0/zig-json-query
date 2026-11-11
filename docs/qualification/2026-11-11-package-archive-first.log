@@ -1,0 +1,5 @@
+Build Summary: 3/3 steps succeeded
+dist success
++- install generated to dist/zig-json-query-0.26.2.tar.gz success
+   +- run tar (zig-json-query-0.26.2.tar.gz) success 190ms
+
