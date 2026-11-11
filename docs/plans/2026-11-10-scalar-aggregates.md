@@ -1,6 +1,6 @@
 # Scalar aggregates inside report summaries
 
-Status: implementation in progress; authorized on 2026-11-10.
+Status: implemented and verified locally; authorized on 2026-11-10.
 
 ## Objective and contracts
 
@@ -41,7 +41,7 @@ Use Zig for implementation and native x86_64 Linux Debug for all validation.
    keys, nested scopes/paths, lifetime/retention and allocation failure. Extend
    the separate package consumer. Document the functions and commit with the
    next minor version after native Debug build/tests and consumer checks pass.
-4. [ ] Translate the two blocked corpus workflows, preserving their frozen jq
+4. [x] Translate the two blocked corpus workflows, preserving their frozen jq
    expectations and ordered arrays. Re-run the complete qualification with five
    repetitions in native Debug. Save a new evidence checkpoint, retain the
    historical 0.12.0 evidence, report coverage and remaining gaps, and mark this
@@ -71,3 +71,15 @@ postfix/operator parsing, source diagnostics, generated independent models,
 retained buffer lifetimes, retention-budget boundaries and exhaustive allocation
 failures. The new shared row module is included in qualification fingerprints.
 Formatting and diff checks passed.
+
+Slice 4: the complete native Debug qualification passed all 42 cases: 27/30
+observed translations, three unsupported observed workflows, two isolated
+components, eight intentional probes and two generated scale cases. Both target
+summaries retain their original frozen jq value/exit expectations. A new probe
+records the empty-total identity difference, and the group-order probe exercises
+the scalar form. Five repetitions produced 300 samples, with RSS available for
+every sample. Source fingerprints, including the shared row module, match the
+measured tree. New [0.14.0 evidence](../qualification/2026-11-10-scalar-aggregates.json)
+and the updated [report](../qualification/README.md) preserve the historical
+0.12.0 raw/package evidence. Existing jq and GNU time were sufficient; no new
+tool or provider change was needed. All implementation steps are complete.

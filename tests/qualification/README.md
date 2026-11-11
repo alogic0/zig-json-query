@@ -7,11 +7,11 @@ logged shell commands, argument values and private artifact paths are excluded.
 No private session storage is needed to run the corpus.
 
 The sample is deliberately selected, not an exhaustive or frequency-weighted
-sample of every invocation. It contains 30 observed workflow cases (25 translated,
-5 unsupported), 2 isolated components, 7 contract probes and 2 generated scale
-cases. The component checks do not turn the unsupported full grouped summary
-into a passing translation. The argument-only construction case needs a null
-fixture because jqz has no `-n`; this invocation adaptation is counted explicitly
+sample of every invocation. It contains 30 observed workflow cases (27 translated,
+3 unsupported), 2 isolated components, 8 contract probes and 2 generated scale
+cases. Scalar grouping and totals now cover both embedded-summary projections;
+the component checks remain outside observed coverage. The argument-only
+construction case needs a null fixture because jqz has no `-n`; this invocation adaptation is counted explicitly
 and excluded from timing comparisons.
 
 ## How fixtures were reconstructed
@@ -54,6 +54,12 @@ Objects compare independently of key order; arrays/result sequences keep order.
 Numbers compare exactly as decimals, so `1.5` equals `1.500000` without erasing
 large-integer differences. Raw output is byte-exact. Every probe records a
 deliberate difference: false defaults, missing fields, group ordering, arithmetic
-precision, duplicate keys, explicit rounding and error exit codes. Unsupported
-jobs have checked jq oracles but no passing jqz translation; their reasons remain
+precision, duplicate keys, explicit rounding, empty-array totals and error exit
+codes. Unsupported jobs have checked jq oracles but no passing jqz translation; their reasons remain
 in the manifest. The runner does not execute query strings through a shell.
+
+Equivalence applies to the selected fixtures, not every input accepted by jq.
+In particular `sum([])` is `0`, whereas jq `[] | add` is null, and jqz sums require
+checked i128 integers. The empty-total probe checks this difference separately.
+The grouped-summary projection explicitly sorts its results to match jq; scalar
+grouping itself keeps the stream stage's first-seen order.
