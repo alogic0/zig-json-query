@@ -13,9 +13,10 @@ provenance. A snapshot contained 534 query sites in 479 executed shell commands:
 
 Implement the proposed query-language improvements in three verified slices.
 Expressions keep producing one value; pipeline expansion stays explicit through
-`each`. The CLI's predicate exit status, multiple-file input, and external
-arguments are separate future work. Fractional statistics require a later
-precision/rounding contract; exact integer arithmetic remains the current rule.
+`each`. The CLI's predicate exit status, multiple-file input, external arguments,
+quantified predicates and fractional statistics are specified in the authorized
+[automation implementation plan](2026-11-10-automation.md). The original three
+language slices below are complete; exact integer operators keep their contract.
 
 ## Contracts
 
