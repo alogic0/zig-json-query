@@ -608,6 +608,11 @@ The [profile report](docs/profiling/README.md) records measurements, limits and
 the next experiments suggested by them.
 The [parser/runtime performance plan](docs/plans/2026-11-11-parser-and-runtime-performance.md)
 tracks those experiments and measured optimization steps.
+`zig build profile -- --study parser --repeat 10 --out .zig-cache/parser.json`
+separates depth/scanner experiments, standard DOM allocation traffic and matched
+full-parser controls. Scanner experiments overlap full parsing; they are not
+additive timings or duplicate-key validation. Logical token/container requests
+are reported separately from backing arena capacity.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 

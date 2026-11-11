@@ -37,16 +37,21 @@ pub fn main(init: std.process.Init) !void {
     const args = try init.minimal.args.toSlice(a);
     var repeats: usize = 10;
     var out: ?[]const u8 = null;
+    var study: ?[]const u8 = null;
     var index: usize = 1;
     while (index < args.len) : (index += 2) {
         if (std.mem.eql(u8, args[index], "--help")) {
-            std.debug.print("profile [--repeat N] [--out FILE]\n", .{});
+            std.debug.print("profile [--study parser] [--repeat N] [--out FILE]\n", .{});
             return;
         }
         if (index + 1 == args.len) return error.MissingOptionValue;
-        if (std.mem.eql(u8, args[index], "--repeat")) repeats = try std.fmt.parseInt(usize, args[index + 1], 10) else if (std.mem.eql(u8, args[index], "--out")) out = args[index + 1] else return error.UnknownOption;
+        if (std.mem.eql(u8, args[index], "--repeat")) repeats = try std.fmt.parseInt(usize, args[index + 1], 10) else if (std.mem.eql(u8, args[index], "--out")) out = args[index + 1] else if (std.mem.eql(u8, args[index], "--study")) study = args[index + 1] else return error.UnknownOption;
     }
     if (repeats < 1 or repeats > 100) return error.InvalidRepetitionCount;
+    if (study) |kind| {
+        if (std.mem.eql(u8, kind, "parser")) return @import("parser_study.zig").run(init, repeats, out);
+        return error.UnknownStudy;
+    }
     var hashes: std.ArrayList(Hash) = .empty;
     for (source_paths) |path| try hashes.append(a, .{ .path = path, .sha256 = try digestFile(a, io, path) });
     const compiler_hash = try digestFile(a, io, options.compiler);
@@ -304,4 +309,9 @@ test "profile summaries and shared fixture cardinalities are checked" {
     try t.expectEqual(@as(usize, 3), parsed.value.object.get("http").?.array.items.len);
     try t.expectEqual(@as(usize, 3), parsed.value.object.get("fixtures").?.array.items.len);
     try t.expectError(error.InvalidGeneratedRowCount, generated.generate(t.allocator, .commands, 0));
+}
+
+test {
+    _ = @import("parser_study.zig");
+    _ = @import("study_support.zig");
 }

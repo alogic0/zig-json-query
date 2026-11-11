@@ -1,6 +1,6 @@
 # Parsing, invocation overhead and structural-set memory
 
-Status: planned on 2026-11-11; implementation has not started.
+Status: implementation in progress; authorized on 2026-11-11.
 
 ## Objective and baseline
 
@@ -77,7 +77,7 @@ Each slice is checked and committed before the next begins. Measurement support
 and runtime optimizations are separate commits.
 
 1. [x] Record this plan and link it from the profiling findings/project docs.
-2. [ ] Extend parsing measurements in `tools/profile.zig` and `src/input.zig`:
+2. [x] Extend parsing measurements in `tools/profile.zig` and `src/input.zig`:
    - Time the existing depth pass and full strict parser separately. Add a
      profiling-only scanner/token-consumption experiment with token/string/
      container counts, and distinguish it from a fully validated parse.
@@ -177,3 +177,32 @@ This change records the implementation plan only; runtime/profiler changes,
 new benchmark runs and implementation checkboxes remain pending.
 Linked repository documents and `git diff --check` were verified. No package
 version increment is needed for this documentation-only slice.
+
+## Implementation evidence
+
+Slice 2, 0.19.0: [parser baseline](../profiling/2026-11-11-parser-baseline.json)
+records 350 samples across five inputs and seven rotated experiments. Standard
+and control are equivalent reference parses; scanner-only work is explicitly
+separate. The instrumented standard DOM has independent logical/backing counters
+and nested token-allocation traffic. Its values, order, spelling, error classes
+and source diagnostics match the ordinary standard parser; allocation-failure
+cleanup is checked.
+
+The generic Scanner default borrows when possible, but Zig 0.17.0's dynamic
+`Value.jsonParse` explicitly requests `.alloc_always`. On the backend fixture,
+110,007 copied tokens contain 510,043 decoded bytes yet cause 14,820,960 logical
+request bytes. Of 140,050 value-building allocation calls, 110,007 are token
+acquisitions. Scan/copy median is 50.479 ms versus 19.376 ms with borrowing;
+these are overlapping scanner experiments, not a subtraction from DOM time.
+Depth checking is 3.193 ms and full reference parsing about 103 ms. Native Debug
+build and all 199 project checks pass; source fingerprints match the measurement.
+
+Decision before slice 3: evaluate a small value-construction adapter over the
+unchanged validating Scanner, reusing standard arena/EOF handling. Preserve all
+validation and diagnostic behavior. Accept only a repeatable median parser gain
+of at least 15% on both large inputs (above the observed reference/control
+variation), with no large-input memory regression. Investigate other-case timing
+regressions exceeding both 10% and 0.05 ms; do not silently accept them. This
+targets measured copying/builder work without replacing JSON tokenization or
+changing the document-emission contract. An independent baseline checkout at
+commit `e8dde1d` retains the original CLI for final process comparisons.
