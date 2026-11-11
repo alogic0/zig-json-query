@@ -337,3 +337,25 @@ sort investigation with three rejected candidates. Stable block sort and the
 original comparator remain; exact materialization storage is the accepted
 structural change. No new sort algorithm, row pass or cached key representation
 is retained without meeting the recorded gates.
+
+Final empty-container audit: the initial final
+[720-sample builder run](../profiling/2026-11-11-builder-empty-check.json) at
+0.26.1 has empty-container medians 2.409/2.452 ms current/control versus
+2.287/2.209 ms reference/control. The control pairing exceeds the 10% and
+0.05 ms investigation threshold. Inspection finds unnecessary finalization and
+cleanup function calls on empty arrays and cleanup calls on every array without
+chunks. Skip those calls while preserving the existing scoped cleanup whenever
+chunks exist; do not alter storage selection or parsing. Repeat balanced builder
+measurements and the final checks before accepting this focused follow-up fix.
+
+Empty-container fix, 0.26.2: empty arrays return without finalization, and arrays
+without temporary chunks skip the cleanup helper. Existing ownership/error paths
+and storage decisions are unchanged. Native Debug build and all 220 checks pass.
+The [1,440-sample balanced run](../profiling/2026-11-11-builder-final.json) has
+empty-container medians 2.476/2.451 ms current/control versus 2.398/2.363 ms
+reference/control, below the investigation gate. Large-parser medians remain
+within 5% of paired references (commands 26.154/25.579 versus 25.314/25.426 ms;
+backend 52.643/52.169 versus 51.750/51.554 ms). The 22% backing-peak and 52%
+combined array-traffic reductions are unchanged. Escaped-case medians differ by
+0.042/0.050 ms (the latter is 0.049857 ms), below the absolute investigation
+threshold; broad ranges are retained and no uniform parser time gain is claimed.

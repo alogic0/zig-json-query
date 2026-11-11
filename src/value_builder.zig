@@ -146,10 +146,13 @@ const ArrayBuilder = struct {
 
 fn readArray(a: A, temporary: A, source: *Scanner, max: usize, observer: anytype) Error!std.json.Array {
     var array: ArrayBuilder = .{};
-    defer array.deinit(temporary);
+    defer if (array.first != null) array.deinit(temporary);
     while (true) {
         const token = try next(a, source, max, observer);
-        if (token == .array_end) break;
+        if (token == .array_end) {
+            if (array.count == 0) return std.json.Array.init(a);
+            break;
+        }
         const item = try read(a, temporary, source, max, token, observer);
         const event: Event = if (@TypeOf(observer) == void) .array_append else if (array.grows()) .array_growth else .array_append;
         const stamp = begin(observer, event);
