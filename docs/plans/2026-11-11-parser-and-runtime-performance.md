@@ -1,0 +1,179 @@
+# Parsing, invocation overhead and structural-set memory
+
+Status: planned on 2026-11-11; implementation has not started.
+
+## Objective and baseline
+
+Implement the next experiments from the [phase profile](../profiling/README.md),
+following the completed [workflow plan](2026-11-10-remaining-workflows.md).
+First identify and reduce the largest measured parsing cost. Then isolate
+process/supervision overhead and reduce structural-uniqueness scratch memory.
+
+The frozen baseline is jqz 0.18.1 with Zig 0.17.0, native x86_64 Linux Debug:
+
+| Selected case | Existing observation |
+| --- | --- |
+| Large report count, 860,080 bytes | 87.146 ms parsing; 0.079 ms feed/evaluation |
+| Command count/tail, 507,825 bytes | 44.997 ms parsing; 0.080 ms feed/evaluation |
+| Null identity | 0.097 ms summed engine phases; 15.039 ms supervised CLI median |
+| Large report distinct schemas | 25.574 ms feed work; 9.798 MiB new feed requests; 23.452 MiB live-request peak during feed |
+
+These are historical Debug measurements, not promised improvement targets.
+The [raw profile](../profiling/2026-11-11.json) and
+[workflow evidence](../qualification/2026-11-11-remaining-workflows.json) remain
+unchanged. Establish a fresh matched baseline before evaluating candidates.
+
+## Scope and contracts
+
+- Use Zig for new implementation and measurement helpers. Reuse the pinned
+  test-support/process tooling and existing fixtures. Check
+  `/home/oleg/zig-inventory-2026-11-03` before adding a dependency; report a missing
+  required tool by name. Do not modify the installed standard library or sibling
+  provider repositories as part of an experiment.
+- Use native x86_64 Linux Debug: `zig build` and `zig build test`. No routine
+  optimization-mode matrix or additional architecture is part of this plan.
+- Preserve exact number tokens, strict missing/type rules, duplicate-key and
+  UTF-8 validation, insertion/array order, admission/depth limits and diagnostic
+  byte offsets, lines, columns and source paths. Unused document fields remain
+  validated before output. Existing early-stop rules for skipped input remain.
+- Preserve borrowed-input lifetimes, owned bindings/slurp, downstream retention
+  copies, shared collection budgets and failure/cleanup behavior. Do not trade
+  validation or ownership for benchmark speed.
+- Structural results retain total JSON ordering, exact numeric equality and
+  the first original equal representative. Existing stream sort/group rules
+  and `-S` output bytes remain unchanged.
+- Instrumentation stays in profiling/experimental paths, without clocks or
+  request counters on the ordinary production path. This plan adds no new query
+  syntax, daemon, JIT or incremental document-emission contract.
+
+## Measurement rules
+
+1. Pin source, compiler, binaries, flags, fixtures, environment and commands for
+   both baseline and candidate. Keep a reproducible baseline artifact while
+   changing the candidate. Preserve fixture/query/output hashes and raw samples.
+2. Run baseline-versus-baseline controls to establish normal variation. Use
+   warm-up, rotated/alternating order and at least ten repetitions per case.
+   Keep benchmark runners sequential. Compare the same workload and output;
+   report medians, ranges, request counts and memory peaks with their units.
+3. Label direct measurements separately from differential experiments. A
+   scan-only pass overlaps full parsing and does not enforce object duplicate
+   rules by itself; subtracting its time is not a direct DOM-construction timing.
+   Do not add overlapping timings or subtract unrelated medians as a precise
+   decomposition. Report instrumentation overhead and unresolved components.
+4. Distinguish logical allocation requests inside an arena, backing allocator
+   capacity and process RSS. If measuring above and below an arena, report the
+   levels separately and account explicitly for bulk region reclamation.
+5. Choose and record each candidate's success criterion from the baseline noise
+   before implementing it. Retain an optimization only when the targeted gain
+   repeats beyond control variation and overall time/memory show no material
+   unexplained regression on the other representative cases.
+6. If a candidate fails those gates, discard the candidate, keep its measurements
+   and explain the result. Complete a bounded investigation without claiming an
+   optimization that the evidence does not support.
+
+## Verified implementation slices
+
+Each slice is checked and committed before the next begins. Measurement support
+and runtime optimizations are separate commits.
+
+1. [x] Record this plan and link it from the profiling findings/project docs.
+2. [ ] Extend parsing measurements in `tools/profile.zig` and `src/input.zig`:
+   - Time the existing depth pass and full strict parser separately. Add a
+     profiling-only scanner/token-consumption experiment with token/string/
+     container counts, and distinguish it from a fully validated parse.
+   - Measure DOM/container request traffic and backing-arena growth separately
+     where the standard parser API permits. A profiling-only adapter using the
+     same parser with an explicit arena is preferable to copying the JSON parser.
+     Check its values, token spellings, order, errors and diagnostics against the
+     ordinary parser. Do not claim per-value counts from the existing meter alone.
+   - Check small reports and both scale inputs, plus bounded variations in
+     escaping, Unicode, long number tokens, nesting and object/array shapes.
+     Validate malformed/duplicate input independently of timing runs.
+   - Record the component breakdown, measurement overhead and the largest
+     actionable cost. Commit the verified instrumentation and baseline evidence.
+3. [ ] Implement the highest-value measured parser improvement as a focused
+   runtime slice:
+   - Evaluate a bounded change to the identified hot operation, such as container
+     capacity growth, repeated work or token/value handling. The installed Zig
+     scanner already defaults to `.alloc_if_needed`; assigning that same option
+     explicitly is not a new borrowing optimization.
+   - Keep any experimental parser adapter behind the shared strict input boundary.
+     A parser replacement or selective/incremental engine requires evidence and
+     a separately expanded design; it is not the default response to these data.
+   - Verify decoded/escaped strings, exact numbers, duplicate/malformed/unused
+     fields, limits and locations, NDJSON/multiple-file behavior and early stops.
+     Use independent expected outputs, retained-buffer lifetime tests and
+     allocation-failure checks for changed ownership paths.
+   - Run matched before/after measurements, retain only a passing candidate,
+     execute the functional checks and commit the accepted runtime change.
+4. [ ] Add controlled invocation-overhead measurements:
+   - Build minimal Zig exit and matched stdin/stdout baseline executables with
+     the same compiler, mode and initialization conventions as jqz. Launch them,
+     `jqz --version` and the null query through the same supervision/capture path.
+     Check exact output/status and pin every executable's hash.
+   - Where useful, collect a child-reported work interval with its boundaries
+     stated. Parent-observed wall time still includes initialization, teardown,
+     IO and scheduling; a difference alone does not identify loader cost.
+   - Compare repeated small document invocations with one multi-file command,
+     one NDJSON command and a reused compiled `Program`. Use a projection without
+     aggregates/early stops so all variants process the same values and emit the
+     same ordered results. Report total/per-document time and cleanup behavior.
+   - Document when existing batching/reuse helps. Change startup/runtime code
+     only if these controls identify an actionable cost, using a separately
+     verified runtime commit. Commit the measurement support/results first.
+5. [ ] Break down structural-set memory and execution:
+   - Measure `keys`/`map` result creation, ordered comparison copies, sorting,
+     deduplication and result storage separately, preserving the public pipeline
+     lifetime. Include the existing repeated schemas plus all-distinct, mixed,
+     nested and already ordered values; keep distribution labels in the evidence.
+   - Record logical versus backing requests and live peaks for each component.
+     Include end-to-end `unique(map(.fixtures,keys(.)))` results so an isolated
+     microbenchmark cannot hide upstream materialization cost.
+   - Commit verified instrumentation and a fresh baseline before optimization.
+6. [ ] Implement and measure a bounded structural-set improvement:
+   - First evaluate borrowing already ordered comparison values and copying
+     ancestor containers only when key ordering requires a change. Check the
+     shared `json_order.zig` users: `unique`, `sort_values` and `-S`.
+   - Consider deduplication before comparison-copy allocation only if the measured
+     distribution supports it. Any hashing must normalize numbers/objects, verify
+     collisions with exact equality, validate every input value and preserve the
+     first original representative before producing sorted results.
+   - Test equal numeric spellings, negative zero, object insertion order, nested
+     arrays, exponent/depth failures, stable representatives, caller-buffer reuse
+     and allocation cleanup. Apply the same time/memory regression gates to
+     repeated and all-distinct inputs; commit only accepted runtime improvements.
+7. [ ] Complete native Debug build/tests and separate-consumer verification.
+   Run the full workflow qualification at five repetitions and the matched
+   performance suite at the established repetition count. Preserve all 30
+   selected observed translations, all 45 existing corpus cases and ten intentional probes
+   with unchanged frozen expectations; performance experiments do not increase
+   observed-workflow coverage. Extend meaningful focused checks as needed.
+   Publish new raw evidence and a report distinguishing accepted improvements,
+   rejected experiments, remaining costs and measurement limits. Update links
+   and plan status, then commit the final evidence slice.
+
+Before each fix/feature commit, run `zig build version` and use
+`zig build version -- set <new_sem_ver>` for the appropriate patch/minor increment.
+Keep major 0 and include all updated markers. New profiling capabilities use a
+minor increment; internal performance fixes use a patch increment when behavior
+is preserved. Write complete commit messages to temporary files, commit with
+`git commit -F`, and remove temporary files with plain `rm` when no longer needed.
+
+## Acceptance and completion
+
+The final report identifies the dominant parser components, bounds invocation
+overhead with controlled comparisons, and explains structural-set request/peak
+costs. Every accepted optimization has a reproducible improvement beyond control
+variation, preserved semantics/ownership and no unexplained material regression.
+Negative experiments are recorded honestly. All functional checks pass in the
+one routine mode; historical evidence remains intact. No fixed speedup, RSS
+reduction or support for unseen jq workflows is promised by the existing sample.
+
+## Planning validation
+
+Reviewed the current input/parser boundary, structural comparison-copy path,
+profiling harness, pinned Zig parser allocation defaults and completed evidence.
+This change records the implementation plan only; runtime/profiler changes,
+new benchmark runs and implementation checkboxes remain pending.
+Linked repository documents and `git diff --check` were verified. No package
+version increment is needed for this documentation-only slice.

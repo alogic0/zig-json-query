@@ -606,6 +606,8 @@ native Debug measurements guide investigation and do not establish optimized
 performance. `zig build test-profile` checks the profiler and allocation meter.
 The [profile report](docs/profiling/README.md) records measurements, limits and
 the next experiments suggested by them.
+The [parser/runtime performance plan](docs/plans/2026-11-11-parser-and-runtime-performance.md)
+tracks those experiments and measured optimization steps.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 

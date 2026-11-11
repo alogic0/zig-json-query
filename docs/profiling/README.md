@@ -87,6 +87,10 @@ which of those costs dominates without a controlled launch baseline.
 
 ## Findings and next experiments
 
+The [parser/runtime performance plan](../plans/2026-11-11-parser-and-runtime-performance.md)
+defines the measurement controls, implementation slices and acceptance gates for
+these next steps. Implementation has not started.
+
 1. Whole-document parsing dominates the selected large count projections.
    Split depth scanning, JSON tokenization, DOM construction and arena growth
    measurements before selecting parser or incremental-input changes. Existing
