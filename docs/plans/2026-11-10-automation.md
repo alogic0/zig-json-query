@@ -46,26 +46,26 @@ uses native x86_64 Linux Debug only.
 
 ### 3. Multiple files, metadata and slurp (0.9.0)
 
-- [ ] Accept zero or more input filenames after QUERY, or after `-f QUERY_FILE`.
+- [x] Accept zero or more input filenames after QUERY, or after `-f QUERY_FILE`.
   Default to stdin; `-` explicitly selects stdin. Allow at most one stdin input.
   `-f -` requires explicit named inputs and cannot share stdin with input data.
   Filenames after `--` are literal. Remove the old one-input positional limit.
-- [ ] Feed all documents (or all nonblank NDJSON lines) into one ordered session;
+- [x] Feed all documents (or all nonblank NDJSON lines) into one ordered session;
   aggregates span files. Reset line numbers per file. Open files only when input
   is requested, so satisfied `take` skips later files and their errors.
-- [ ] Add zero-argument `input_filename()` returning the current input label
+- [x] Add zero-argument `input_filename()` returning the current input label
   (`<stdin>` for CLI stdin). Return null when no single source exists: anonymous
   library input, completion aggregates and slurped input. Add named library feeds;
   metadata is borrowed only during a feed and copied by retaining stages.
-- [ ] Add `-s` / `--slurp`: collect all source values into one array and evaluate
+- [x] Add `-s` / `--slurp`: collect all source values into one array and evaluate
   the query once after input completion. Empty NDJSON yields `[]`. Keep the
   one-document-per-file and per-line limits; reject an invalid/later source
   before running the slurped query. Charge owned values and array capacity to a
   separate 64 MiB input-collection budget; nesting includes the wrapper array.
-- [ ] Share input validation between normal feeds and the owned slurp collector.
+- [x] Share input validation between normal feeds and the owned slurp collector.
   Preserve exact numbers, duplicate/depth rejection, stream failure behavior and
   input labels. Slurp collector storage lives through downstream evaluation.
-- [ ] Test files/stdin/query-file combinations, local diagnostics, aggregate and
+- [x] Test files/stdin/query-file combinations, local diagnostics, aggregate and
   early-stop scope, empty streams, metadata lifetime, slurp limits, source errors
   and allocation failures. Add runnable batch-provenance examples.
 
@@ -124,3 +124,9 @@ plan's cross-reference when finished.
   workflow), including query-file/argument combinations, binding ownership,
   unused-value validation, limits and allocation-failure cleanup. Build and
   formatting checks passed. External values compile as owned constants.
+- 0.9.0: native Debug suite passed 126 tests (91 library, 31 CLI, 4 version
+  workflow). Includes multi-file/stdin/query-file combinations, per-file lines,
+  cross-file aggregates, demand-driven file opening with open stdin, emitted
+  output/error precedence, slurp admission/poisoning, metadata and value lifetimes,
+  and allocation-failure cleanup. Build, formatting and the batch-provenance
+  example passed. The test fixture preserves sentinel-terminated path ownership.

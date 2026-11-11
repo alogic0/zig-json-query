@@ -4,10 +4,13 @@ const std = @import("std");
 const regex = @import("regex");
 const syntax = @import("parser.zig");
 const Execution = @import("execution.zig");
+const Budget = @import("collection_budget.zig");
+const Buffered = @import("buffered.zig");
+const scalar = @import("evaluator.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = 64 * 1024 * 1024;
-pub const version = "0.8.0";
+pub const version = "0.9.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.
@@ -137,25 +140,36 @@ pub const Stream = struct {
     /// later inputs are ignored without parsing. Never call after finish/failure.
     /// Input bytes are borrowed only for this call; collect keeps owned copies.
     pub fn feed(self: *Stream, input: []const u8) !bool {
+        return self.feedNamed(input, null);
+    }
+
+    /// Filename metadata is borrowed only until this call returns; retained
+    /// results own copies. A null name means no unique source filename.
+    pub fn feedNamed(self: *Stream, input: []const u8, filename: ?[]const u8) !bool {
         try self.execution.checkActive();
         self.execution.evaluator.diagnostic.* = .{};
         if (!self.needsInput()) return false;
         errdefer self.execution.abort();
-        if (input.len > max_input_bytes) return error.InputTooLarge;
-        try checkInputDepth(input, self.execution.evaluator.diagnostic);
-        var scanner = std.json.Scanner.initCompleteInput(self.execution.allocator, input);
-        defer scanner.deinit();
-        var json_diagnostic: std.json.Diagnostics = .{};
-        scanner.enableDiagnostics(&json_diagnostic);
-        const parsed = std.json.parseFromTokenSource(std.json.Value, self.execution.allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
-            const diagnostic = self.execution.evaluator.diagnostic;
-            diagnostic.input_offset = @intCast(json_diagnostic.getByteOffset());
-            diagnostic.input_line = json_diagnostic.getLine();
-            diagnostic.input_column = json_diagnostic.getColumn();
-            return err;
-        };
+        const parsed = try parseInput(self.execution.allocator, input, self.execution.evaluator.diagnostic);
         defer parsed.deinit();
+        self.execution.evaluator.input_filename = filename;
+        defer self.execution.evaluator.input_filename = null;
         try self.execution.push(parsed.value);
+        return self.needsInput();
+    }
+
+    /// Feed one validated, owned array. Slurped input has no unique filename.
+    /// The collector must remain alive until this synchronous call returns.
+    pub fn feedSlurp(self: *Stream, slurp: *const Slurp) !bool {
+        try self.execution.checkActive();
+        self.execution.evaluator.diagnostic.* = .{};
+        if (!self.needsInput()) return false;
+        errdefer self.execution.abort();
+        if (slurp.failed) return error.StreamFailed;
+        var view = std.json.Array.init(self.execution.allocator);
+        view.items = slurp.items.items;
+        view.capacity = view.items.len;
+        try self.execution.push(.{ .array = view });
         return self.needsInput();
     }
 
@@ -166,6 +180,64 @@ pub const Stream = struct {
         try self.execution.finish();
     }
 };
+
+/// Owned input array with a separate retained-allocation budget. Pointer identity
+/// is stable because the arena allocator borrows the embedded budget.
+pub const Slurp = struct {
+    backing: std.mem.Allocator,
+    budget: Budget,
+    arena: std.heap.ArenaAllocator,
+    items: std.ArrayList(std.json.Value) = .empty,
+    failed: bool = false,
+
+    pub fn init(allocator: std.mem.Allocator, max_bytes: usize) !*Slurp {
+        const self = try allocator.create(Slurp);
+        self.* = .{ .backing = allocator, .budget = .{ .backing = allocator, .limit = max_bytes }, .arena = undefined };
+        self.arena = .init(self.budget.allocator());
+        return self;
+    }
+
+    pub fn deinit(self: *Slurp) void {
+        self.arena.deinit();
+        std.debug.assert(self.budget.used == 0);
+        const allocator = self.backing;
+        allocator.destroy(self);
+    }
+
+    pub fn append(self: *Slurp, input: []const u8, diagnostic: *Diagnostic) !void {
+        diagnostic.* = .{};
+        if (self.failed) return error.StreamFailed;
+        errdefer self.failed = true;
+        const parsed = try parseInput(self.backing, input, diagnostic);
+        defer parsed.deinit();
+        if (!scalar.withinDepth(parsed.value, 1)) return error.InputTooDeep;
+        self.budget.denied = false;
+        self.appendOwned(parsed.value) catch |err| {
+            if (self.budget.denied) return error.SlurpTooLarge;
+            return err;
+        };
+    }
+
+    fn appendOwned(self: *Slurp, value: std.json.Value) !void {
+        const allocator = self.arena.allocator();
+        try self.items.append(allocator, try Buffered.clone(allocator, value));
+    }
+};
+
+fn parseInput(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagnostic) !std.json.Parsed(std.json.Value) {
+    if (input.len > max_input_bytes) return error.InputTooLarge;
+    try checkInputDepth(input, diagnostic);
+    var scanner = std.json.Scanner.initCompleteInput(allocator, input);
+    defer scanner.deinit();
+    var json_diagnostic: std.json.Diagnostics = .{};
+    scanner.enableDiagnostics(&json_diagnostic);
+    return std.json.parseFromTokenSource(std.json.Value, allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
+        diagnostic.input_offset = @intCast(json_diagnostic.getByteOffset());
+        diagnostic.input_line = json_diagnostic.getLine();
+        diagnostic.input_column = json_diagnostic.getColumn();
+        return err;
+    };
+}
 
 fn checkInputDepth(input: []const u8, diagnostic: *Diagnostic) error{InputTooDeep}!void {
     var in_string = false;
@@ -211,6 +283,7 @@ test {
     _ = @import("followup_tests.zig");
     _ = @import("summary_tests.zig");
     _ = @import("automation_tests.zig");
+    _ = @import("batch_tests.zig");
     _ = @import("property_tests.zig");
     _ = @import("fuzz_tests.zig");
 }

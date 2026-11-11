@@ -1,0 +1,7 @@
+{
+  "suite": "parser-acceptance",
+  "passed": true,
+  "cleanup_passed": true,
+  "http": [{"method": "GET", "path": "/health", "status": 200}],
+  "fixtures": [{"case": "parse", "result": {"code": 0}}]
+}

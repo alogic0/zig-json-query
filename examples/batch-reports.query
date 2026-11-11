@@ -1,0 +1,3 @@
+# Capture each filename while its report is being evaluated, before collecting.
+{file: input_filename(), suite, passed, cleanup_passed, requests: length(.http)}
+| collect

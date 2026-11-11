@@ -13,6 +13,7 @@ pub const Evaluator = struct {
     patterns: []const regex.Compiled,
     diagnostic: *Diagnostic,
     path: Path = .{},
+    input_filename: ?[]const u8 = null,
 
     fn fail(self: *Evaluator, offset: usize, message: []const u8) Error {
         self.diagnostic.set(offset, message);
@@ -86,6 +87,7 @@ pub const Evaluator = struct {
     fn evalInner(self: *Evaluator, allocator: A, node: *const Node, input: Value) Error!?Value {
         return switch (node.data) {
             .current => input,
+            .input_filename => if (self.input_filename) |name| Value{ .string = name } else Value.null,
             .literal => |value| value,
             .access => |access| blk: {
                 // Missing from an earlier optional access propagates. Explicit

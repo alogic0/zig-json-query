@@ -32,6 +32,7 @@ pub const Node = struct {
     height: usize,
     data: union(enum) {
         current,
+        input_filename,
         literal: std.json.Value,
         access: struct { base: *const Node, key: Key, optional: bool },
         binary: struct { op: Op, lhs: *const Node, rhs: *const Node },
@@ -348,6 +349,12 @@ pub const Parser = struct {
             .lbrace => return self.object(),
             .lbracket => return self.array(),
             .identifier => {
+                if (self.word("input_filename")) {
+                    try self.advance();
+                    try self.expect(.lparen, "expected ( after input_filename");
+                    try self.expect(.rparen, "input_filename takes no arguments");
+                    return self.make(offset, .input_filename, 1);
+                }
                 if (self.word("true") or self.word("false") or self.word("null")) {
                     const value = try self.jsonLiteral();
                     try self.advance();

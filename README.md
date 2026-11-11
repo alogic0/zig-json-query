@@ -61,23 +61,46 @@ The first command emits:
 {"name":"Cy","enabled":true,"id":9007199254740995}
 ```
 
-Omit the input filename or use `-` to read stdin. Output is compact JSON, one
+Supply input filenames in order; omit them or use `-` to read stdin once. Output is compact JSON, one
 value per line. `--ndjson` parses each nonblank input line as one JSON value and
 feeds it into one shared pipeline session. Output is flushed after each
 record; aggregates emit at stream completion. CRLF and a final line without a
 newline work. The count example emits `2`; the collection example emits
 `["Ada","Ben"]`.
-The default mode accepts exactly one JSON document, including multiline JSON.
+The default mode accepts exactly one JSON document per file, including multiline JSON.
+All files feed one session, so `count`, `sum`, `collect`, sorting and grouping span
+files. Satisfied `take` skips later records and files without opening them.
 `--` ends option parsing, for example `jqz -- '-2' input.json`.
 
 `-r` / `--raw-output` writes strings without JSON quotes; non-strings remain
 compact JSON. Each value has a trailing newline, and newlines inside a raw
 string remain literal. `-f FILE` / `--from-file FILE` reads one query file;
-the sole positional argument then names the input. Options can precede or
-follow positional arguments until `--`. Multiple `-f` options or two positional
-arguments with `-f` are errors. `-f -` reads the query from stdin and requires
-an explicit non-stdin input file. Query files have the same 64 KiB text limit.
+positional arguments then name input files. Options can precede or follow
+positional arguments until `--`. Multiple `-f` options are errors. `-f -` reads
+the query from stdin and requires explicit named input files, without `-` input.
+Query files have the same 64 KiB text limit.
 `--version` prints the package version.
+
+`input_filename()` returns the current input filename as supplied, or `<stdin>`
+for CLI stdin. Completion aggregates and slurped input have no unique filename
+and return null. Capture provenance before aggregation:
+
+```sh
+./zig-out/bin/jqz -f examples/batch-reports.query \
+  examples/acceptance-report.json examples/acceptance-passed.json
+```
+
+`-s` / `--slurp` collects all input values into one array and runs the query once.
+Use `--ndjson -s` to collect records across files; empty NDJSON produces `[]`.
+One-document-per-file and per-line limits still apply. Slurp owns its values and
+array capacity within a separate 64 MiB budget, and nesting includes the wrapper
+array. It validates all sources before evaluation, except queries such as
+`take(0)` that need no input. A later source error produces no slurped result.
+For example, `jqz -s 'length(.)' first.json second.json` emits `2`.
+Library callers can use `Stream.feedNamed(input, filename)` for borrowed source
+metadata and `Slurp.init(allocator, max_bytes)`, `append(input, diagnostic)`, then
+`Stream.feedSlurp(collector)` for an owned array. A collector failure poisons it;
+deinit the collector after feeding, and finish/deinit the stream as usual.
 
 `zig build` installs only `jqz`. The repository and source archives use
 `zig-json-query`.
@@ -117,6 +140,7 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | --- | --- |
 | `.`, `.user.name` | Current value; strict field access |
 | `$expected`, `$config.limit` | Typed external value; bound once for the program lifetime |
+| `input_filename()` | Current input label, or null when there is no unique source |
 | `.["a-b"]`, `.users[0]`, `.users[-1]` | Literal string key; array index, counting from the end when negative |
 | `.name?`, `.[4]?` | Allow an absent field or out-of-range index |
 | `.commands[-3:]`, `.items[:10]`, `.[1:4]` | One array slice, with an inclusive start and exclusive end |

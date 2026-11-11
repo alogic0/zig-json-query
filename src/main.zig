@@ -2,13 +2,14 @@ const std = @import("std");
 const query = @import("query");
 
 const usage =
-    \\Usage: jqz [OPTIONS] QUERY [FILE|-]
-    \\       jqz [OPTIONS] -f QUERY_FILE [FILE|-]
+    \\Usage: jqz [OPTIONS] QUERY [FILE|- ...]
+    \\       jqz [OPTIONS] -f QUERY_FILE [FILE|- ...]
     \\
-    \\Read one JSON document, or all NDJSON records as one stream.
+    \\Read one JSON document per file, or all NDJSON records as one stream.
     \\Without FILE, read stdin. Output is one JSON value per line.
     \\
     \\  --ndjson                  Parse one JSON record per nonblank line
+    \\  -s, --slurp               Query one array containing all input values
     \\  -r, --raw-output          Write strings raw; other values as JSON
     \\  -e, --exit-status         Status 1 for false/null, 4 for no output
     \\  --arg NAME VALUE         Bind $NAME to a string
@@ -18,8 +19,8 @@ const usage =
     \\  -h, --help               Show this help
     \\  --version                Show the package version
     \\
-    \\With -f, the sole positional argument is the input file. -f - reads
-    \\the query from stdin and requires a separate, explicit input file.
+    \\With -f, positional arguments are input files. -f - reads the query
+    \\from stdin and requires explicit named input files. Stdin is used once.
     \\
     \\Examples:
     \\  .users | each | where(.age >= 18) | {name: .name}
@@ -34,6 +35,7 @@ const usage =
     \\Arithmetic: checked i128 + - * / %, unary -; division must be exact.
     \\Limits: query 64 KiB; document 64 MiB; NDJSON line 1 MiB; nesting 128.
     \\        Retaining stages share 64 MiB; no disk spilling.
+    \\        Slurp has a separate 64 MiB owned input-collection budget.
     \\take stops upstream work; skipped records are not validated.
     \\Exit: 0 success (including no matches), 2 query/input/evaluation/IO error.
     \\With -e: last output determines 0/1/4; errors still return 2.
@@ -59,12 +61,13 @@ fn run(init: std.process.Init) !u8 {
     var ndjson = false;
     var raw_output = false;
     var exit_status = false;
+    var slurp_input = false;
     var options = true;
     var query_file: ?[]const u8 = null;
     var bindings: std.ArrayList(query.Binding) = .empty;
     defer bindings.deinit(allocator);
-    var positional: [2][]const u8 = undefined;
-    var positional_count: usize = 0;
+    var positional: std.ArrayList([]const u8) = .empty;
+    defer positional.deinit(allocator);
     var index: usize = 1;
     while (index < args.len) : (index += 1) {
         const arg = args[index];
@@ -80,6 +83,8 @@ fn run(init: std.process.Init) !u8 {
             return 0;
         } else if (options and std.mem.eql(u8, arg, "--ndjson")) {
             ndjson = true;
+        } else if (options and (std.mem.eql(u8, arg, "-s") or std.mem.eql(u8, arg, "--slurp"))) {
+            slurp_input = true;
         } else if (options and (std.mem.eql(u8, arg, "-r") or std.mem.eql(u8, arg, "--raw-output"))) {
             raw_output = true;
         } else if (options and (std.mem.eql(u8, arg, "-e") or std.mem.eql(u8, arg, "--exit-status"))) {
@@ -98,31 +103,31 @@ fn run(init: std.process.Init) !u8 {
             try errors.interface.flush();
             return 2;
         } else {
-            if (positional_count == positional.len) return argumentError(&errors.interface, "expected one query source and at most one input file");
-            positional[positional_count] = arg;
-            positional_count += 1;
+            try positional.append(allocator, arg);
         }
     }
-    if (query_file == null and positional_count == 0) return argumentError(&errors.interface, usage);
-    if (query_file != null and positional_count > 1) return argumentError(&errors.interface, "with -f, supply only the input filename; inline queries cannot be combined with -f");
-    const path: ?[]const u8 = if (query_file != null)
-        (if (positional_count == 1) positional[0] else null)
-    else if (positional_count == 2) positional[1] else null;
-    const from_stdin = path == null or std.mem.eql(u8, path.?, "-");
-    const label = if (from_stdin) "<stdin>" else path.?;
+    if (query_file == null and positional.items.len == 0) return argumentError(&errors.interface, usage);
+    const paths = if (query_file != null) positional.items else positional.items[1..];
+    const default_input = [_][]const u8{"-"};
+    const inputs = if (paths.len == 0) &default_input else paths;
+    var stdin_count: usize = 0;
+    for (inputs) |path| if (std.mem.eql(u8, path, "-")) {
+        stdin_count += 1;
+    };
+    if (stdin_count > 1) return argumentError(&errors.interface, "stdin may be used as input at most once");
     const query_label = query_file orelse "query";
     var query_bytes: ?[]u8 = null;
     defer if (query_bytes) |bytes| allocator.free(bytes);
     const source = if (query_file) |query_path| blk: {
         const query_stdin = std.mem.eql(u8, query_path, "-");
-        if (query_stdin and from_stdin) return argumentError(&errors.interface, "-f - requires an explicit non-stdin input file");
+        if (query_stdin and (paths.len == 0 or stdin_count != 0)) return argumentError(&errors.interface, "-f - requires explicit non-stdin input files");
         const file = if (query_stdin) std.Io.File.stdin() else std.Io.Dir.cwd().openFile(io, query_path, .{}) catch |err| return fileError(&errors.interface, query_path, "open query file", err);
         defer if (!query_stdin) file.close(io);
         var buffer: [4096]u8 = undefined;
         var reader = file.reader(io, &buffer);
         query_bytes = reader.interface.allocRemaining(allocator, .limited(64 * 1024)) catch |err| return fileError(&errors.interface, query_path, "read query (limit 64 KiB)", err);
         break :blk query_bytes.?;
-    } else positional[0];
+    } else positional.items[0];
     var diagnostic: query.Diagnostic = .{};
     var program = query.Program.compileWithBindings(allocator, source, bindings.items, &diagnostic) catch |err| {
         if (err == error.InvalidBinding) return argumentError(&errors.interface, diagnostic.message);
@@ -136,40 +141,56 @@ fn run(init: std.process.Init) !u8 {
     defer program.deinit();
     var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output });
     defer stream.deinit();
-    var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = label, .output = &output.interface, .errors = &errors.interface, .exit_status = exit_status };
+    const slurp = if (slurp_input and stream.needsInput()) try query.Slurp.init(allocator, query.max_input_bytes) else null;
+    defer if (slurp) |collector| collector.deinit();
+    var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = "<stdin>", .output = &output.interface, .errors = &errors.interface, .exit_status = exit_status, .slurp = slurp };
     if (!stream.needsInput()) return runner.finish();
-    const file = if (from_stdin) std.Io.File.stdin() else std.Io.Dir.cwd().openFile(io, path.?, .{}) catch |err| return fileError(&errors.interface, label, "open input file", err);
+    for (inputs) |path| {
+        if (!stream.needsInput()) break;
+        runner.label = if (std.mem.eql(u8, path, "-")) "<stdin>" else path;
+        const code = try readInput(io, allocator, path, ndjson, &runner);
+        if (code != 0) return code;
+        runner.output.flush() catch |err| return fileError(runner.errors, runner.label, "write output", err);
+    }
+    if (slurp != null) runner.label = "<slurp>";
+    return runner.finish();
+}
+
+fn readInput(io: std.Io, allocator: std.mem.Allocator, path: []const u8, ndjson: bool, runner: *Runner) !u8 {
+    const from_stdin = std.mem.eql(u8, path, "-");
+    const label = runner.label;
+    const file = if (from_stdin) std.Io.File.stdin() else std.Io.Dir.cwd().openFile(io, path, .{}) catch |err| return fileError(runner.errors, label, "open input file", err);
     defer if (!from_stdin) file.close(io);
     const max_line = 1024 * 1024;
     const buffer = try allocator.alloc(u8, if (ndjson) max_line + 1 else 16 * 1024);
     defer allocator.free(buffer);
     var reader = file.reader(io, buffer);
     if (!ndjson) {
-        const bytes = reader.interface.allocRemaining(allocator, .limited(query.max_input_bytes)) catch |err| return fileError(&errors.interface, label, "read JSON document (limit 64 MiB)", err);
+        const bytes = reader.interface.allocRemaining(allocator, .limited(query.max_input_bytes)) catch |err| return fileError(runner.errors, label, "read JSON document (limit 64 MiB)", err);
         defer allocator.free(bytes);
         const code = try runner.evaluate(bytes, 1);
         if (code != 0) return code;
-        return runner.finish();
+        return 0;
     }
     var line: usize = 0;
-    while (stream.needsInput()) {
+    while (runner.stream.needsInput()) {
         const bytes = (reader.interface.takeDelimiter('\n') catch |err| {
-            try errors.interface.print("{s}:{d}: cannot read NDJSON record: {s} (line limit 1 MiB)\n", .{ label, line + 1, @errorName(err) });
-            try errors.interface.flush();
+            try runner.errors.print("{s}:{d}: cannot read NDJSON record: {s} (line limit 1 MiB)\n", .{ label, line + 1, @errorName(err) });
+            try runner.errors.flush();
             return 2;
         }) orelse break;
         line += 1;
         if (bytes.len > max_line) {
-            try errors.interface.print("{s}:{d}: NDJSON record exceeds 1 MiB\n", .{ label, line });
-            try errors.interface.flush();
+            try runner.errors.print("{s}:{d}: NDJSON record exceeds 1 MiB\n", .{ label, line });
+            try runner.errors.flush();
             return 2;
         }
         if (std.mem.trim(u8, bytes, " \t\r").len == 0) continue;
         const code = try runner.evaluate(bytes, line);
-        output.interface.flush() catch |err| return fileError(&errors.interface, label, "write output", err);
+        runner.output.flush() catch |err| return fileError(runner.errors, label, "write output", err);
         if (code != 0) return code;
     }
-    return runner.finish();
+    return 0;
 }
 
 fn argumentError(errors: *std.Io.Writer, message: []const u8) !u8 {
@@ -188,18 +209,22 @@ const Runner = struct {
     stream: *query.Stream,
     source: []const u8,
     query_label: []const u8,
-    diagnostic: *const query.Diagnostic,
+    diagnostic: *query.Diagnostic,
     label: []const u8,
     output: *std.Io.Writer,
     errors: *std.Io.Writer,
     exit_status: bool,
+    slurp: ?*query.Slurp,
 
     fn evaluate(self: *Runner, bytes: []const u8, line: usize) !u8 {
-        _ = self.stream.feed(bytes) catch |err| return self.report(err, bytes, line);
+        if (self.slurp) |collector| {
+            collector.append(bytes, self.diagnostic) catch |err| return self.report(err, bytes, line);
+        } else _ = self.stream.feedNamed(bytes, self.label) catch |err| return self.report(err, bytes, line);
         return 0;
     }
 
     fn finish(self: *Runner) !u8 {
+        if (self.slurp) |collector| _ = self.stream.feedSlurp(collector) catch |err| return self.report(err, "", null);
         self.stream.finish() catch |err| return self.report(err, "", null);
         self.output.flush() catch |err| return fileError(self.errors, self.label, "write output", err);
         return if (self.exit_status) self.stream.predicateStatus() else 0;

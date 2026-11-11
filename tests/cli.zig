@@ -3,7 +3,7 @@ const S = @import("test_support");
 const exe = @import("test_options").exe;
 const t = std.testing;
 
-fn check(args: []const []const u8, input: []const u8, code: i32, output: []const u8, diagnostic: ?[]const u8) !void {
+pub fn check(args: []const []const u8, input: []const u8, code: i32, output: []const u8, diagnostic: ?[]const u8) !void {
     var argv: std.ArrayList([]const u8) = .empty;
     defer argv.deinit(t.allocator);
     try argv.append(t.allocator, exe);
@@ -144,7 +144,7 @@ fn expectExitWithOpenInput(source: []const u8, input: []const u8, expected: []co
     return expectExitWithOpenInputArgs(&.{ exe, "--ndjson", source }, input, expected);
 }
 
-fn expectExitWithOpenInputArgs(argv: []const []const u8, input: []const u8, expected: []const u8) !void {
+pub fn expectExitWithOpenInputArgs(argv: []const []const u8, input: []const u8, expected: []const u8) !void {
     var child = try S.process.Child.spawn(t.allocator, t.io, .{
         .argv = argv,
         .stdin = .pipe,
@@ -226,7 +226,7 @@ test "CLI query files argument precedence stdin queries and source errors" {
     try check(&.{ input_path, "-f", query_path }, "", 0, "\"Ada\"\n", null);
     try check(&.{ "-f", "-", input_path }, ".name", 0, "\"Ada\"\n", null);
     try check(&.{ "-f", "-" }, ".", 2, "", "explicit non-stdin input");
-    try check(&.{ "-f", query_path, ".", input_path }, "", 2, "", "inline queries cannot");
+    try check(&.{ "-f", query_path, ".", input_path }, "", 2, "", "read JSON document");
     try check(&.{ "-f", query_path, "-f", query_path }, "", 2, "", "only one -f");
     try check(&.{"-f"}, "", 2, "", "requires a query filename");
     try check(&.{ ".", missing_path }, "", 2, "", missing_path);
@@ -253,4 +253,8 @@ test "CLI arithmetic sorting and grouping share one NDJSON stream" {
     try check(&.{ "--ndjson", "sum" }, "1\n0.5\n", 2, "", "fractional");
     try check(&.{ "--ndjson", "sort" }, "1\n\"x\"\n", 2, "", "all be numbers");
     try expectExitWithOpenInput("group_by(.) | take(0) | sum", "", "0\n");
+}
+
+test {
+    _ = @import("batch_cli.zig");
 }

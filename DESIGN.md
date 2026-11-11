@@ -125,6 +125,20 @@ and array expansion. It deliberately clears source provenance for constructed
 values and buffered outputs instead of inventing input paths. The CLI accepts
 raw string output and one query file, with explicit positional/stdin precedence.
 
+CLI input files feed one session in order. NDJSON diagnostics restart their line
+counter per file, and file opening follows upstream demand. Each named library
+feed borrows a filename only during synchronous evaluation; retained metadata
+is cloned like other strings. `input_filename()` is null for anonymous feeds,
+completion aggregates and slurped arrays. File results are flushed before opening
+the next file, preserving earlier output if a later open/read operation fails.
+
+Slurp uses the same validated parser as ordinary feeds, deep-copies values into
+a stable-address collector and charges array/arena capacity to a separate input
+budget. The CLI sets that budget to 64 MiB. Container depth includes the outer
+array; failure poisons the collector. The complete array is borrowed during one
+`feedSlurp`, and downstream retaining stages copy their own data. Parsing,
+scalar temporaries and ordinary retention still have separate lifetimes/budgets.
+
 Dependencies are source archives pinned by content hashes and shipped with the
 project. Existing provider APIs remain unchanged. Separate consumer, cold-cache
 distribution tests, bounded parser/evaluator fuzz targets and generated semantic
@@ -144,6 +158,8 @@ The [stream execution plan](docs/plans/2026-11-09-stream-runtime.md) and
 The [practical report-query plan](docs/plans/2026-11-09-language-summaries.md)
 tracks shorthand, container functions, relative indexes/slices and scalar array
 transformations motivated by real acceptance/compiler sessions.
+The [automation plan](docs/plans/2026-11-10-automation.md) adds shell gates,
+external arguments, batch input/provenance, quantified predicates and statistics.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
 fuzz coverage and benchmark evidence. Routine validation uses native x86_64
 Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.
