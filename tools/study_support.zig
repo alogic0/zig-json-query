@@ -14,6 +14,7 @@ pub const Record = struct {
     elapsed_ns: u64,
     memory: ?Meter.Delta,
     logical: ?Meter.Counters = null,
+    logical_delta: ?Meter.Delta = null,
     token_traffic: ?Traffic = null,
 };
 pub const Hash = struct { path: []const u8, sha256: []const u8 };

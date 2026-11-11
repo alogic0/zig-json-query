@@ -42,7 +42,7 @@ pub fn main(init: std.process.Init) !void {
     var index: usize = 1;
     while (index < args.len) : (index += 2) {
         if (std.mem.eql(u8, args[index], "--help")) {
-            std.debug.print("profile [--study parser|invocation] [--reference-cli PATH] [--repeat N] [--out FILE]\n", .{});
+            std.debug.print("profile [--study parser|invocation|structural] [--reference-cli PATH] [--repeat N] [--out FILE]\n", .{});
             return;
         }
         if (index + 1 == args.len) return error.MissingOptionValue;
@@ -52,6 +52,7 @@ pub fn main(init: std.process.Init) !void {
     if (study) |kind| {
         if (std.mem.eql(u8, kind, "parser")) return @import("parser_study.zig").run(init, repeats, out);
         if (std.mem.eql(u8, kind, "invocation")) return @import("invocation_study.zig").run(init, repeats, out, reference_cli);
+        if (std.mem.eql(u8, kind, "structural")) return @import("structural_study.zig").run(init, repeats, out);
         return error.UnknownStudy;
     }
     var hashes: std.ArrayList(Hash) = .empty;
@@ -317,4 +318,5 @@ test {
     _ = @import("parser_study.zig");
     _ = @import("study_support.zig");
     _ = @import("invocation_study.zig");
+    _ = @import("structural_study.zig");
 }

@@ -121,7 +121,7 @@ and runtime optimizations are separate commits.
    - Document when existing batching/reuse helps. Change startup/runtime code
      only if these controls identify an actionable cost, using a separately
      verified runtime commit. Commit the measurement support/results first.
-5. [ ] Break down structural-set memory and execution:
+5. [x] Break down structural-set memory and execution:
    - Measure `keys`/`map` result creation, ordered comparison copies, sorting,
      deduplication and result storage separately, preserving the public pipeline
      lifetime. Include the existing repeated schemas plus all-distinct, mixed,
@@ -245,3 +245,21 @@ and statuses match; in-process cleanup reaches zero live requests. The projectio
 has no aggregate/early-stop ambiguity. Child allocator/RSS metrics are null;
 in-process requests are measured. Build and 205 project checks pass. The existing
 batch/reuse interfaces address the measured cost without a new daemon/API.
+
+Slice 5, 0.21.0: [structural baseline](../profiling/2026-11-11-structural-baseline.json)
+records 750 checked samples across repeated schemas, all-distinct schemas, mixed
+values and ordered/unordered nested values. Components preserve stage lifetime
+and separate map/key materialization, validated comparison preparation, stable
+sort, result reservation and dedup/fill; full reference/control/current queries
+agree byte-for-byte. Logical phase deltas are separate from backing peaks and
+bulk arena release. Native Debug build and 206 checks pass.
+
+Repeated schemas use 10,001 preparation allocations and 3,920,000 logical new
+bytes, on top of upstream materialization; backing peak is 10,273,456 bytes.
+The unchanged full-query medians are 23.020/23.279/22.906 ms. Before slice 6,
+require at least 50% less preparation request traffic and 25% lower backing peak
+on that distribution. Across every distribution, investigate full-query time
+regressions exceeding both 10% and 0.5 ms or any unexplained backing-peak increase.
+First evaluate borrowing already canonical trees and sizing unique output to its
+distinct count. Hash-based deduplication is unnecessary unless these bounded
+changes fail the gates; equality/representative rules remain mandatory.

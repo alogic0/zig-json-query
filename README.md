@@ -621,6 +621,10 @@ compares native Debug launch controls, repeated processes, multi-file/NDJSON
 batching and compiled-Program reuse. An optional `--reference-cli PATH` pins an
 older CLI for the null-query control. Child memory is unavailable in these
 supervised intervals and is reported as null rather than zero.
+`zig build profile -- --study structural --repeat 10 --out .zig-cache/structural.json`
+measures source/key materialization, comparison preparation, sorting, reservation
+and deduplication on repeated, distinct, mixed and nested inputs. Full-query
+controls check the component model against the actual evaluator.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 
