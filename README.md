@@ -652,6 +652,8 @@ The completed [standalone-package plan](docs/plans/2026-11-11-standalone-package
 and [package checkpoint](docs/qualification/2026-11-11-package-evidence.json) record
 byte-identical archive rebuilds, fresh extracted-source checks and an independent
 consumer for 0.26.2, plus practical report/configuration queries checked against jq.
+The [verification automation plan](docs/plans/2026-11-11-verify-dist.md) tracks
+the Zig `verify-dist` command and its failure/isolation checks.
 
 See [DESIGN.md](DESIGN.md), the completed
 [stream plan](docs/plans/2026-11-09-stream-runtime.md), the
