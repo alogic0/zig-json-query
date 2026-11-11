@@ -274,16 +274,10 @@ pub const Evaluator = struct {
                     rows[index] = .{ .value = item, .key = try json_order.ordered(allocator, item) };
                 }
                 row_ops.sortStructural(rows);
+                const selected = if (operation.unique) row_ops.distinct(rows) else rows;
                 var result = std.json.Array.init(allocator);
-                try result.ensureTotalCapacity(rows.len);
-                var previous: ?Value = null;
-                for (rows) |row| {
-                    if (operation.unique) if (previous) |key| {
-                        if (json_order.compare(key, row.key) == .eq) continue;
-                    };
-                    result.appendAssumeCapacity(row.value);
-                    previous = row.key;
-                }
+                try result.ensureTotalCapacity(selected.len);
+                for (selected) |row| result.appendAssumeCapacity(row.value);
                 break :blk Value{ .array = result };
             },
             .edit => |edit| blk: {

@@ -20,6 +20,18 @@ pub fn sortStructural(rows: []Row) void {
     }.less);
 }
 
+/// Compact stable sorted rows without another allocation. Equal values retain
+/// their first original representative; keys have already been validated.
+pub fn distinct(rows: []Row) []Row {
+    var count: usize = 0;
+    for (rows, 0..) |row, index| {
+        if (count != 0 and json_order.compare(rows[count - 1].key, row.key) == .eq) continue;
+        if (count != index) rows[count] = row;
+        count += 1;
+    }
+    return rows[0..count];
+}
+
 fn less(_: void, a: Row, b: Row) bool {
     return if (a.key == .number_string)
         (number.compare(a.key.number_string, b.key.number_string) catch unreachable) == .lt

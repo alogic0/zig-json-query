@@ -69,18 +69,26 @@ fn pipeline(comptime trace: bool, a: A, evaluator: *engine.Evaluator, source_nod
     if (trace) recorder.begin();
     engine.RowOps.sortStructural(rows);
     if (trace) try recorder.end("sort");
+    var selected = rows;
+    if (use_current_order) {
+        if (trace) recorder.begin();
+        selected = engine.RowOps.distinct(rows);
+        if (trace) try recorder.end("compact");
+    }
     if (trace) recorder.begin();
     var result = std.json.Array.init(a);
-    try result.ensureTotalCapacity(rows.len);
+    try result.ensureTotalCapacity(selected.len);
     if (trace) try recorder.end("reserve");
     if (trace) recorder.begin();
     var previous: ?Value = null;
-    for (rows) |row| {
-        if (previous) |key| if (engine.JsonOrder.compare(key, row.key) == .eq) continue;
+    for (selected) |row| {
+        if (!use_current_order) if (previous) |key| {
+            if (engine.JsonOrder.compare(key, row.key) == .eq) continue;
+        };
         result.appendAssumeCapacity(row.value);
         previous = row.key;
     }
-    if (trace) try recorder.end("dedup_fill");
+    if (trace) try recorder.end(if (use_current_order) "fill" else "dedup_fill");
     return .{ .array = result };
 }
 
@@ -154,7 +162,7 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
         for (0..5) |variant| try measure(a, init.gpa, init.io, case, parsed.value, &source_program, &program, expected, variant, 0, &warm);
         for (0..repeat) |iteration| for (0..5) |step| try measure(a, init.gpa, init.io, case, parsed.value, &source_program, &program, expected, (iteration + step) % 5, iteration, &records);
     }
-    try guard.publish("structural", repeat, "One warm-up; rotated variants for each distribution. Inputs parsed and ASTs compiled before timers. Reference/control freeze deep comparison copies and full-size result reservation; full-current calls the actual evaluator. Component pipelines expose source materialization, key preparation, stable sorting, result reservation and dedup/fill in production order. Preparation includes exact validation and rows. Logical phase deltas count requests above the same temporary arena; backing peaks include earlier live phases. Region release frees backing capacity in bulk, not individual logical requests. Full-query intervals include map/keys plus unique and exclude encoding, parse, compilation and cleanup. Every result matches public execution bytes; backing cleanup must reach zero. Components are not summed as independent microbenchmarks or new observed workflows.", records.items, .{ .checks = checks.items }, out);
+    try guard.publish("structural", repeat, "One warm-up; rotated variants for each distribution. Inputs parsed and ASTs compiled before timers. Reference/control freeze deep comparison copies and full-size result reservation; full-current calls the actual evaluator. Components expose source materialization, validated comparison preparation and sorting. Reference reserves full output then deduplicates/fills; current compacts distinct rows, reserves distinct output and fills. Preparation includes validation and rows. Logical phase deltas count requests above the same temporary arena; backing peaks include earlier live phases. Region release frees backing capacity in bulk, not individual logical requests. Full-query intervals include map/keys plus unique and exclude encoding, parse, compilation and cleanup. Every result matches public execution bytes; backing cleanup must reach zero. Components are not summed as independent microbenchmarks or new observed workflows.", records.items, .{ .checks = checks.items }, out);
 }
 
 fn variation(a: A, kind: enum { distinct, mixed, ordered, unordered }) ![]const u8 {

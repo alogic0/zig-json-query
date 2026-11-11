@@ -100,6 +100,68 @@ test "structural generated sorting and uniqueness agree with a finite ordered un
     }
 }
 
+test "structural already canonical trees borrow storage without allocation" {
+    const parsed = try std.json.parseFromSlice(std.json.Value, t.allocator, "{\"a\":[{\"a\":1,\"b\":[false,null]}],\"b\":2}", .{ .parse_numbers = false });
+    defer parsed.deinit();
+    var empty = std.heap.FixedBufferAllocator.init(&.{});
+    const ordered = try @import("json_order.zig").ordered(empty.allocator(), parsed.value);
+    try t.expectEqual(parsed.value.object.keys().ptr, ordered.object.keys().ptr);
+    try t.expectEqual(parsed.value.object.get("a").?.array.items.ptr, ordered.object.get("a").?.array.items.ptr);
+}
+
+test "structural ordering copies changed ancestors and preserves canonical siblings" {
+    const parsed = try std.json.parseFromSlice(std.json.Value, t.allocator, "{\"a\":{\"z\":1,\"a\":2},\"b\":[1,2]}", .{ .parse_numbers = false });
+    defer parsed.deinit();
+    var arena = std.heap.ArenaAllocator.init(t.allocator);
+    defer arena.deinit();
+    const ordered = try @import("json_order.zig").ordered(arena.allocator(), parsed.value);
+    try t.expect(ordered.object.keys().ptr != parsed.value.object.keys().ptr);
+    try t.expectEqual(parsed.value.object.get("b").?.array.items.ptr, ordered.object.get("b").?.array.items.ptr);
+    const text = try std.json.Stringify.valueAlloc(t.allocator, ordered, .{});
+    defer t.allocator.free(text);
+    try t.expectEqualStrings("{\"a\":{\"a\":2,\"z\":1},\"b\":[1,2]}", text);
+    try t.expectEqualStrings("z", parsed.value.object.get("a").?.object.keys()[0]);
+}
+
+test "structural unique output capacity follows distinct count rather than input size" {
+    var arena = std.heap.ArenaAllocator.init(t.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    var source = std.json.Array.init(a);
+    try source.ensureTotalCapacity(1024);
+    for (0..1024) |_| source.appendAssumeCapacity(.{ .number_string = "1.00" });
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "unique(.)", &diagnostic);
+    defer program.deinit();
+    var evaluator: @import("evaluator.zig").Evaluator = .{ .patterns = program.patterns, .diagnostic = &diagnostic, .path = .root() };
+    const result = try evaluator.evalRequired(a, program.stages[0].expression, .{ .array = source });
+    try t.expectEqual(@as(usize, 1), result.array.items.len);
+    try t.expect(result.array.capacity < 16);
+    try t.expectEqualStrings("1.00", result.array.items[0].number_string);
+}
+
+test "structural lazy-copy failures clean up every logical allocation in a bulk-owned region" {
+    const parsed = try std.json.parseFromSlice(std.json.Value, t.allocator, "{\"a\":[{\"a\":0},{\"z\":1,\"a\":2}],\"b\":[1,2]}", .{ .parse_numbers = false });
+    defer parsed.deinit();
+    var count: usize = 0;
+    {
+        var arena = std.heap.ArenaAllocator.init(t.allocator);
+        defer arena.deinit();
+        var baseline = t.FailingAllocator.init(arena.allocator(), .{ .resize_fail_index = 0 });
+        _ = try @import("json_order.zig").ordered(baseline.allocator(), parsed.value);
+        count = baseline.alloc_index;
+    }
+    for (0..count) |index| {
+        var arena = std.heap.ArenaAllocator.init(t.allocator);
+        defer arena.deinit();
+        var failing = t.FailingAllocator.init(arena.allocator(), .{ .fail_index = index, .resize_fail_index = 0 });
+        try t.expectError(error.OutOfMemory, @import("json_order.zig").ordered(failing.allocator(), parsed.value));
+        try t.expect(failing.has_induced_failure);
+        // The region, rather than individual Value destructors, owns all
+        // partially built containers. The backing testing allocator checks it.
+    }
+}
+
 fn allocationScenario(allocator: std.mem.Allocator) !void {
     var diagnostic: query.Diagnostic = .{};
     var program = try query.Program.compile(allocator, "{unique:unique(.items),sorted:sort_values(.items)} | collect", &diagnostic);

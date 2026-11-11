@@ -130,7 +130,7 @@ and runtime optimizations are separate commits.
      Include end-to-end `unique(map(.fixtures,keys(.)))` results so an isolated
      microbenchmark cannot hide upstream materialization cost.
    - Commit verified instrumentation and a fresh baseline before optimization.
-6. [ ] Implement and measure a bounded structural-set improvement:
+6. [x] Implement and measure a bounded structural-set improvement:
    - First evaluate borrowing already ordered comparison values and copying
      ancestor containers only when key ordering requires a change. Check the
      shared `json_order.zig` users: `unique`, `sort_values` and `-S`.
@@ -263,3 +263,24 @@ regressions exceeding both 10% and 0.5 ms or any unexplained backing-peak increa
 First evaluate borrowing already canonical trees and sizing unique output to its
 distinct count. Hash-based deduplication is unnecessary unless these bounded
 changes fail the gates; equality/representative rules remain mandatory.
+
+Slice 6, 0.21.1: canonical comparison values now borrow their original tree.
+Only changed ancestors and unsorted objects allocate; exact map storage is
+reindexed through the public API. Stable distinct rows compact in place before
+reserving output. There is no hash/dictionary equality shortcut.
+
+The [matched structural comparison](../profiling/2026-11-11-structural-optimized.json)
+has 800 samples with actual evaluator controls. Repeated-schema preparation falls
+from 10,001 logical allocations / 3,920,000 bytes to one row allocation /
+1,120,000 bytes (71% less traffic). Backing peak falls from 10,273,456 to 6,002,172
+bytes (42% lower). Full query median is 18.309 ms versus 20.870 ms reference;
+all-distinct, mixed and both nested distributions improve without a peak increase.
+Both memory gates pass. Source materialization and sorting remain measurable
+costs; their memory was not hidden by an isolated preparation benchmark.
+
+Native Debug build, all 210 project checks, eight consumer tests and the complete
+45-case corpus smoke pass. Added checks prove allocation-free canonical borrowing,
+unchanged siblings/original values, output capacity following distinct count and
+cleanup at every logical allocation in a partially copied region. Existing exact
+equality, representative, invalid-exponent/depth and generated-model checks pass
+for `unique`, `sort_values` and sorted output. Source fingerprints match the run.

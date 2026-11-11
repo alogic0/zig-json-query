@@ -148,10 +148,12 @@ parser. Retaining stages clone their results into the existing shared budget.
 
 `sort_values` and `unique` use a total JSON order, separate from the homogeneous
 stream sort keys. Prevalidation checks every nested number and comparison depth.
-`json_order.zig` creates ordered comparison copies once, and an infallible stable
-row comparator compares types, scalar values, lexicographic arrays and sorted
-object key sets/values. Original values are kept separately; deduplication keeps
-the first original representative in sorted order. Scratch remains scalar-arena
+`json_order.zig` borrows already canonical trees and copies only ancestors whose
+children or field order change. New maps allocate exact entry storage and rebuild
+their indexes. An infallible stable row comparator compares types, scalar values,
+lexicographic arrays and sorted object key sets/values. Original values are kept
+separately; distinct sorted rows compact in place before output allocation, keeping
+the first original representative. Scratch remains scalar-arena
 storage, and downstream retention copies original values as usual.
 
 When `take(n)` is satisfied, every stage up to that point stops accepting work.

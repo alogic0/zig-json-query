@@ -5,26 +5,79 @@ const number = @import("number.zig");
 const Value = std.json.Value;
 
 pub fn ordered(allocator: std.mem.Allocator, value: Value) error{OutOfMemory}!Value {
+    return (try prepare(allocator, value)).value;
+}
+
+const Prepared = struct { value: Value, changed: bool };
+
+fn prepare(allocator: std.mem.Allocator, value: Value) error{OutOfMemory}!Prepared {
     return switch (value) {
         .object => |object| blk: {
-            const keys = try allocator.dupe([]const u8, object.keys());
-            std.sort.pdq([]const u8, keys, {}, struct {
-                fn less(_: void, a: []const u8, b: []const u8) bool {
-                    return std.mem.lessThan(u8, a, b);
+            const names = object.keys();
+            var sorted = true;
+            if (names.len > 1) for (names[0 .. names.len - 1], names[1..]) |a, b| {
+                if (std.mem.order(u8, a, b) == .gt) {
+                    sorted = false;
+                    break;
                 }
-            }.less);
-            var result: std.json.ObjectMap = .empty;
-            for (keys) |key| try result.put(allocator, key, try ordered(allocator, object.get(key).?));
-            break :blk .{ .object = result };
+            };
+            if (!sorted) {
+                const keys = try allocator.dupe([]const u8, names);
+                defer allocator.free(keys);
+                std.sort.pdq([]const u8, keys, {}, struct {
+                    fn less(_: void, a: []const u8, b: []const u8) bool {
+                        return std.mem.lessThan(u8, a, b);
+                    }
+                }.less);
+                var result = try objectStorage(allocator, names.len);
+                const entries = result.entries.slice();
+                for (keys, 0..) |key, index| {
+                    entries.items(.key)[index] = key;
+                    entries.items(.value)[index] = (try prepare(allocator, object.get(key).?)).value;
+                }
+                try result.reIndex(allocator);
+                break :blk .{ .value = .{ .object = result }, .changed = true };
+            }
+            var copy: ?std.json.ObjectMap = null;
+            for (object.values(), 0..) |item, index| {
+                const child = try prepare(allocator, item);
+                if (child.changed and copy == null) {
+                    copy = try objectStorage(allocator, names.len);
+                    const entries = copy.?.entries.slice();
+                    @memcpy(entries.items(.key), names);
+                    @memcpy(entries.items(.value)[0..index], object.values()[0..index]);
+                }
+                if (copy) |*result| result.entries.items(.value)[index] = child.value;
+            }
+            if (copy) |*result| {
+                try result.reIndex(allocator);
+                break :blk .{ .value = .{ .object = result.* }, .changed = true };
+            }
+            break :blk .{ .value = value, .changed = false };
         },
         .array => |array| blk: {
-            var result = std.json.Array.init(allocator);
-            try result.ensureTotalCapacity(array.items.len);
-            for (array.items) |item| result.appendAssumeCapacity(try ordered(allocator, item));
-            break :blk .{ .array = result };
+            var copy: ?std.json.Array = null;
+            for (array.items, 0..) |item, index| {
+                const child = try prepare(allocator, item);
+                if (child.changed and copy == null) {
+                    copy = std.json.Array.init(allocator);
+                    try copy.?.ensureTotalCapacity(array.items.len);
+                    try copy.?.appendSlice(array.items[0..index]);
+                }
+                if (copy) |*result| result.appendAssumeCapacity(child.value);
+            }
+            if (copy) |result| break :blk .{ .value = .{ .array = result }, .changed = true };
+            break :blk .{ .value = value, .changed = false };
         },
-        else => value,
+        else => .{ .value = value, .changed = false },
     };
+}
+
+fn objectStorage(allocator: std.mem.Allocator, count: usize) !std.json.ObjectMap {
+    var result: std.json.ObjectMap = .empty;
+    try result.entries.setCapacity(allocator, count);
+    try result.entries.resize(allocator, count);
+    return result;
 }
 
 fn rank(value: Value) u8 {

@@ -465,7 +465,9 @@ depth and unsupported numeric exponents.
 `sort_values` is stable. `unique` sorts and removes equal adjacent values,
 preserving the first original representative's number spelling and field order.
 For sorted distinct schemas, use `unique(map(.fixtures, keys(.)))`. Comparison
-copies use the scalar arena; output items borrow the originals until retained
+preparation borrows already ordered trees and copies only changed ancestor
+containers into the scalar arena. Unique rows compact before reserving output
+capacity, so duplicates do not reserve result slots. Output items borrow the originals until retained
 or synchronously emitted. The existing stream `sort` and `sort_by` still require
 uniform numeric/string keys.
 
