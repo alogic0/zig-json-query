@@ -1,0 +1,41 @@
+diff --git a/src/json_order.zig b/src/json_order.zig
+index 5133dd8..b4f50b0 100644
+--- a/src/json_order.zig
++++ b/src/json_order.zig
+@@ -92,6 +92,18 @@ fn rank(value: Value) u8 {
+     };
+ }
+ 
++// Container leaves are common schema keys. Compare them inline rather than
++// recursively dispatching the complete comparator for every primitive child.
++inline fn compareChild(a: Value, b: Value) std.math.Order {
++    return switch (a) {
++        .null => if (b == .null) .eq else compare(a, b),
++        .bool => if (b == .bool) std.math.order(@intFromBool(a.bool), @intFromBool(b.bool)) else compare(a, b),
++        .number_string => if (b == .number_string) number.compare(a.number_string, b.number_string) catch unreachable else compare(a, b),
++        .string => if (b == .string) std.mem.order(u8, a.string, b.string) else compare(a, b),
++        else => compare(a, b),
++    };
++}
++
+ /// Compare ordered copies with prevalidated numeric exponents and depth. The
+ /// comparator cannot fail or allocate during sorting. Original values are kept
+ /// separately so equal representatives preserve their spelling and field order.
+@@ -105,7 +117,7 @@ pub fn compare(a: Value, b: Value) std.math.Order {
+         .string => std.mem.order(u8, a.string, b.string),
+         .array => |array| blk: {
+             for (array.items[0..@min(array.items.len, b.array.items.len)], b.array.items[0..@min(array.items.len, b.array.items.len)]) |av, bv| {
+-                const order = compare(av, bv);
++                const order = compareChild(av, bv);
+                 if (order != .eq) break :blk order;
+             }
+             break :blk std.math.order(array.items.len, b.array.items.len);
+@@ -119,7 +131,7 @@ pub fn compare(a: Value, b: Value) std.math.Order {
+             const sizes = std.math.order(object.count(), b.object.count());
+             if (sizes != .eq) break :blk sizes;
+             for (object.values(), b.object.values()) |av, bv| {
+-                const order = compare(av, bv);
++                const order = compareChild(av, bv);
+                 if (order != .eq) break :blk order;
+             }
+             break :blk .eq;

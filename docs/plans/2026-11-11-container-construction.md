@@ -88,7 +88,7 @@ temporary file, use `git commit -F`, then remove it with plain `rm`.
    - Retain only a passing optimization. Preserve rejected patches/results and
      give a bounded negative conclusion if no candidate passes. Commit the
      verified runtime slice separately from its measurement support.
-4. [ ] Perform the structural-materialization follow-up:
+4. [x] Perform the structural-materialization follow-up:
    - Establish matched controls for known-size `keys`/`map` output storage and
      stable structural sorting; distinguish source creation from sorting.
      Keep component results checked against actual evaluator/public output.
@@ -324,3 +324,16 @@ existing recursive comparator. Keep stable block sort and the same 20% sort-time
 full-pipeline regression and memory gates. No extra pass or comparison-key storage
 is introduced. This is the last bounded comparator experiment in this plan;
 preserve a negative conclusion if it does not justify a runtime change.
+
+Primitive-child comparison rejected: the
+[3,072-interval experiment](../profiling/2026-11-11-primitive-child-rejected.json)
+has repeated sort medians 7.588/6.935 ms reference/control and 6.380/6.167 ms
+current/control, below the 20% target for both pairings. Full-sort medians are
+19.634/18.268 ms reference/current, while the ordinary full evaluator is
+20.413 ms, so no uniform complete-query speedup follows. The
+[patch](../profiling/experiments/primitive-child-comparison.patch) applies to
+`f561c63`; production comparison has been restored. This completes the bounded
+sort investigation with three rejected candidates. Stable block sort and the
+original comparator remain; exact materialization storage is the accepted
+structural change. No new sort algorithm, row pass or cached key representation
+is retained without meeting the recorded gates.
