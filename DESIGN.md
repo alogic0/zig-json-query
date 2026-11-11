@@ -94,6 +94,11 @@ to 4 and all other values to 0. CLI `-e` applies this after successful completio
 and flushing, while all execution/IO errors retain status 2. Raw output does not
 affect classification or strict boolean expression semantics.
 
+`tojson` uses the ordinary compact JSON writer with the same container-depth
+bound as output. It allocates encoded text in the scalar arena, preserving
+numeric tokens and insertion order. `byte_length` counts UTF-8 bytes separately
+from `length`'s Unicode scalar count; neither includes a CLI output newline.
+
 `sum` and scalar arithmetic operate on checked signed 128-bit integers. Decimal
 tokens are converted by digit/exponent normalization only if their mathematical
 value is an in-range integer. Division is exact, fractions and overflow are

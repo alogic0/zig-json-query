@@ -47,7 +47,7 @@ All implementation and helpers use Zig. Validate native x86_64 Linux Debug only.
 ## Verified commit slices
 
 1. [x] Commit this plan, including the afterwards work, before implementation.
-2. [ ] Add serialization and byte sizing, with Unicode/escape/exact-number,
+2. [x] Add serialization and byte sizing, with Unicode/escape/exact-number,
    depth, diagnostics, retention and allocation-failure checks. Add a consumer
    check and translate `serialized-sample-size`, keeping its jq oracle unchanged.
    Validate build/tests and a corpus smoke run; increment the minor version via
@@ -95,4 +95,11 @@ interpreter or deployment target.
 
 ## Validation record
 
-Plan recorded; implementation checks pending.
+Slice 2, 0.15.0: native Debug build, 170 project tests (129 language/library,
+34 CLI, four version-workflow, three qualification-runner) and six consumer tests
+passed. Six serialization tests cover exact tokens, Unicode/escaping, byte versus
+scalar counts, depth/paths and exhaustive allocation failures with retained
+output. All 43 corpus cases passed in a one-repetition smoke run: 28/30 observed
+translations, two unsupported, nine intentional probes and 62 samples. The new
+Unicode probe keeps the ASCII sizing case's unchanged oracle honest. Formatting
+and diff checks passed; no additional tool was needed.

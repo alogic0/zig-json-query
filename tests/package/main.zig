@@ -32,6 +32,17 @@ test "external consumer composes scalar totals and ordered groups within a repor
     try t.expectEqualStrings("[{\"passed\":false,\"total\":9007199254740996,\"groups\":[{\"key\":1,\"count\":1},{\"key\":2,\"count\":2}]}]\n", output.written());
 }
 
+test "external consumer serializes exact values with explicit Unicode byte sizing" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "{text:tojson(.),bytes:byte_length(tojson(.)),characters:length(tojson(.))} | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    try program.run(t.allocator, "\"é😀\"", &output.writer, &diagnostic);
+    try t.expectEqualStrings("[{\"text\":\"\\\"é😀\\\"\",\"bytes\":8,\"characters\":4}]\n", output.written());
+}
+
 test "external consumer combines owned bindings named feeds predicates and decimal statistics" {
     const t = std.testing;
     var diagnostic: query.Diagnostic = .{};

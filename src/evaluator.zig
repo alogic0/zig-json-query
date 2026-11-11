@@ -177,6 +177,16 @@ pub const Evaluator = struct {
                 };
                 break :blk try integerValue(allocator, @intCast(length));
             },
+            .byte_length => |child| blk: {
+                const value = try self.evalRequired(allocator, child, input);
+                if (value != .string) return self.typeFailure(node, child, "byte_length expects a string");
+                break :blk try integerValue(allocator, @intCast(value.string.len));
+            },
+            .tojson => |child| blk: {
+                const value = try self.evalRequired(allocator, child, input);
+                if (!withinDepth(value, 0)) return self.typeFailure(node, child, "serialization nesting exceeds 128 levels");
+                break :blk Value{ .string = try std.json.Stringify.valueAlloc(allocator, value, .{}) };
+            },
             .keys => |child| blk: {
                 const value = try self.evalRequired(allocator, child, input);
                 var array = std.json.Array.init(allocator);

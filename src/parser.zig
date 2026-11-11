@@ -47,6 +47,8 @@ pub const Node = struct {
         array: []const *const Node,
         exists: *const Node,
         length: *const Node,
+        byte_length: *const Node,
+        tojson: *const Node,
         keys: *const Node,
         sum: *const Node,
         transform: Transform,
@@ -420,19 +422,21 @@ pub const Parser = struct {
                 const exists = self.word("exists");
                 const matches = self.word("matches");
                 const length = self.word("length");
+                const byte_length = self.word("byte_length");
+                const tojson = self.word("tojson");
                 const keys = self.word("keys");
                 const sum = self.word("sum");
                 const mapping = self.word("map");
                 const filtering = self.word("filter");
                 const all = self.word("all");
                 const any = self.word("any");
-                if (!exists and !matches and !length and !keys and !sum and !mapping and !filtering and !all and !any) return self.fail(offset, "unknown expression; fields start with .");
+                if (!exists and !matches and !length and !byte_length and !tojson and !keys and !sum and !mapping and !filtering and !all and !any) return self.fail(offset, "unknown expression; fields start with .");
                 try self.advance();
                 try self.expect(.lparen, "expected ( after function name");
                 const value = try self.expression(0);
-                if (exists or length or keys or sum) {
+                if (exists or length or byte_length or tojson or keys or sum) {
                     try self.expect(.rparen, "expected ) after function argument");
-                    return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else if (keys) .{ .keys = value } else .{ .sum = value }, value.height + 1);
+                    return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else if (byte_length) .{ .byte_length = value } else if (tojson) .{ .tojson = value } else if (keys) .{ .keys = value } else .{ .sum = value }, value.height + 1);
                 }
                 if (mapping or filtering or all or any) {
                     try self.expect(.comma, "array function expects an array and a per-element expression");

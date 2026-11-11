@@ -161,6 +161,8 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `{name, age, count: length(.items)}` | Shorthand strict fields mixed with computed values |
 | `[.name, .age]` | Construct one array; does not collect a stream |
 | `length(.items)` | Array element count, object field count, or string Unicode scalar-value count |
+| `tojson(.value)` | Compact JSON text as a string, preserving exact number tokens |
+| `byte_length(.text)` | UTF-8 byte count of a string |
 | `keys(.)` | Sorted object names, or ascending array indexes |
 | `map(.items, {name, id})` | One ordered array of results, evaluating the body with each item as `.` |
 | `filter(.items, .code != 0)` | One ordered array of original items whose boolean predicate is true |
@@ -312,6 +314,26 @@ Skipped records are not validated, and errors in skipped upstream expressions
 are not evaluated. Buffered IO may already have read ahead. Except for queries
 that need no input, document mode still reads and parses a whole JSON document
 before evaluating it; `take` does not make document parsing incremental.
+
+## JSON text and sizing
+
+`tojson(value)` encodes one JSON value as a compact string, without a trailing
+newline. Object insertion order and exact number tokens are preserved. Unicode
+text remains UTF-8; quotes, backslashes and control characters are escaped.
+Encoding is subject to the existing 128-container limit, even when its final
+result is a shallow string. Missing values require an explicit default.
+
+`byte_length(string)` counts UTF-8 bytes; `length(string)` counts Unicode scalar
+values. For `"é😀"`, those lengths are 6 and 2; its JSON text includes two quotes
+and has 8 bytes and 4 scalar values. Escapes count as their encoded characters.
+For actual serialized sample bytes, use:
+
+```text
+{air_roots, sample_bytes: byte_length(tojson(.samples[0]))}
+```
+
+`-r 'tojson(.)'` writes the compact text directly, followed by the ordinary CLI
+output newline, which is not included in `byte_length(tojson(.))`.
 
 ## Integer arithmetic
 

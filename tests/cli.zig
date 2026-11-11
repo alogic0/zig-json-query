@@ -25,6 +25,12 @@ test "CLI reads stdin and emits filtered records" {
     try check(&.{"each | where(false)"}, "[1,2]", 0, "", null);
 }
 
+test "CLI serializes JSON text and distinguishes Unicode bytes from characters" {
+    try check(&.{ "-r", "tojson(.)" }, "{\"x\":\"é😀\",\"n\":9007199254740993}", 0, "{\"x\":\"é😀\",\"n\":9007199254740993}\n", null);
+    try check(&.{"[length(tojson(.)),byte_length(tojson(.))]"}, "\"é😀\"", 0, "[4,8]\n", null);
+    try check(&.{"byte_length(.)"}, "null", 2, "", "expects a string");
+}
+
 test "CLI exit-status mode uses the last value without changing output" {
     try check(&.{ "-e", "." }, "false", 1, "false\n", null);
     try check(&.{ "--exit-status", "." }, "null", 1, "null\n", null);
