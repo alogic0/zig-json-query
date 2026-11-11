@@ -29,18 +29,18 @@ uses native x86_64 Linux Debug only.
 
 ### 2. Typed external arguments (0.8.0)
 
-- [ ] Add `--arg NAME VALUE` (a string) and `--argjson NAME JSON` (one strict JSON
+- [x] Add `--arg NAME VALUE` (a UTF-8 string) and `--argjson NAME JSON` (one strict JSON
   value with exact number tokens). Bind `$NAME` as a scalar expression, including
   field/index access and use inside array-function bodies. Bodies do not shadow
   external variables. Names use `[A-Za-z_][A-Za-z0-9_]*` and are case-sensitive.
-- [ ] Reject duplicate/invalid names and unbound variables. Validate all bindings
+- [x] Reject duplicate/invalid names and unbound variables. Validate all bindings
   before reading input, including unused JSON values. Limit to 128 bindings,
   64 MiB of total value text and 128 JSON container levels; reject duplicate JSON
   keys. No shell interpolation or evaluation of argument contents.
-- [ ] Add `Program.compileWithBindings` and a public binding description while
+- [x] Add `Program.compileWithBindings` and a public binding description while
   preserving `Program.compile`. Own the bound text/values for the program's
   lifetime; a referenced binding compiles as a constant expression.
-- [ ] Test exact numbers, nested values, literal quoting/newlines, null/false,
+- [x] Test exact numbers, nested values, literal quoting/newlines, null/false,
   unknown/malformed variables, typed errors, program ownership, independent
   sessions, query files, argument terminators and allocation failure cleanup.
 
@@ -120,3 +120,7 @@ plan's cross-reference when finished.
   21 CLI, 4 version workflow). Includes raw-output classification, completion and
   last-value behavior, early termination with stdin open, IO/error precedence.
   Native Debug build and formatting checks passed.
+- 0.8.0: native Debug suite passed 113 tests (85 library, 24 CLI, 4 version
+  workflow), including query-file/argument combinations, binding ownership,
+  unused-value validation, limits and allocation-failure cleanup. Build and
+  formatting checks passed. External values compile as owned constants.

@@ -47,6 +47,39 @@ test "CLI exit-status mode handles aggregates early stops and error precedence" 
     try check(&.{ "-e", "--ndjson", "." }, "false\n{bad}\n", 2, "false\n", "<stdin>:2:");
 }
 
+test "CLI external arguments preserve strings JSON types and exact values" {
+    try check(&.{ "--arg", "label", "quote'\"\n$(literal)", "--argjson", "id", "9007199254740993", "--argjson", "data", "{\"ok\":false}", "{label: $label, id: $id, ok: $data.ok}" }, "null", 0, "{\"label\":\"quote'\\\"\\n$(literal)\",\"id\":9007199254740993,\"ok\":false}\n", null);
+    try check(&.{ "--argjson", "expected", "false", "-e", ".passed == $expected" }, "{\"passed\":false}", 0, "true\n", null);
+    try check(&.{ "--arg", "value", "--ndjson", "$value" }, "null", 0, "\"--ndjson\"\n", null);
+    try check(&.{ "--argjson", "min", "2", "map(filter(., . >= $min), .)" }, "[1,2,3]", 0, "[2,3]\n", null);
+    try check(&.{ "--arg", "message", "hello", "--", "$message" }, "null", 0, "\"hello\"\n", null);
+}
+
+test "CLI external argument errors precede input and reject ambiguity" {
+    try check(&.{ "--arg", "a" }, "", 2, "", "requires a NAME and VALUE");
+    try check(&.{ "--argjson", "a", "{bad}", "take(0)" }, "", 2, "", "--argjson requires one valid JSON value");
+    try check(&.{ "--argjson", "a", "0 1", "." }, "", 2, "", "one valid JSON value");
+    try check(&.{ "--arg", "a-b", "x", "." }, "", 2, "", "binding names must match");
+    try check(&.{ "--arg", "a", "x", "--argjson", "a", "0", "." }, "", 2, "", "duplicate external binding");
+    try check(&.{"$missing"}, "", 2, "", "unbound variable");
+    try check(&.{ "--argjson", "flag", "0", "-e", "$flag and true" }, "null", 2, "", "expected a boolean");
+}
+
+test "CLI external arguments compose with named and stdin query files" {
+    var temporary = t.tmpDir(.{});
+    defer temporary.cleanup();
+    const root = try temporary.dir.realPathFileAlloc(t.io, ".", t.allocator);
+    defer t.allocator.free(root);
+    const input_path = try std.fs.path.join(t.allocator, &.{ root, "input data.json" });
+    defer t.allocator.free(input_path);
+    const query_path = try std.fs.path.join(t.allocator, &.{ root, "bound query.query" });
+    defer t.allocator.free(query_path);
+    try S.files.writeAtomic(t.io, .{ .path = input_path, .replace = false }, &.{"null"});
+    try S.files.writeAtomic(t.io, .{ .path = query_path, .replace = false }, &.{"$data.value"});
+    try check(&.{ "--argjson", "data", "{\"value\":9007199254740993}", "-f", query_path, input_path }, "", 0, "9007199254740993\n", null);
+    try check(&.{ "--arg", "label", "bound", "-f", "-", input_path }, "$label", 0, "\"bound\"\n", null);
+}
+
 test "CLI streams NDJSON with blank lines CRLF and no trailing newline" {
     try check(&.{ "--ndjson", ".x? ?? false" }, "{\"x\":0}\r\n\n{}\n{\"x\":true}", 0, "0\nfalse\ntrue\n", null);
     try check(&.{ "--ndjson", "." }, "", 0, "", null);

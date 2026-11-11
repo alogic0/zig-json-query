@@ -48,6 +48,14 @@ scalar values in strings. Keys produces one array of sorted UTF-8 object names
 or ascending numeric array indexes. Unsupported types and unhandled missing
 values keep located errors. Results use the expression-stage lifetime.
 
+External bindings are validated and copied during `compileWithBindings`.
+`$name` compiles to a literal node holding owned data in the program arena;
+query/input text is never constructed from its contents. Bindings have exact JSON
+number tokens and support the same scalar accesses as other values. Unknown
+variables are located query errors; invalid names/duplicates/JSON are argument
+errors before any input is read. Body scopes do not shadow program constants,
+and bound/computed values have no invented input source path.
+
 Array indexes and slice bounds use a sign plus a `usize` magnitude, preserving
 the existing positive-index range and avoiding signed negation overflow.
 Negative indexes resolve from the end; slices clamp bounds and return borrowed

@@ -11,6 +11,8 @@ const usage =
     \\  --ndjson                  Parse one JSON record per nonblank line
     \\  -r, --raw-output          Write strings raw; other values as JSON
     \\  -e, --exit-status         Status 1 for false/null, 4 for no output
+    \\  --arg NAME VALUE         Bind $NAME to a string
+    \\  --argjson NAME JSON      Bind $NAME to one exact JSON value
     \\  -f, --from-file FILE      Read the query from FILE (only once)
     \\  --                       End options (e.g. before a negative query)
     \\  -h, --help               Show this help
@@ -59,6 +61,8 @@ fn run(init: std.process.Init) !u8 {
     var exit_status = false;
     var options = true;
     var query_file: ?[]const u8 = null;
+    var bindings: std.ArrayList(query.Binding) = .empty;
+    defer bindings.deinit(allocator);
     var positional: [2][]const u8 = undefined;
     var positional_count: usize = 0;
     var index: usize = 1;
@@ -80,6 +84,10 @@ fn run(init: std.process.Init) !u8 {
             raw_output = true;
         } else if (options and (std.mem.eql(u8, arg, "-e") or std.mem.eql(u8, arg, "--exit-status"))) {
             exit_status = true;
+        } else if (options and (std.mem.eql(u8, arg, "--arg") or std.mem.eql(u8, arg, "--argjson"))) {
+            if (index + 2 >= args.len) return argumentError(&errors.interface, "--arg/--argjson requires a NAME and VALUE");
+            try bindings.append(allocator, .{ .name = args[index + 1], .value = if (std.mem.eql(u8, arg, "--arg")) .{ .string = args[index + 2] } else .{ .json = args[index + 2] } });
+            index += 2;
         } else if (options and (std.mem.eql(u8, arg, "-f") or std.mem.eql(u8, arg, "--from-file"))) {
             if (query_file != null) return argumentError(&errors.interface, "only one -f query source is allowed");
             index += 1;
@@ -116,7 +124,8 @@ fn run(init: std.process.Init) !u8 {
         break :blk query_bytes.?;
     } else positional[0];
     var diagnostic: query.Diagnostic = .{};
-    var program = query.Program.compile(allocator, source, &diagnostic) catch |err| {
+    var program = query.Program.compileWithBindings(allocator, source, bindings.items, &diagnostic) catch |err| {
+        if (err == error.InvalidBinding) return argumentError(&errors.interface, diagnostic.message);
         if (err == error.InvalidQuery) {
             try diagnostic.writeNamed(source, query_label, &errors.interface);
             try errors.interface.flush();

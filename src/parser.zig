@@ -21,6 +21,7 @@ pub const Index = struct {
 pub const Slice = struct { start: ?Index, end: ?Index };
 pub const Key = union(enum) { field: []const u8, index: Index, slice: Slice };
 pub const Field = struct { name: []const u8, value: *const Node };
+pub const BoundValue = struct { name: []const u8, value: std.json.Value };
 pub const Transform = struct {
     kind: enum { map, filter },
     array: *const Node,
@@ -85,6 +86,7 @@ const Tag = enum {
     star,
     slash,
     percent,
+    dollar,
 };
 const Token = struct { tag: Tag, start: usize, end: usize };
 
@@ -93,6 +95,7 @@ pub const Parser = struct {
     regex_allocator: A,
     source: []const u8,
     diagnostic: *Diagnostic,
+    bindings: []const BoundValue = &.{},
     cursor: usize = 0,
     token: Token = .{ .tag = .eof, .start = 0, .end = 0 },
     recursion: usize = 0,
@@ -182,6 +185,7 @@ pub const Parser = struct {
                 '*' => .star,
                 '/' => .slash,
                 '%' => .percent,
+                '$' => .dollar,
                 else => return self.fail(start, "unexpected character"),
             };
         };
@@ -300,6 +304,17 @@ pub const Parser = struct {
     fn primary(self: *Parser) Error!*const Node {
         const offset = self.token.start;
         switch (self.token.tag) {
+            .dollar => {
+                try self.advance();
+                if (self.token.tag != .identifier or self.token.start != offset + 1) return self.fail(offset, "expected a variable name immediately after $");
+                const name = self.text();
+                for (self.bindings) |binding| {
+                    if (!std.mem.eql(u8, name, binding.name)) continue;
+                    try self.advance();
+                    return self.make(offset, .{ .literal = binding.value }, 1);
+                }
+                return self.fail(offset, "unbound variable; supply it with --arg or --argjson");
+            },
             .minus => {
                 try self.advance();
                 if (self.token.tag == .number and self.token.start == offset + 1) {

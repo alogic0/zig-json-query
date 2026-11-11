@@ -8,7 +8,7 @@ const sources = [_][]const u8{
     "1/.",                               "matches(., \"^a+$\")",         "collect | each | sort | collect", "where(. == .) | count",
     "take(0) | sum",                     "exists(.x?)",                  "length(.)",                       "keys(.)",
     "{x: .x? ?? null, fields: keys(.)}", ".[-1]? ?? null",               ".[-3:]",                          "map(., {value: ., size: length(.)})",
-    "filter(., . == null)",              "map(filter(., . != null), .)",
+    "filter(., . == null)",              "map(filter(., . != null), .)", "$bound.value",
 };
 
 fn input(smith: *t.Smith, buffer: []u8) []const u8 {
@@ -33,7 +33,7 @@ fn evaluatorOne(_: void, smith: *t.Smith) !void {
     const bytes = input(smith, &buffer);
     if (bytes.len == 0) return;
     var diagnostic: query.Diagnostic = .{};
-    var program = try query.Program.compile(t.allocator, sources[bytes[0] % sources.len], &diagnostic);
+    var program = try query.Program.compileWithBindings(t.allocator, sources[bytes[0] % sources.len], &.{.{ .name = "bound", .value = .{ .json = "{\"value\":9007199254740993}" } }}, &diagnostic);
     defer program.deinit();
     var output_buffer: [4096]u8 = undefined;
     var output = std.Io.Writer.fixed(&output_buffer);

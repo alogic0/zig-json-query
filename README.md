@@ -94,9 +94,29 @@ Failed streams discard buffered aggregates instead of emitting partial totals.
 
 ## Language
 
+`--arg NAME VALUE` binds `$NAME` to a string. `--argjson NAME JSON` binds it to
+one JSON value, preserving exact numbers, false, null and nested containers:
+
+```sh
+jqz --arg suite 'compiler-acceptance' --argjson expected false \
+  -e '.suite == $suite and .passed == $expected' report.json
+```
+
+Arguments are values, so quotes/newlines/query text inside them stay literal.
+Names match `[A-Za-z_][A-Za-z0-9_]*`; duplicate names and unbound variables error.
+Variables work inside array-function bodies and query files, and support normal
+field/index access. All bindings are validated before input, even when unused.
+Admission limits are 128 bindings, 64 MiB total value text, and 128 JSON container
+levels; strings must be valid UTF-8, and JSON must have unique object keys.
+Library callers use `Program.compileWithBindings(allocator, source, bindings,
+diagnostic)` with `Binding{ .name = "x", .value = .{ .json = "false" } }` or a
+`.string` value. Compiled programs own the names/data and can outlive caller
+buffers. `Program.compile` remains the convenience API without bindings.
+
 | Construct | Meaning |
 | --- | --- |
 | `.`, `.user.name` | Current value; strict field access |
+| `$expected`, `$config.limit` | Typed external value; bound once for the program lifetime |
 | `.["a-b"]`, `.users[0]`, `.users[-1]` | Literal string key; array index, counting from the end when negative |
 | `.name?`, `.[4]?` | Allow an absent field or out-of-range index |
 | `.commands[-3:]`, `.items[:10]`, `.[1:4]` | One array slice, with an inclusive start and exclusive end |

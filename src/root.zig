@@ -7,7 +7,25 @@ const Execution = @import("execution.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = 64 * 1024 * 1024;
-pub const version = "0.7.0";
+pub const version = "0.8.0";
+
+/// Owned by Program after compilation; caller buffers are only borrowed during
+/// compileWithBindings. JSON values retain exact number tokens.
+pub const Binding = struct {
+    name: []const u8,
+    value: union(enum) { string: []const u8, json: []const u8 },
+};
+
+fn invalidBinding(diagnostic: *Diagnostic, message: []const u8) error{InvalidBinding} {
+    diagnostic.set(0, message);
+    return error.InvalidBinding;
+}
+
+fn bindingName(name: []const u8) bool {
+    if (name.len == 0 or (!std.ascii.isAlphabetic(name[0]) and name[0] != '_')) return false;
+    for (name[1..]) |byte| if (!std.ascii.isAlphanumeric(byte) and byte != '_') return false;
+    return true;
+}
 
 pub const Program = struct {
     allocator: std.mem.Allocator,
@@ -17,6 +35,10 @@ pub const Program = struct {
     patterns: []regex.Compiled,
 
     pub fn compile(allocator: std.mem.Allocator, source: []const u8, diagnostic: *Diagnostic) !Program {
+        return compileWithBindings(allocator, source, &.{}, diagnostic);
+    }
+
+    pub fn compileWithBindings(allocator: std.mem.Allocator, source: []const u8, bindings: []const Binding, diagnostic: *Diagnostic) !Program {
         diagnostic.* = .{};
         var arena = std.heap.ArenaAllocator.init(allocator);
         errdefer arena.deinit();
@@ -25,11 +47,39 @@ pub const Program = struct {
             return error.InvalidQuery;
         }
         const owned_source = try arena.allocator().dupe(u8, source);
+        if (bindings.len > 128) return invalidBinding(diagnostic, "at most 128 external bindings are allowed");
+        const values = try arena.allocator().alloc(syntax.BoundValue, bindings.len);
+        var total: usize = 0;
+        for (bindings, 0..) |binding, index| {
+            if (!bindingName(binding.name)) return invalidBinding(diagnostic, "binding names must match [A-Za-z_][A-Za-z0-9_]*");
+            for (bindings[0..index]) |earlier| if (std.mem.eql(u8, earlier.name, binding.name)) return invalidBinding(diagnostic, "duplicate external binding name");
+            const text = switch (binding.value) {
+                inline else => |value| value,
+            };
+            if (text.len > max_input_bytes - total) return invalidBinding(diagnostic, "external binding value text exceeds 64 MiB");
+            total += text.len;
+            const owned = try arena.allocator().dupe(u8, text);
+            const value: std.json.Value = switch (binding.value) {
+                .string => blk: {
+                    if (!std.unicode.utf8ValidateSlice(owned)) return invalidBinding(diagnostic, "string bindings must contain valid UTF-8");
+                    break :blk .{ .string = owned };
+                },
+                .json => blk: {
+                    checkInputDepth(owned, diagnostic) catch return invalidBinding(diagnostic, "JSON binding nesting exceeds 128 levels");
+                    break :blk std.json.parseFromSliceLeaky(std.json.Value, arena.allocator(), owned, .{ .parse_numbers = false }) catch |err| switch (err) {
+                        error.OutOfMemory => return error.OutOfMemory,
+                        else => return invalidBinding(diagnostic, "--argjson requires one valid JSON value without duplicate keys"),
+                    };
+                },
+            };
+            values[index] = .{ .name = try arena.allocator().dupe(u8, binding.name), .value = value };
+        }
         var parser: syntax.Parser = .{
             .allocator = arena.allocator(),
             .regex_allocator = allocator,
             .source = owned_source,
             .diagnostic = diagnostic,
+            .bindings = values,
         };
         errdefer parser.deinitPatterns();
         const stages = try parser.parse();
