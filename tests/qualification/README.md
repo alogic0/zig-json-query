@@ -7,12 +7,13 @@ logged shell commands, argument values and private artifact paths are excluded.
 No private session storage is needed to run the corpus.
 
 The sample is deliberately selected, not an exhaustive or frequency-weighted
-sample of every invocation. It contains 30 observed workflow cases (27 translated,
-3 unsupported), 2 isolated components, 8 contract probes and 2 generated scale
-cases. Scalar grouping and totals now cover both embedded-summary projections;
+sample of every invocation. It contains 30 observed workflow cases (all translated),
+3 isolated components, 10 contract probes and 2 generated scale cases. Scalar
+serialization/sizing, immutable configuration edits and structural uniqueness
+close the last three gaps. Grouping and totals cover both embedded-summary projections;
 the component checks remain outside observed coverage. The argument-only
-construction case needs a null fixture because jqz has no `-n`; this invocation adaptation is counted explicitly
-and excluded from timing comparisons.
+construction case needs a null fixture because jqz has no `-n`; this invocation
+adaptation is counted explicitly and excluded from timing comparisons.
 
 ## How fixtures were reconstructed
 
@@ -38,7 +39,7 @@ Fixtures retain only schema needed by the selected jobs, optional/null cases,
 both passed/failed states, stable IDs/paths/hashes invented for this corpus,
 numeric timing values and non-sorted status order. No source/customer payload
 is copied. `duplicate.json` is deliberately invalid under jqz's unique-key rule.
-The scale cases are generated in Zig: one matches the inspected command count
+The scale cases share a Zig generator with the phase profiler: one matches the inspected command count
 with sanitized repeated records, the other creates 10,000 HTTP/fixture records.
 They do not claim to preserve original payload sizes or value distributions.
 
@@ -54,12 +55,19 @@ Objects compare independently of key order; arrays/result sequences keep order.
 Numbers compare exactly as decimals, so `1.5` equals `1.500000` without erasing
 large-integer differences. Raw output is byte-exact. Every probe records a
 deliberate difference: false defaults, missing fields, group ordering, arithmetic
-precision, duplicate keys, explicit rounding, empty-array totals and error exit
-codes. Unsupported jobs have checked jq oracles but no passing jqz translation; their reasons remain
-in the manifest. The runner does not execute query strings through a shell.
+precision, duplicate keys, explicit rounding, empty-array totals, UTF-8 sizing,
+missing-path deletion and error exit codes. No selected observed case is currently
+unsupported. The runner does not execute query strings through a shell.
+
+The sorted-configuration component compares compact output byte-for-byte,
+including nested key ordering, rather than treating JSON object order as
+irrelevant. The reference uses jq `-c -S`; jqz is compact by default with `-S`.
 
 Equivalence applies to the selected fixtures, not every input accepted by jq.
 In particular `sum([])` is `0`, whereas jq `[] | add` is null, and jqz sums require
 checked i128 integers. The empty-total probe checks this difference separately.
 The grouped-summary projection explicitly sorts its results to match jq; scalar
 grouping itself keeps the stream stage's first-seen order.
+The sample-size fixture is ASCII; a separate Unicode fixture/probe distinguishes
+UTF-8 bytes from scalar counts. Path edits require existing targets, and the
+missing-deletion probe records the difference from jq's ignored absent field.

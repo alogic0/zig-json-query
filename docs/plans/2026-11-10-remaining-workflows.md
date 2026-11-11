@@ -1,6 +1,6 @@
 # Serialization, configuration edits, structural sets and profiling
 
-Status: implementation in progress; authorized on 2026-11-10.
+Status: implemented and verified locally on 2026-11-11; authorized on 2026-11-10.
 
 ## Objective
 
@@ -70,7 +70,7 @@ All implementation and helpers use Zig. Validate native x86_64 Linux Debug only.
    counter/output checks; validate and commit the tooling feature with a minor
    increment. Do not infer optimizations or general performance claims from a
    Debug-only profile.
-6. [ ] Run final native Debug build/tests and separate-consumer checks, then the
+6. [x] Run final native Debug build/tests and separate-consumer checks, then the
    full workflow qualification at five repetitions. Persist new raw evidence and
    a profiling report, preserve the 0.12.0/0.14.0 checkpoints, update remaining
    priorities from measured findings, mark this plan complete and commit the
@@ -143,4 +143,28 @@ Use an explicit streaming reader and reject missing kernel metadata. A dedicated
 Linux regression check passes, along with all six profiler checks and the other
 189 project checks; build passed. The smoke profile records kernel release
 `7.0.0-42-generic`. The initial 0.18.0 measurements are discarded before the
-final evidence run, which will use the corrected source and binary fingerprints.
+final evidence run, which uses the corrected source and binary fingerprints.
+
+Slice 6, 0.18.1: final native Debug build/test verification passes all 195
+project checks, reusing valid cached results where unchanged, and eight consumer
+tests pass against the final version. The complete 45-case qualification passes:
+30/30 observed translations, no unsupported observed cases, three components,
+ten intentional probes and two scale cases. Thirty-four equivalent cases at
+five repetitions produce 340 samples, all with RSS. The three formerly blocked
+jq query/value/exit oracles are unchanged; exact sorted bytes and Unicode sizing
+have separate checks.
+
+The final ten-repetition profile has seven cases, 70 runs, 490 phase samples and
+ten supervised launches. Every output matches public execution; all phase
+lifetimes and zero-live cleanup checks pass. Parser medians dominate the large
+count projections (44.997/87.146 ms versus 0.080/0.079 ms feed work), while the
+structural-set case adds 25.574 ms and 9.798 MiB of successful feed requests.
+The [profile report](../profiling/README.md) ranks subsequent investigations and
+explains launch/capture, Debug and allocator/RSS limits.
+
+New [workflow evidence](../qualification/2026-11-11-remaining-workflows.json) and
+[profile evidence](../profiling/2026-11-11.json) record unchanged source/input/tool
+fingerprints. Historical 0.12.0/0.14.0 raw and package evidence is preserved.
+All new code is Zig; existing tools were sufficient. No additional architecture,
+optimization-mode matrix, provider change or engine optimization was introduced.
+All implementation steps are complete.

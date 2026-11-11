@@ -604,6 +604,8 @@ requested capacity, not RSS. Supervised null-input CLI samples include process
 launch, IO capture and scheduling. Inputs are preloaded and caches warmed; these
 native Debug measurements guide investigation and do not establish optimized
 performance. `zig build test-profile` checks the profiler and allocation meter.
+The [profile report](docs/profiling/README.md) records measurements, limits and
+the next experiments suggested by them.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 
