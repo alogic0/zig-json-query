@@ -44,6 +44,8 @@ pub const Node = struct {
         length: *const Node,
         keys: *const Node,
         transform: Transform,
+        mean: struct { array: *const Node, places: u8 },
+        decimal_divide: struct { lhs: *const Node, rhs: *const Node, places: u8 },
         matches: struct { value: *const Node, pattern: usize },
     },
 };
@@ -355,6 +357,21 @@ pub const Parser = struct {
                     try self.expect(.rparen, "input_filename takes no arguments");
                     return self.make(offset, .input_filename, 1);
                 }
+                if (self.word("mean") or self.word("divide")) {
+                    const division = self.word("divide");
+                    try self.advance();
+                    try self.expect(.lparen, "expected ( after numeric function");
+                    const lhs = try self.expression(0);
+                    try self.expect(.comma, "expected comma after numeric argument");
+                    const rhs = if (division) try self.expression(0) else null;
+                    if (division) try self.expect(.comma, "expected comma before decimal precision");
+                    const places = try self.precision();
+                    try self.expect(.rparen, "expected ) after decimal precision");
+                    return if (rhs) |divisor|
+                        self.make(offset, .{ .decimal_divide = .{ .lhs = lhs, .rhs = divisor, .places = places } }, @max(lhs.height, divisor.height) + 1)
+                    else
+                        self.make(offset, .{ .mean = .{ .array = lhs, .places = places } }, lhs.height + 1);
+                }
                 if (self.word("true") or self.word("false") or self.word("null")) {
                     const value = try self.jsonLiteral();
                     try self.advance();
@@ -412,6 +429,16 @@ pub const Parser = struct {
         if (self.token.tag != .question) return false;
         try self.advance();
         return true;
+    }
+
+    fn precision(self: *Parser) Error!u8 {
+        const message = "precision must be a constant integer from 0 through 18";
+        if (self.token.tag != .number) return self.fail(self.token.start, message);
+        _ = try self.jsonLiteral();
+        const places = std.fmt.parseInt(u8, self.text(), 10) catch return self.fail(self.token.start, message);
+        if (places > 18) return self.fail(self.token.start, message);
+        try self.advance();
+        return places;
     }
 
     fn fieldAccess(self: *Parser, base: *const Node) Error!*const Node {

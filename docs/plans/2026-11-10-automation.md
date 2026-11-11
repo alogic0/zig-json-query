@@ -1,6 +1,6 @@
 # Automation and report comparison
 
-Status: in progress; implementation authorized on 2026-11-10.
+Status: implemented and verified locally; implementation authorized on 2026-11-10.
 
 ## Objective
 
@@ -82,24 +82,25 @@ uses native x86_64 Linux Debug only.
 
 ### 5. Fractional timing statistics (0.11.0)
 
-- [ ] Add `mean(array, PLACES)` and `divide(lhs, rhs, PLACES)`. Precision is a
+- [x] Add `mean(array, PLACES)` and `divide(lhs, rhs, PLACES)`. Precision is a
   required constant integer from 0 through 18. Mean accepts an array of numbers;
   empty mean returns null. Division by zero and nonnumeric/missing operands error.
-- [ ] Define bounded exact decimals: normalize JSON decimal/exponent spellings
+- [x] Define bounded exact decimals: normalize JSON decimal/exponent spellings
   to a signed i128 coefficient and a scale from 0 through 18; trim insignificant
   trailing zeros before range checks. Out-of-range values error explicitly.
   Preserve existing arbitrary-token passthrough/comparison outside these calls.
-- [ ] Compute with bounded wide integer intermediates (Zig i512), never floats.
+- [x] Compute with bounded wide integer intermediates (Zig i512), never floats.
   Align decimal scales, sum exactly, then round the final rational result once
   using nearest/ties-to-even. Reject a rounded scaled coefficient outside i128.
   Serialize exactly PLACES fractional digits, including trailing zeros, and
   normalize negative zero. Existing integer operators and stream `sum` stay exact.
-- [ ] Track the offending array element/operand in numeric diagnostics. Cover
+- [x] Track the offending array element/operand in numeric diagnostics. Cover
   both signs, halfway/near-halfway cases, repeating fractions, carries, zero,
   exponent spellings, precision/range boundaries, empty arrays, large integers,
   nested calls, independent reference checks and allocation failure cleanup.
-- [ ] Add a runnable timing query converting nanoseconds to fractional
-  milliseconds, e.g. `divide(mean(.sample_elapsed_ns, 6), 1000000, 6)`.
+- [x] Add a runnable timing query converting integer nanoseconds exactly before
+  averaging: `mean(map(.sample_elapsed_ns, divide(., 1000000, 6)), 6)`. This
+  rounds the final mean without intermediate nanosecond-average rounding.
 
 ## Slice workflow and completion criteria
 
@@ -135,3 +136,16 @@ plan's cross-reference when finished.
   strict booleans and slurped multi-report gates. A scalar check uses a zero-byte
   allocator to verify that quantifiers do not allocate result arrays. Expanded
   fuzz seeds, formatting, build and the passing report-gate example succeeded.
+- 0.11.0: native Debug suite passed 144 tests (107 library, 33 CLI, 4 version
+  workflow). Includes both signs, ties/near-ties/carries, zero, decimal/exponent
+  normalization, i128/precision/scale limits, large exact values, empty samples,
+  diagnostics, integer-operator preservation, binding/composition, retained
+  result ownership and allocation-failure cleanup. Generated cases compare 1,050
+  divisions and 125 means against independent nearest-value searches. Expanded
+  fuzz seeds, formatting, Debug build and timing example passed.
+
+All five slices are complete. Existing Zig facilities and dependencies were
+sufficient; no additional external tools were required. Runnable examples are
+`batch-reports.query`, `qualify-reports.query` (with `-s -e`), and
+`timing-summary.query` under `examples/`. Decimal precision/range rules are in
+README's Decimal statistics section; no floating-point arithmetic was added.

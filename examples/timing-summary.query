@@ -1,0 +1,5 @@
+# Integer nanoseconds convert exactly at six fractional millisecond places.
+{
+  samples: length(.sample_elapsed_ns),
+  mean_ms: mean(map(.sample_elapsed_ns, divide(., 1000000, 6)), 6)
+}

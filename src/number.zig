@@ -4,12 +4,12 @@
 const std = @import("std");
 const Order = std.math.Order;
 
-const Decimal = struct {
+pub const Decimal = struct {
     negative: bool,
     digits: []const u8,
     magnitude: i64,
 
-    fn parse(token: []const u8) error{NumericRange}!Decimal {
+    pub fn parse(token: []const u8) error{NumericRange}!Decimal {
         const negative = token[0] == '-';
         const unsigned = token[@intFromBool(negative)..];
         const end = std.mem.indexOfAny(u8, unsigned, "eE") orelse unsigned.len;

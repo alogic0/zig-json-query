@@ -2,6 +2,7 @@ const std = @import("std");
 const regex = @import("regex");
 const syntax = @import("parser.zig");
 const number = @import("number.zig");
+const statistics = @import("statistics.zig");
 const Diagnostic = @import("diagnostic.zig").Diagnostic;
 const Path = @import("diagnostic.zig").Path;
 const Value = std.json.Value;
@@ -222,6 +223,31 @@ pub const Evaluator = struct {
                     .map, .filter => Value{ .array = result },
                 };
             },
+            .mean => |mean| blk: {
+                const source = try self.evalRequired(allocator, mean.array, input);
+                if (source != .array) return self.typeFailure(node, mean.array, "mean expects an array of numbers");
+                if (source.array.items.len == 0) break :blk Value.null;
+                const array_path = self.pathFor(mean.array);
+                var accumulator: statistics.Mean = .{};
+                for (source.array.items, 0..) |value, index| {
+                    var path = array_path;
+                    if (path.len != 0) path.index(index);
+                    if (value != .number_string) return self.failPath(node.offset, "mean expects an array of numbers", path);
+                    accumulator.add(value.number_string) catch |err| return self.decimalFailure(node.offset, err, path);
+                }
+                const token = accumulator.finish(allocator, mean.places) catch |err| return self.decimalFailure(node.offset, err, array_path);
+                break :blk Value{ .number_string = token };
+            },
+            .decimal_divide => |division| blk: {
+                const lhs = try self.evalRequired(allocator, division.lhs, input);
+                if (lhs != .number_string) return self.typeFailure(node, division.lhs, "divide expects numeric operands");
+                const a = statistics.decimal(lhs.number_string) catch |err| return self.decimalFailure(node.offset, err, self.pathFor(division.lhs));
+                const rhs = try self.evalRequired(allocator, division.rhs, input);
+                if (rhs != .number_string) return self.typeFailure(node, division.rhs, "divide expects numeric operands");
+                const b = statistics.decimal(rhs.number_string) catch |err| return self.decimalFailure(node.offset, err, self.pathFor(division.rhs));
+                const token = statistics.divide(allocator, a, b, division.places) catch |err| return self.decimalFailure(node.offset, err, if (err == error.DivisionByZero) self.pathFor(division.rhs) else .{});
+                break :blk Value{ .number_string = token };
+            },
             .matches => |match| blk: {
                 const value = try self.evalRequired(allocator, match.value, input);
                 if (value != .string) {
@@ -255,6 +281,23 @@ pub const Evaluator = struct {
         const err = self.fail(node.offset, message);
         self.locate(argument);
         return err;
+    }
+
+    fn failPath(self: *Evaluator, offset: usize, message: []const u8, path: Path) Error {
+        const err = self.fail(offset, message);
+        self.diagnostic.path = path;
+        self.diagnostic.path_reported = true;
+        return err;
+    }
+
+    fn decimalFailure(self: *Evaluator, offset: usize, err: statistics.ResultError, path: Path) Error {
+        if (err == error.OutOfMemory) return error.OutOfMemory;
+        return self.failPath(offset, switch (err) {
+            error.DecimalRange => "decimal statistics require i128 coefficients and at most 18 fractional places; input or rounded result is out of range",
+            error.DivisionByZero => "decimal division by zero",
+            error.InvalidPrecision => "decimal precision must be from 0 through 18",
+            error.OutOfMemory => unreachable,
+        }, path);
     }
 
     pub fn integer(self: *Evaluator, value: Value, offset: usize) Error!i128 {

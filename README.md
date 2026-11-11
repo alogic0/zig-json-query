@@ -162,6 +162,8 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `map(.items, {name, id})` | One ordered array of results, evaluating the body with each item as `.` |
 | `filter(.items, .code != 0)` | One ordered array of original items whose boolean predicate is true |
 | `all(.checks, .ok)`, `any(.checks, .ok)` | One boolean; short-circuiting quantified predicates |
+| `mean(.samples, 6)` | One bounded decimal mean with six fractional digits; null for an empty array |
+| `divide(.ns, 1000000, 6)` | Explicit bounded decimal division with six fractional digits |
 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Equality and ordering comparisons |
 | `and`, `or`, `not` | Strict boolean logic; `and` and `or` short circuit |
 | `+`, `-`, `*`, `/`, `%`, unary `-` | Checked exact signed 128-bit integer arithmetic |
@@ -309,6 +311,36 @@ and remainder by zero error. Remainder has the dividend's sign (`-7%3` is `-1`).
 Negative numeric literals still preserve arbitrary valid decimal tokens for
 passthrough/comparison; applying arithmetic requires the integer contract.
 
+## Decimal statistics
+
+`mean(array, PLACES)` and `divide(lhs, rhs, PLACES)` provide explicit fractional
+statistics. `PLACES` is a required constant integer from 0 through 18. Results
+round to nearest with ties to even and contain exactly that many fractional
+digits. For example, `divide(1,8,2)` is `0.12`, `divide(3,8,2)` is `0.38`, and
+`mean([1,2],3)` is `1.500`. Negative zero becomes ordinary zero at the selected
+precision. Empty means return null. All other operands must be numbers; missing
+values, division by zero and unsupported ranges are located errors.
+
+These calls use bounded exact decimals: after trimming insignificant trailing
+zeros and applying exponents, the coefficient must fit signed i128 and its
+fractional scale must be at most 18. The rounded coefficient at the requested
+precision must also fit i128. Wide integer intermediates align/sum values
+exactly and round once per call, without floating point. Existing arbitrary
+decimal comparison/passthrough and integer `+ - * / %` / stream `sum` keep their
+contracts. In particular `/` still requires exact integer division.
+
+Convert integer nanoseconds to milliseconds at six places before averaging;
+that conversion is exact, and the mean then rounds the final result:
+
+```sh
+./zig-out/bin/jqz -f examples/timing-summary.query examples/timings.json
+```
+
+The query uses `mean(map(.sample_elapsed_ns, divide(.,1000000,6)),6)` and emits
+`{"samples":3,"mean_ms":2.000002}`. This composition also handles empty samples
+with a null mean. Fractional results support exact comparisons with thresholds
+supplied through `--argjson`.
+
 ## Sorting and grouping
 
 `sort` uses each record as its key. `sort_by(expr)` evaluates one key per record
@@ -333,7 +365,7 @@ quadratic scan of retained keys. There is no spill-to-disk fallback.
 ## Scope and limits
 
 This is a tested prototype, not a jq-compatible replacement or a finished CLI.
-It currently lacks fractional arithmetic, variables, user-defined functions,
+It currently lacks local bindings, user-defined functions,
 updates, general reduction, disk spilling, and a REPL.
 The syntax and library API may change.
 

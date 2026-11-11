@@ -133,3 +133,12 @@ test "CLI quantified predicates gate all reports with typed expectations" {
     try check(&.{ "-s", "--ndjson", "-e", "any(., .ok)" }, "", 1, "false\n", null);
     try check(&.{ "-e", "all(., .ok)" }, "[{}]", 2, "", "$[0][\"ok\"]");
 }
+
+test "CLI decimal statistics report fractional timings and gate exact comparisons" {
+    try check(&.{"{samples: length(.samples), mean_ms: mean(map(.samples, divide(.,1000000,6)),6)}"}, "{\"samples\":[1000001,2000002,3000003]}", 0, "{\"samples\":3,\"mean_ms\":2.000002}\n", null);
+    try check(&.{ "--argjson", "limit", "2.1", "-e", "mean(map(.samples, divide(.,1000000,6)),6) <= $limit" }, "{\"samples\":[1000001,2000002,3000003]}", 0, "true\n", null);
+    try check(&.{ "-e", "mean(.,6)" }, "[]", 1, "null\n", null);
+    try check(&.{ "-e", "divide(.a,.b,6)" }, "{\"a\":1,\"b\":0}", 2, "", "$[\"b\"]");
+    try check(&.{"mean(.samples,6)"}, "{\"samples\":[1,null]}", 2, "", "$[\"samples\"][1]");
+    try check(&.{"divide(1,3,19)"}, "", 2, "", "precision must be a constant integer");
+}

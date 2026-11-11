@@ -33,6 +33,8 @@ const usage =
     \\Stages: expressions, each, where(boolean), count, collect, take(n),
     \\        sum, sort, sort_by(key), group_by(key)
     \\Arithmetic: checked i128 + - * / %, unary -; division must be exact.
+    \\Statistics: mean(array, PLACES), divide(a, b, PLACES); PLACES 0..18,
+    \\            bounded exact decimals, nearest/ties-to-even rounding.
     \\Limits: query 64 KiB; document 64 MiB; NDJSON line 1 MiB; nesting 128.
     \\        Retaining stages share 64 MiB; no disk spilling.
     \\        Slurp has a separate 64 MiB owned input-collection budget.

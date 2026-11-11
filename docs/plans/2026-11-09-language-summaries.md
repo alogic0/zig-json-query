@@ -16,7 +16,8 @@ Expressions keep producing one value; pipeline expansion stays explicit through
 `each`. The CLI's predicate exit status, multiple-file input, external arguments,
 quantified predicates and fractional statistics are specified in the authorized
 [automation implementation plan](2026-11-10-automation.md). The original three
-language slices below are complete; exact integer operators keep their contract.
+language slices below and all five automation slices are complete. Exact integer
+operators keep their contract; explicit decimal statistics define rounding.
 
 ## Contracts
 

@@ -100,6 +100,15 @@ value is an in-range integer. Division is exact, fractions and overflow are
 errors, and remainder follows the dividend's sign. Number preservation and
 unbounded-token decimal comparison keep their separate contracts.
 
+`mean` and `divide` provide explicit bounded decimal statistics with a mandatory
+0..18-place precision. Normalized inputs have i128 coefficients and at most 18
+fractional places. Zig i512 intermediates align scales, sum exactly and perform
+rational division before nearest/ties-to-even rounding; the rounded coefficient
+must fit i128. No floating point is involved. Output retains the selected number
+of fractional digits and normalizes negative zero. Empty means return null.
+Numeric errors identify the operand or source-array item. These functions do
+not change integer operators or arbitrary-token passthrough/comparison.
+
 `sort` / `sort_by` retain owned records and keys, then use an in-place stable
 sort. Keys must be uniformly numeric or uniformly strings. Numeric keys are
 validated before retention, keeping the sort comparator infallible. Results
