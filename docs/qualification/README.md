@@ -17,6 +17,12 @@ and [0.12.0 evidence](2026-11-10.json) remain unchanged. The
 [corpus notes](../../tests/qualification/README.md) explain source recovery,
 sanitization and reconstruction limits.
 
+The separate [real z_llvm usage audit](zllvm-usage-2026-11-11.md) surveys the
+specified compiler session beyond the selected corpus. It provides reusable
+translations, 56 byte-identical live checks across 25 filter forms and six
+counterexamples for two reviewed differences. Its query inventory and script
+capability observations are separate from the 30-case observed coverage below.
+
 ## Reproduce
 
 ```sh

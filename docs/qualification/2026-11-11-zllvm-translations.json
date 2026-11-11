@@ -1,0 +1,2881 @@
+{
+  "schema_version": 1,
+  "candidate_version": "jqz 0.28.0",
+  "optimization": "debug",
+  "project": "z_llvm",
+  "session": "01a1c2a9-b739-7e13-b134-3167995ee5d1",
+  "jq_sha256": "59cfd58d7e470b103aede0e7589cfea929e45ee27f5471f08aa9676ac7bfc566",
+  "jqz_sha256": "78d441529f8b934bb57236af5fb2c28e48ff8093d0d78cceafcf620fec467789",
+  "mappings_sha256": "568ca5865d445f3eb0d7abcd46a80a73200fe3667a7e5a5502f156a834d5b9e6",
+  "helper_sha256": "4690685a3467750f70d05e182d8126f9e188315bd54fcf3562682a5fc85c4357",
+  "maximum_live_inputs_per_query": 3,
+  "input_limit_bytes_per_file": 33554432,
+  "timeout_ms": 10000,
+  "capture_limit_bytes_per_stream": 8388608,
+  "method": "Explicit argv only; historical command text is never executed. Up to three distinct retained input sets per mapped literal filter, in source-record order. jq compact output; jqz compact by default. JSONL uses --ndjson; stream translations drop source -s explicitly. Ordered result sequences, unordered object keys and exact decimal values compared. Raw output compared byte-for-byte. Inputs hashed before/after each pair; tool binaries checked across audit. No report payloads are published. A matched filter or script cue is not itself a compatibility claim.",
+  "coverage": [
+    {
+      "id": "process-status-wall",
+      "recognized_matches": 266,
+      "dynamic_contexts": 1,
+      "unresolved_or_missing_input": 24,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "process-status",
+      "recognized_matches": 207,
+      "dynamic_contexts": 4,
+      "unresolved_or_missing_input": 15,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "process-outcome",
+      "recognized_matches": 144,
+      "dynamic_contexts": 44,
+      "unresolved_or_missing_input": 21,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "return-status",
+      "recognized_matches": 81,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 4,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "return-status-wall",
+      "recognized_matches": 60,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 17,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "container-length",
+      "recognized_matches": 54,
+      "dynamic_contexts": 1,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "container-keys",
+      "recognized_matches": 48,
+      "dynamic_contexts": 3,
+      "unresolved_or_missing_input": 1,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "command-argv",
+      "recognized_matches": 41,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 12,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "event-sequence",
+      "recognized_matches": 37,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 37,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 0
+    },
+    {
+      "id": "event-function",
+      "recognized_matches": 17,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 17,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 0
+    },
+    {
+      "id": "status-error",
+      "recognized_matches": 15,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "command-progress",
+      "recognized_matches": 14,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "command-count-and-tail",
+      "recognized_matches": 15,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "provenance-status",
+      "recognized_matches": 12,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 12,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 0
+    },
+    {
+      "id": "status-samples",
+      "recognized_matches": 11,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "status-return-samples",
+      "recognized_matches": 6,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "canary-count",
+      "recognized_matches": 8,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "terminal-events",
+      "recognized_matches": 7,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "last-item",
+      "recognized_matches": 6,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "negative-toolchain-gate",
+      "recognized_matches": 1,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "finished-process-gate",
+      "recognized_matches": 1,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "retained-selection-gate",
+      "recognized_matches": 2,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 2
+    },
+    {
+      "id": "recent-commands",
+      "recognized_matches": 1,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "compiler-call-count",
+      "recognized_matches": 2,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "census-counts",
+      "recognized_matches": 52,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "census-progress",
+      "recognized_matches": 10,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "provenance-duration",
+      "recognized_matches": 18,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    },
+    {
+      "id": "grouped-rejections",
+      "recognized_matches": 1,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "grouped-selector-pairs",
+      "recognized_matches": 1,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 1
+    },
+    {
+      "id": "nul-path-protocol",
+      "recognized_matches": 10,
+      "dynamic_contexts": 0,
+      "unresolved_or_missing_input": 0,
+      "unsupported_flags": 0,
+      "over_input_limit": 0,
+      "executed": 3
+    }
+  ],
+  "checks": [
+    {
+      "id": "process-status-wall",
+      "record": 10423,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/full-root-v3.json",
+          "bytes": 2263823,
+          "sha256": "676c6db011dd866a27a6e872212120287277fb1c6dcf220afd01828df5594ffa"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/full-root-v3.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 68,
+        "stdout_sha256": "f1a2f363ce457ec484a497c9615a0d67cf16f38993fb0dabaaf24b11cc12d080",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 68,
+        "stdout_sha256": "f1a2f363ce457ec484a497c9615a0d67cf16f38993fb0dabaaf24b11cc12d080",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-status-wall",
+      "record": 10664,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/readiness-v4.json",
+          "bytes": 25661,
+          "sha256": "f0b36f74e13959d13be480720bb0aca3706486d56a72421fb204f57d2973253e"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/readiness-v4.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 67,
+        "stdout_sha256": "4ecdb30c59ae6bb3d53d8e75e30da93a831e354d327dd578dc20043d5bd8f54a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 67,
+        "stdout_sha256": "4ecdb30c59ae6bb3d53d8e75e30da93a831e354d327dd578dc20043d5bd8f54a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-status-wall",
+      "record": 11188,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-10/targets-v2.json",
+          "bytes": 15104,
+          "sha256": "b5e7269e1f246dc7aa13341b72dfe591545ecf32902494bca9d6aa06e070acba"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-10/targets-v2.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 67,
+        "stdout_sha256": "c8d0c55b9ed4f83176f1cddb701455544ece15b5a1fce239d29ed1fcc358ed64",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 67,
+        "stdout_sha256": "c8d0c55b9ed4f83176f1cddb701455544ece15b5a1fce239d29ed1fcc358ed64",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-status",
+      "record": 10465,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/full-root-v3.json",
+          "bytes": 2263823,
+          "sha256": "676c6db011dd866a27a6e872212120287277fb1c6dcf220afd01828df5594ffa"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/full-root-v3.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 44,
+        "stdout_sha256": "90d9ed4a80c3cc572d0f7cb8977398bfd1ba2e1cd0054ba9c8dbe822924dbac7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 44,
+        "stdout_sha256": "90d9ed4a80c3cc572d0f7cb8977398bfd1ba2e1cd0054ba9c8dbe822924dbac7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-status",
+      "record": 10895,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-10/census-build-v1.json",
+          "bytes": 3469,
+          "sha256": "c50ce06b8fa2e1bc725334612bed6e6af6b99c63258a0a3e9bce3ff075b9a534"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-10/census-build-v1.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 44,
+        "stdout_sha256": "90d9ed4a80c3cc572d0f7cb8977398bfd1ba2e1cd0054ba9c8dbe822924dbac7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 44,
+        "stdout_sha256": "90d9ed4a80c3cc572d0f7cb8977398bfd1ba2e1cd0054ba9c8dbe822924dbac7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-status",
+      "record": 11527,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-10/native-fast-v4.json",
+          "bytes": 1128,
+          "sha256": "ae457bdba6c07f73d0ba761ae7ed5981b1c5aacf7cae8c2a95ec8b69ed6596bd"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-10/native-fast-v4.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 44,
+        "stdout_sha256": "90d9ed4a80c3cc572d0f7cb8977398bfd1ba2e1cd0054ba9c8dbe822924dbac7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 44,
+        "stdout_sha256": "90d9ed4a80c3cc572d0f7cb8977398bfd1ba2e1cd0054ba9c8dbe822924dbac7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-outcome",
+      "record": 21631,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-15/census-whole-v16.json",
+          "bytes": 207672,
+          "sha256": "2fed91b3d9e0a8874768453ae42aa84b33a1dcc58a6f6267cea11acc9aa5c561"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-15/production-whole-v16.json",
+          "bytes": 224255,
+          "sha256": "7d1e13bf0ed5e777138aee3b62bd3b877aa21ad5670fad33e27c7d83bb841df6"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-15/full-v17.json",
+          "bytes": 2916536,
+          "sha256": "8ba6e13d526c452a5a11081ee1e3adc4743f76c03b015c85ac5463f6676e87bf"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-15/census-whole-v16.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-15/production-whole-v16.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-15/full-v17.json"
+      ],
+      "jq_flags": [
+        "-c"
+      ],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 198,
+        "stdout_sha256": "829830f3696b525abb90af046d0f56b478b8fb79fddbed0a4dc4b5555130fc6d",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 198,
+        "stdout_sha256": "829830f3696b525abb90af046d0f56b478b8fb79fddbed0a4dc4b5555130fc6d",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-outcome",
+      "record": 21729,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-15/full-v17.json",
+          "bytes": 2916536,
+          "sha256": "8ba6e13d526c452a5a11081ee1e3adc4743f76c03b015c85ac5463f6676e87bf"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-15/full-v17.json"
+      ],
+      "jq_flags": [
+        "-c"
+      ],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 66,
+        "stdout_sha256": "8aa7b0ca47cb4fdaf81f65048ae169582407e6a9fbf69799b671cf1056cce027",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 66,
+        "stdout_sha256": "8aa7b0ca47cb4fdaf81f65048ae169582407e6a9fbf69799b671cf1056cce027",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "process-outcome",
+      "record": 21836,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-15/census-whole-v16.json",
+          "bytes": 207672,
+          "sha256": "2fed91b3d9e0a8874768453ae42aa84b33a1dcc58a6f6267cea11acc9aa5c561"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-15/production-whole-v16.json",
+          "bytes": 224255,
+          "sha256": "7d1e13bf0ed5e777138aee3b62bd3b877aa21ad5670fad33e27c7d83bb841df6"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-15/census-whole-v16.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-15/production-whole-v16.json"
+      ],
+      "jq_flags": [
+        "-c"
+      ],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 132,
+        "stdout_sha256": "4d7f8c874234637b93377bc89ae24e5cb6884fda128c479ceb329263b351b746",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 132,
+        "stdout_sha256": "4d7f8c874234637b93377bc89ae24e5cb6884fda128c479ceb329263b351b746",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "return-status",
+      "record": 463,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/selection-controls.json",
+          "bytes": 7156,
+          "sha256": "e40abb2de4ef70af2c1644992ed5697135fc0992b65714d673daf4896fca7c6c"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/selection-controls.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "23c8c43d516866dd9af9fe5682d1c527c6b62df6a4d53e25987959d1521f038a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "23c8c43d516866dd9af9fe5682d1c527c6b62df6a4d53e25987959d1521f038a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "return-status",
+      "record": 2116,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/scheduling-comparison.json",
+          "bytes": 1818,
+          "sha256": "0a2c4ce94a0c21c0b79ea2fa010a228921db15f0e981f16917c0bc828d27a16a"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/scheduling-comparison.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "23c8c43d516866dd9af9fe5682d1c527c6b62df6a4d53e25987959d1521f038a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "23c8c43d516866dd9af9fe5682d1c527c6b62df6a4d53e25987959d1521f038a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "return-status",
+      "record": 5395,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/full-aggregate.json",
+          "bytes": 2308366,
+          "sha256": "cacf6f41b2155dabd8aafd1bdd9a01bd3ab20caa12f46ba72ebcf639d3223536"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/full-aggregate.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "23c8c43d516866dd9af9fe5682d1c527c6b62df6a4d53e25987959d1521f038a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "23c8c43d516866dd9af9fe5682d1c527c6b62df6a4d53e25987959d1521f038a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "return-status-wall",
+      "record": 5280,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/full-aggregate.json",
+          "bytes": 2308366,
+          "sha256": "cacf6f41b2155dabd8aafd1bdd9a01bd3ab20caa12f46ba72ebcf639d3223536"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/native-all-debug-aggregate.json",
+          "bytes": 50106,
+          "sha256": "90e3e36f6ae04d09ca6c401535d5e58245569ed71087909261f5ac3d523ebaa2"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/full-aggregate.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/native-all-debug-aggregate.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 122,
+        "stdout_sha256": "b56adfcd3b78bf83b34b8da510b650573854697b8ecd9eaa425560a1690baa03",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 122,
+        "stdout_sha256": "b56adfcd3b78bf83b34b8da510b650573854697b8ecd9eaa425560a1690baa03",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "return-status-wall",
+      "record": 5736,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/baseline.json",
+          "bytes": 5618,
+          "sha256": "696849d5688cc71098b22e141be0da13547ad1732544679cb50c3607e549ac8b"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/baseline.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 61,
+        "stdout_sha256": "3c21b94eb862453f1c39d29f4ef71ca7af1d2b962fb299fae02d402077cbfc9c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 61,
+        "stdout_sha256": "3c21b94eb862453f1c39d29f4ef71ca7af1d2b962fb299fae02d402077cbfc9c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "return-status-wall",
+      "record": 5907,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/prototype-v1.json",
+          "bytes": 40828,
+          "sha256": "71f97a2cb4f99eb1c4f6231c2b51e849d2d1ca347e92d9b46ae366987e66bcb0"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/prototype-v1.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 62,
+        "stdout_sha256": "a371f6451330e4309365951c6c864a3051a44b85095a3c04716f291d62795dc6",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 62,
+        "stdout_sha256": "a371f6451330e4309365951c6c864a3051a44b85095a3c04716f291d62795dc6",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "container-length",
+      "record": 542,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-06/full-reports/unchanged-upstream-c--commands.json",
+          "bytes": 2033667,
+          "sha256": "b56334d9188e37607252c5cc5b7d9724bf4da11bfebfe5101f8bbf1d0e75d8e0"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-06/full-reports/unchanged-upstream-c--commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "3b82d924cd820301cfe970a28b1dee2c17e8c65c37b384d54da026f53a7ebef3",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "3b82d924cd820301cfe970a28b1dee2c17e8c65c37b384d54da026f53a7ebef3",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "container-length",
+      "record": 10439,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/core-cohort-v3.json",
+          "bytes": 32865,
+          "sha256": "22211fe0d48c0a7de8c08a4b962c54a4a7f95ca4c37dbfdfdad67f104f40c8f0"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/core-cohort-v3.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3,
+        "stdout_sha256": "a4b2c5db15348c29451e18b8307e5ef81625ea638e807935f39ceaa8d9ac7758",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3,
+        "stdout_sha256": "a4b2c5db15348c29451e18b8307e5ef81625ea638e807935f39ceaa8d9ac7758",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "container-length",
+      "record": 14212,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-11/native-all-debug-v4-result/commands.json",
+          "bytes": 2757948,
+          "sha256": "720ffbfe409b636ec4eb1e79503e21dde9c8491946ed0336bfc3f91abdf7ceb1"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-11/native-all-debug-v4-result/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "de0cffdcbb781aeca193f4b4cc0175494e61c2b4421681948a4fefdc564b7842",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "de0cffdcbb781aeca193f4b4cc0175494e61c2b4421681948a4fefdc564b7842",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "container-keys",
+      "record": 245,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-06/compiler-production/report.json",
+          "bytes": 178750,
+          "sha256": "ba9f662fb85b710c6e117e57c73e2a15409bf87e1cf53acfc9d2c1f96e0589fe"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-06/compiler-production/report.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 208,
+        "stdout_sha256": "322431f83bbd3ef531be3f3bf8e88f3d7a25a17a76a6f6ce1507aa675eb69471",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 208,
+        "stdout_sha256": "322431f83bbd3ef531be3f3bf8e88f3d7a25a17a76a6f6ce1507aa675eb69471",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "container-keys",
+      "record": 7367,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v3-debug-comparison/report.json",
+          "bytes": 17850,
+          "sha256": "e9947c4d78ca1702203a54dbcea15267d2e2d9cda0ca9fb49bb676c32a019849"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v3-debug-comparison/report.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 363,
+        "stdout_sha256": "d57646f0980f8de12d579558c4d1d70a9af78eddb543f08d13a5a3a16ab3882e",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 363,
+        "stdout_sha256": "d57646f0980f8de12d579558c4d1d70a9af78eddb543f08d13a5a3a16ab3882e",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "container-keys",
+      "record": 8423,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-integrated/execution-breadth-controls/report.json",
+          "bytes": 37737,
+          "sha256": "8605df41ef032160ca7576055e8c46d40494174f574c940314979669d1dc5f06"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-integrated/execution-breadth-controls/report.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 105,
+        "stdout_sha256": "1da0d3ebd747962de148b649c9558cea22ea1ef54e9e05f22c3d3e428808f4b4",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 105,
+        "stdout_sha256": "1da0d3ebd747962de148b649c9558cea22ea1ef54e9e05f22c3d3e428808f4b4",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-argv",
+      "record": 6163,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-07/readiness-dev-v3.json",
+          "bytes": 28314,
+          "sha256": "9d1995e641c114df3e48dd2eac28f0528058ef458f7f3f47f556d73e25189fab"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-07/readiness-dev-v3.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 106,
+        "stdout_sha256": "06d87bd8faa07a3920a125925da4f08587e038b084eda2e9469e28a9d1574384",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 106,
+        "stdout_sha256": "06d87bd8faa07a3920a125925da4f08587e038b084eda2e9469e28a9d1574384",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-argv",
+      "record": 10795,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/integer-layout-v3.json",
+          "bytes": 861,
+          "sha256": "ae45553ebcea3ecd30ab2ee878349024d8a7e71e563386486b5ecccde9a304f4"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/integer-layout-v3.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 201,
+        "stdout_sha256": "4064ca0ce6c81c722203d10cfbaca5bc91220578fcacb8c874b6dc0dc8e08824",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 201,
+        "stdout_sha256": "4064ca0ce6c81c722203d10cfbaca5bc91220578fcacb8c874b6dc0dc8e08824",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-argv",
+      "record": 10843,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/census-build-v3.json",
+          "bytes": 4320,
+          "sha256": "044c152a15f03435ba549c3a0d773d3e41bb404bb7b84af4e00092dbec510e67"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/census-build-v3.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 228,
+        "stdout_sha256": "67b434ea43e3f2750598d50a02f93c4b60f311ab80cbb892974a299460b87310",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 228,
+        "stdout_sha256": "67b434ea43e3f2750598d50a02f93c4b60f311ab80cbb892974a299460b87310",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "status-error",
+      "record": 11925,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-10/native-debug-v5-result/report.json",
+          "bytes": 77996,
+          "sha256": "de09b00492ad86055109d84d5bd674025582c63073a4ff630817d9f847ec2c58"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-10/native-debug-v5-result/report.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 60,
+        "stdout_sha256": "7bc1f426cad29a252cea6153885e76e264242c509dcd855f9882b0bdaedb5757",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 60,
+        "stdout_sha256": "7bc1f426cad29a252cea6153885e76e264242c509dcd855f9882b0bdaedb5757",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "status-error",
+      "record": 12049,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-10/native-compare-debug-prototype-v4/report.json",
+          "bytes": 2929,
+          "sha256": "43697ee3fa026d1ba39e00edb942fd88ac35c3c12513ec2afd211ee0625d3f34"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-10/native-compare-debug-prototype-v4/report.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 373,
+        "stdout_sha256": "b0237e3220788133b860ef9b87d7dd783e4365132025cf6f5b41143f97b71a6f",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 373,
+        "stdout_sha256": "b0237e3220788133b860ef9b87d7dd783e4365132025cf6f5b41143f97b71a6f",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "status-error",
+      "record": 13888,
+      "cwd": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-11/stack-object-worktree",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-11/stack-object-worktree/local-state/native-stack-prototype-v1/report.json",
+          "bytes": 78686,
+          "sha256": "cfc6860be39d385a6c721b3e1a25878e489d07388ad482e9e85962e9c8d74269"
+        }
+      ],
+      "input_args": [
+        "local-state/native-stack-prototype-v1/report.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 93,
+        "stdout_sha256": "c9ebb85d2fb200918c94431c25de8bd009e2855c835d8a7350bd7e5da355663c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 93,
+        "stdout_sha256": "c9ebb85d2fb200918c94431c25de8bd009e2855c835d8a7350bd7e5da355663c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-progress",
+      "record": 542,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/c-debug/commands.json",
+          "bytes": 2239763,
+          "sha256": "8a38579d52cc624c385315c4908e26f7b58fa4887b99cb6252fa78c97c3c54fd"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/c-debug/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 164,
+        "stdout_sha256": "764fda5c98d43088f1a3d1e3a037442ee85bac1b3cb9b47de9abe4c449b7a6c8",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 164,
+        "stdout_sha256": "764fda5c98d43088f1a3d1e3a037442ee85bac1b3cb9b47de9abe4c449b7a6c8",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-progress",
+      "record": 731,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/c-fast/commands.json",
+          "bytes": 2237437,
+          "sha256": "7e104c4d00dd6c31f112b138f9d55b70a29cf2d47b71715a11a596fce40db862"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/c-fast/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 163,
+        "stdout_sha256": "a085e63a5f878a8167c51caae81dd3d122ebf4a9590ff238b2b532fef9983a24",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 163,
+        "stdout_sha256": "a085e63a5f878a8167c51caae81dd3d122ebf4a9590ff238b2b532fef9983a24",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-progress",
+      "record": 971,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/harness-reuse-fast/commands.json",
+          "bytes": 86837,
+          "sha256": "72e41275bc243d22be3fe3d957128e960c5a2ac38805fd3abcca4da2432241d5"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/harness-reuse-fast/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 168,
+        "stdout_sha256": "2403d07409dfb4bbe16e2024cc812b3c54d4e7cd5d222b5d0277c15c526d9697",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 168,
+        "stdout_sha256": "2403d07409dfb4bbe16e2024cc812b3c54d4e7cd5d222b5d0277c15c526d9697",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-count-and-tail",
+      "record": 15181,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-11/native-all-debug-v5-result/commands.json",
+          "bytes": 2757697,
+          "sha256": "4715265daa90112725b51bf77a426f38416371e73da790b635a06c41004333c3"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-11/native-all-debug-v5-result/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 199,
+        "stdout_sha256": "adb430e0e8a8c9c67581eca66a53a39933f537bfefe8f6859e48e9d5de5ad161",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 199,
+        "stdout_sha256": "adb430e0e8a8c9c67581eca66a53a39933f537bfefe8f6859e48e9d5de5ad161",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-count-and-tail",
+      "record": 16023,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-12/native-all-debug-v12-result/commands.json",
+          "bytes": 2836050,
+          "sha256": "bc9829c3aa3294f1a502c698d155c52be860d12a061ba82ace7e5d00ec3a0c1a"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-12/native-all-debug-v12-result/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 203,
+        "stdout_sha256": "0cf80482c445591839ef5c70b919bf809defdaf13668ea1eec3675f51da59c36",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 203,
+        "stdout_sha256": "0cf80482c445591839ef5c70b919bf809defdaf13668ea1eec3675f51da59c36",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "command-count-and-tail",
+      "record": 16541,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-12/integrated-v12/unchanged-upstream-c/commands.json",
+          "bytes": 2918139,
+          "sha256": "b4907bba0752ec7a209cb3b7e3da1f02d8c1845a5f39cf475330dc50bd05e928"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-12/integrated-v12/unchanged-upstream-c/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 211,
+        "stdout_sha256": "735b593d5a51889c0578d43d3e56f88849c52b74870aefc35e21759a43ca7539",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 211,
+        "stdout_sha256": "735b593d5a51889c0578d43d3e56f88849c52b74870aefc35e21759a43ca7539",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "status-samples",
+      "record": 1180,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/full-fresh.json",
+          "bytes": 14112,
+          "sha256": "8d7894f9e3eb2573044f3ac9511d704f9cbd71853adf216c63237f13750f5e8c"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/full-fresh.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 36,
+        "stdout_sha256": "2b1de251a4090f0f5062c59b3c355379369a4a604e538b376a9858af02f51a20",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 36,
+        "stdout_sha256": "2b1de251a4090f0f5062c59b3c355379369a4a604e538b376a9858af02f51a20",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "status-samples",
+      "record": 1376,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/full-fresh-v2.json",
+          "bytes": 2014468,
+          "sha256": "72ab01d125f68a1a9ac3343db68361bb181e61352d337744227704354c13cd19"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/full-fresh-v2.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "ab870f1bdad72bd96481fc90a4141cab0bed2e4a40fd1275cb79e7c63222e03a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 37,
+        "stdout_sha256": "ab870f1bdad72bd96481fc90a4141cab0bed2e4a40fd1275cb79e7c63222e03a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "status-samples",
+      "record": 1946,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/rows-cached-v2.json",
+          "bytes": 39784,
+          "sha256": "54b34d0dc0298c2d32d373c6485424452a2de807bb7baca10a25e1c29a5a912f"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/rows-cached-v2.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 36,
+        "stdout_sha256": "370be4aa9ae1cf51b89d778450e8273bf1aa90f53e265c091f74c86c64aef28d",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 36,
+        "stdout_sha256": "370be4aa9ae1cf51b89d778450e8273bf1aa90f53e265c091f74c86c64aef28d",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "status-return-samples",
+      "record": 1938,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/rows-cached-v2.json",
+          "bytes": 39784,
+          "sha256": "54b34d0dc0298c2d32d373c6485424452a2de807bb7baca10a25e1c29a5a912f"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/rows-cached-v2.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 51,
+        "stdout_sha256": "18d41dbf96c77b5675d9dd668f9722d175a78a530b1e13df90bc229dcdd87f9b",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 51,
+        "stdout_sha256": "18d41dbf96c77b5675d9dd668f9722d175a78a530b1e13df90bc229dcdd87f9b",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "canary-count",
+      "record": 11998,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "test/real_programs/native_canaries.json",
+          "bytes": 111010,
+          "sha256": "d631f6c47ce87bf5aa3c32780c2ed80c70f54b07be0657f9ffa78b8d31c991bd"
+        }
+      ],
+      "input_args": [
+        "test/real_programs/native_canaries.json"
+      ],
+      "jq_flags": [
+        "-r"
+      ],
+      "jqz_flags": [
+        "-r"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 4,
+        "stdout_sha256": "e623772cc677b6536e0545bc9870ad53a37b5cf0187fcc9851641b52344c7ee8",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 4,
+        "stdout_sha256": "e623772cc677b6536e0545bc9870ad53a37b5cf0187fcc9851641b52344c7ee8",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": null
+    },
+    {
+      "id": "canary-count",
+      "record": 13980,
+      "cwd": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-11/stack-object-worktree",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-11/stack-object-worktree/test/real_programs/native_canaries.json",
+          "bytes": 78382,
+          "sha256": "16862d537b433390f9344c3efc9f44082cf6944c86420fdcc7d6cc25a6a93ec1"
+        }
+      ],
+      "input_args": [
+        "test/real_programs/native_canaries.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3,
+        "stdout_sha256": "6950980e3aca96f4dc400eb2e47cc5c343e0d3f483a4e70adcae1d7e6bb22d9c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3,
+        "stdout_sha256": "6950980e3aca96f4dc400eb2e47cc5c343e0d3f483a4e70adcae1d7e6bb22d9c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "canary-count",
+      "record": 23450,
+      "cwd": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-18/extended80-comparison-worktree",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-18/extended80-comparison-worktree/test/real_programs/native_canaries.json",
+          "bytes": 91472,
+          "sha256": "51f45b67684adceef75fe9a41787aa350ef3dc788de58690839fa558f0965649"
+        }
+      ],
+      "input_args": [
+        "test/real_programs/native_canaries.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3,
+        "stdout_sha256": "d93844f8f37e55564be3f194656bf33b5d0fb5e589a0fe17eb7c2d4e8593ec9c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3,
+        "stdout_sha256": "d93844f8f37e55564be3f194656bf33b5d0fb5e589a0fe17eb7c2d4e8593ec9c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "terminal-events",
+      "record": 20139,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-14/census-whole-v9.jsonl",
+          "bytes": 1063978,
+          "sha256": "6db9cd6e0086ce2d7203474039992b3fd750b520dad84f075f97cf8f0e198b9b"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-14/census-whole-v9.jsonl"
+      ],
+      "jq_flags": [
+        "-c"
+      ],
+      "jqz_flags": [
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 66,
+        "stdout_sha256": "d188a9772ed9a5224e55cc92c5f3108e15d208d8e891a8358eacdbad4fab59e6",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 66,
+        "stdout_sha256": "d188a9772ed9a5224e55cc92c5f3108e15d208d8e891a8358eacdbad4fab59e6",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "terminal-events",
+      "record": 21701,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-15/census-whole-v16.jsonl",
+          "bytes": 1060988,
+          "sha256": "888fb7064ad0b9b297acf06797cb01767bfa7d21e39eb12594f25c0b5eb83251"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-15/census-whole-v16.jsonl"
+      ],
+      "jq_flags": [
+        "-c"
+      ],
+      "jqz_flags": [
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 65,
+        "stdout_sha256": "cef874780fc65fd3b20d21fb31e14305410c29d54a03816f4c99a13871f760e7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 65,
+        "stdout_sha256": "cef874780fc65fd3b20d21fb31e14305410c29d54a03816f4c99a13871f760e7",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "terminal-events",
+      "record": 22344,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-16/census-runtime-v19.jsonl",
+          "bytes": 82958,
+          "sha256": "abfa662190ec8653cf650ba44223c86be4846bb016d26f5faa4f18d3f7fdd8aa"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-16/census-runtime-v19.jsonl"
+      ],
+      "jq_flags": [
+        "-c"
+      ],
+      "jqz_flags": [
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 64,
+        "stdout_sha256": "8af2be1e9805ee58376397f813bacce4a2b8a40d207dfe9646791deea9c10a58",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 64,
+        "stdout_sha256": "8af2be1e9805ee58376397f813bacce4a2b8a40d207dfe9646791deea9c10a58",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "last-item",
+      "record": 15756,
+      "cwd": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-12/constant-operand-worktree",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-12/constant-operand-worktree/local-state/native-symbols-after-v7/commands.json",
+          "bytes": 2694,
+          "sha256": "ebd3dc6a017c33232bed0f7a2d2d081e21789aa7e4d99e06a41d676c3c3c7746"
+        }
+      ],
+      "input_args": [
+        "local-state/native-symbols-after-v7/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1334,
+        "stdout_sha256": "f81fcb7aa58fada64dd3f85cf5c1c9e5f9a4c76f5b36e067081e7f5edae430c3",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1334,
+        "stdout_sha256": "f81fcb7aa58fada64dd3f85cf5c1c9e5f9a4c76f5b36e067081e7f5edae430c3",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "last-item",
+      "record": 15756,
+      "cwd": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-12/constant-operand-worktree",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-12/constant-operand-worktree/local-state/native-symbols-before-v7/commands.json",
+          "bytes": 2701,
+          "sha256": "5a6540d445106cc232db53b7e3e20e51c03d56c802ed72183c6a86c7c2d65309"
+        }
+      ],
+      "input_args": [
+        "local-state/native-symbols-before-v7/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1338,
+        "stdout_sha256": "b93dd69cff365a1c06b97ca40763943ae0a1e8271ec2d1a1627a7cf9abd75b91",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1338,
+        "stdout_sha256": "b93dd69cff365a1c06b97ca40763943ae0a1e8271ec2d1a1627a7cf9abd75b91",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "last-item",
+      "record": 17462,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-13/census-runtime-v15.jsonl",
+          "bytes": 83400,
+          "sha256": "d779336b5ea5581306708b6bb1a2ac5bd7218488e7b564d7778489a8a1ab18ab"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-13/census-runtime-v15.jsonl"
+      ],
+      "jq_flags": [
+        "-s"
+      ],
+      "jqz_flags": [
+        "-s",
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 64,
+        "stdout_sha256": "da3ce42f9607a851ced2425523eed7218a0377506cfabbfac228c3d64840df4f",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 64,
+        "stdout_sha256": "da3ce42f9607a851ced2425523eed7218a0377506cfabbfac228c3d64840df4f",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "negative-toolchain-gate",
+      "record": 1436,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/durable-failure/toolchain.json",
+          "bytes": 672,
+          "sha256": "783ebe3404c9d28473e124a0ebb6bcac7d47af66e64555f881c68bf12614abb8"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/durable-failure/toolchain.json"
+      ],
+      "jq_flags": [
+        "-e"
+      ],
+      "jqz_flags": [
+        "-e"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "finished-process-gate",
+      "record": 8557,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-full.json",
+          "bytes": 174750,
+          "sha256": "b4b7569b2e841a9eff0f695b6dd9ed64601b259edc78f15d168ba553c8ffae47"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-full.json"
+      ],
+      "jq_flags": [
+        "-e"
+      ],
+      "jqz_flags": [
+        "-e"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "retained-selection-gate",
+      "record": 9696,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/runtime-census-audit-v3.json",
+          "bytes": 934,
+          "sha256": "44acae854a8885d5ef06a77583d83cf20cb3079b889561b605872477c271e881"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/runtime-census-audit-v3.json"
+      ],
+      "jq_flags": [
+        "-e"
+      ],
+      "jqz_flags": [
+        "-e"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "retained-selection-gate",
+      "record": 10323,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-09/compiler-census-audit-v3.json",
+          "bytes": 1129,
+          "sha256": "ab1cf60fa8911bfafebd8084251727c5ae52028f84039fe8f38f9507b5755418"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-09/compiler-census-audit-v3.json"
+      ],
+      "jq_flags": [
+        "-e"
+      ],
+      "jqz_flags": [
+        "-e"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "recent-commands",
+      "record": 549,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/c-debug/commands.json",
+          "bytes": 2239763,
+          "sha256": "8a38579d52cc624c385315c4908e26f7b58fa4887b99cb6252fa78c97c3c54fd"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/c-debug/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1392,
+        "stdout_sha256": "c1a17209c6c9a413e00c2bc770db016db7ef972a61537e83cd76979d940b5bc0",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1392,
+        "stdout_sha256": "c1a17209c6c9a413e00c2bc770db016db7ef972a61537e83cd76979d940b5bc0",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "compiler-call-count",
+      "record": 497,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/validation-performance-20261109/c-debug/commands.json",
+          "bytes": 2239763,
+          "sha256": "8a38579d52cc624c385315c4908e26f7b58fa4887b99cb6252fa78c97c3c54fd"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/validation-performance-20261109/c-debug/commands.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 186,
+        "stdout_sha256": "bc06321b7672dab1c3cd63d97b7e59c96fa0d7eb4769ca1714ba9339fe2ed7bc",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 186,
+        "stdout_sha256": "bc06321b7672dab1c3cd63d97b7e59c96fa0d7eb4769ca1714ba9339fe2ed7bc",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "census-counts",
+      "record": 28829,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-30/census-whole-v3.jsonl",
+          "bytes": 1012357,
+          "sha256": "873d76839cf25af26b5767df9cc8083f30539e66ac9e29b82356eb45f4996521"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-30/census-whole-v3.jsonl"
+      ],
+      "jq_flags": [
+        "-s"
+      ],
+      "jqz_flags": [
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 29,
+        "stdout_sha256": "9f97fb08ae8e3bd73a53c855cc0b83e4b453b6b48dec894c4f433d7c6fea6572",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 29,
+        "stdout_sha256": "9f97fb08ae8e3bd73a53c855cc0b83e4b453b6b48dec894c4f433d7c6fea6572",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "census-progress",
+      "record": 6304,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.jsonl",
+          "bytes": 838101,
+          "sha256": "ae419791b032856348360a0f496ba8dacdf74b7c99f5c7375c58087399e8f8d5"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.jsonl"
+      ],
+      "jq_flags": [
+        "-s"
+      ],
+      "jqz_flags": [
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 56,
+        "stdout_sha256": "b42656bcae18d1335f6b90f4ebf6c809be4b7e0d8553503c2f46c5d2b0961f29",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 56,
+        "stdout_sha256": "b42656bcae18d1335f6b90f4ebf6c809be4b7e0d8553503c2f46c5d2b0961f29",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "provenance-duration",
+      "record": 7321,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v3-debug.json",
+          "bytes": 49062,
+          "sha256": "44e2b0f8f6a101ff5a081d72c60740e73fb30db9ff518bab90070598ba547e3c"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/prototype-v4.json",
+          "bytes": 87550,
+          "sha256": "c8720179b124c162eae41a9b7877e6a18d282704273645892cc62331038796bb"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.json",
+          "bytes": 316741,
+          "sha256": "aad9a2b0554056e18271f2f9f020504d83813f4289b99c280e8c44ed1cdab43b"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v3.json",
+          "bytes": 177345,
+          "sha256": "f3cc6ee5e3f5ee7c8ecb7997c59a63ecb7671a5c55dde1b35dd775248f7249ae"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/units-v4-safe.json",
+          "bytes": 17557,
+          "sha256": "3e70b4ff147a5e00033881a6556f92df9bd1c2bba0b3b9e6433f67478f70f4e8"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v4-fast.json",
+          "bytes": 11712,
+          "sha256": "3c00f95e21f534d7a76130c6bbec93b9ccd7eda5b668fa937121c002a6125a43"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v3-debug.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/prototype-v4.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v3.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/units-v4-safe.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v4-fast.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "expected_gap",
+      "reason": "jqz preserves exact timestamp subtraction and nanosecond-precision decimal seconds; jq 1.7 floating arithmetic loses precision for epoch nanoseconds beyond 2^53. Exact-decimal equality is intentionally required, so this is a reviewed numeric-contract difference.",
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1132,
+        "stdout_sha256": "c63b95e7777ea6e2f75ed67813c3da8553fdd8499f519624c40dd71d06f81600",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 1134,
+        "stdout_sha256": "afd8ad683d021778e7cc2566b90d9089357466b9d2ddec9c1bbae99a123be304",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": false,
+      "json_equal": false
+    },
+    {
+      "id": "provenance-duration",
+      "record": 7416,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-build-fast.json",
+          "bytes": 12795,
+          "sha256": "eb8d3d8a49824867eca28b42de5bf42bb91d6a4e21801970d896ed2932c9ef8d"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-build-debug.json",
+          "bytes": 1965,
+          "sha256": "94cb8db4150a307a51d793288486d152b289c6c6d5e86627c36ac32cd9edfce0"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.json",
+          "bytes": 316741,
+          "sha256": "aad9a2b0554056e18271f2f9f020504d83813f4289b99c280e8c44ed1cdab43b"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v3.json",
+          "bytes": 177345,
+          "sha256": "f3cc6ee5e3f5ee7c8ecb7997c59a63ecb7671a5c55dde1b35dd775248f7249ae"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v4-fast.json",
+          "bytes": 11712,
+          "sha256": "3c00f95e21f534d7a76130c6bbec93b9ccd7eda5b668fa937121c002a6125a43"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-build-fast.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-build-debug.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v3.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v4-fast.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "expected_gap",
+      "reason": "jqz preserves exact timestamp subtraction and nanosecond-precision decimal seconds; jq 1.7 floating arithmetic loses precision for epoch nanoseconds beyond 2^53. Exact-decimal equality is intentionally required, so this is a reviewed numeric-contract difference.",
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 951,
+        "stdout_sha256": "195ce694d949baf9f191248066b8042ed48a3144c3b609aa21f5d9365d667882",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 954,
+        "stdout_sha256": "89025b8fb2ac9734c5f617739198092ab144617f8b865830020710f8de9956aa",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": false,
+      "json_equal": false
+    },
+    {
+      "id": "provenance-duration",
+      "record": 7456,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-build-fast.json",
+          "bytes": 12795,
+          "sha256": "eb8d3d8a49824867eca28b42de5bf42bb91d6a4e21801970d896ed2932c9ef8d"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.json",
+          "bytes": 316741,
+          "sha256": "aad9a2b0554056e18271f2f9f020504d83813f4289b99c280e8c44ed1cdab43b"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v3.json",
+          "bytes": 177345,
+          "sha256": "f3cc6ee5e3f5ee7c8ecb7997c59a63ecb7671a5c55dde1b35dd775248f7249ae"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v4-fast.json",
+          "bytes": 11712,
+          "sha256": "3c00f95e21f534d7a76130c6bbec93b9ccd7eda5b668fa937121c002a6125a43"
+        },
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/units-v4-safe.json",
+          "bytes": 17557,
+          "sha256": "3e70b4ff147a5e00033881a6556f92df9bd1c2bba0b3b9e6433f67478f70f4e8"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/adopted-build-fast.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v1.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/whole-census-v3.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/native-v4-fast.json",
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/parser-throughput/units-v4-safe.json"
+      ],
+      "jq_flags": [],
+      "jqz_flags": [],
+      "status": "expected_gap",
+      "reason": "jqz preserves exact timestamp subtraction and nanosecond-precision decimal seconds; jq 1.7 floating arithmetic loses precision for epoch nanoseconds beyond 2^53. Exact-decimal equality is intentionally required, so this is a reviewed numeric-contract difference.",
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 946,
+        "stdout_sha256": "559d01c376f5078963e6a2e950fb104d33cb21865672334c59b9fa68b6acf663",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 949,
+        "stdout_sha256": "22f1a81d8c763c5d313c6d1281b6b8304c49e464ddb69e18b5627f3b134909d3",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": false,
+      "json_equal": false
+    },
+    {
+      "id": "grouped-rejections",
+      "record": 14899,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-11/census-whole-v4.jsonl",
+          "bytes": 1095233,
+          "sha256": "f0c67609cd8676795621d099bfd9b575a13da9a8f1da584b2c2d951567b0f369"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-11/census-whole-v4.jsonl"
+      ],
+      "jq_flags": [
+        "-s"
+      ],
+      "jqz_flags": [
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3590,
+        "stdout_sha256": "9e6e7dde144f6d1e1bee7c39d31b2baae7da021e72c01d38b1efec7632161761",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 3590,
+        "stdout_sha256": "9e6e7dde144f6d1e1bee7c39d31b2baae7da021e72c01d38b1efec7632161761",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "grouped-selector-pairs",
+      "record": 6061,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-08/remaining-aggregate-light.jsonl",
+          "bytes": 75638,
+          "sha256": "520e248b2120f03ecb857b5ad01bf703e0522a626328ee605d4340f40b9ed191"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-08/remaining-aggregate-light.jsonl"
+      ],
+      "jq_flags": [
+        "-s"
+      ],
+      "jqz_flags": [
+        "--ndjson"
+      ],
+      "status": "passed",
+      "reason": null,
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5451,
+        "stdout_sha256": "b3ae2230300126c1ae7110baaa6c189ec7417d879be60e424e97eaa7c4892e0a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 5451,
+        "stdout_sha256": "b3ae2230300126c1ae7110baaa6c189ec7417d879be60e424e97eaa7c4892e0a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": true,
+      "json_equal": true
+    },
+    {
+      "id": "nul-path-protocol",
+      "record": 25240,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-22/source-v9.json",
+          "bytes": 419540,
+          "sha256": "a7cc19cbf7e6c24d51fc273227dcb80b5e907a75dd380a155bc54594e8babe0c"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-22/source-v9.json"
+      ],
+      "jq_flags": [
+        "-jr"
+      ],
+      "jqz_flags": [
+        "-r"
+      ],
+      "status": "expected_gap",
+      "reason": "jq -jr emits NUL-delimited bytes with no newlines. jqz has raw output but no join-output/-j option; its mandatory newlines change this protocol.",
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 171036,
+        "stdout_sha256": "e359308eb8f0fdd710cca50529eeb08045577b1a04d720014b64922388404e11",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 177658,
+        "stdout_sha256": "d5ed95181f76741a419da0fc03c9d62b8cd405c49039a89d3d5f500df31fc780",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": false,
+      "json_equal": null
+    },
+    {
+      "id": "nul-path-protocol",
+      "record": 25600,
+      "cwd": "/home/oleg/prog/z_llvm",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-23/half-math-worktree/local-state/half-math-probes/source-sqrt-v8.json",
+          "bytes": 420769,
+          "sha256": "2acb467fc0462626a13776dae7686aac311536104a1e273c544e05a0b541b76c"
+        }
+      ],
+      "input_args": [
+        "local-state/validations/compiler-selection-completion-20261108/batch-23/half-math-worktree/local-state/half-math-probes/source-sqrt-v8.json"
+      ],
+      "jq_flags": [
+        "-jr"
+      ],
+      "jqz_flags": [
+        "-r"
+      ],
+      "status": "expected_gap",
+      "reason": "jq -jr emits NUL-delimited bytes with no newlines. jqz has raw output but no join-output/-j option; its mandatory newlines change this protocol.",
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 171424,
+        "stdout_sha256": "0c8598c3767085cc77fb69af1bd36ae39cb6fd9a6c97d5b280a20bfa9f5d82af",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 178066,
+        "stdout_sha256": "1d9b4737c52e127fff81e674d3743cdcc4791a7d5e5e8bb307db1110f6905c4c",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": false,
+      "json_equal": null
+    },
+    {
+      "id": "nul-path-protocol",
+      "record": 25899,
+      "cwd": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-24/extended-arithmetic-worktree",
+      "inputs": [
+        {
+          "path": "local-state/validations/compiler-selection-completion-20261108/batch-24/extended-arithmetic-worktree/local-state/extended-arithmetic-probes/source-literals-v8.json",
+          "bytes": 421513,
+          "sha256": "62041352094364edf86aa094b63571d11ba864955f94229b9f83ac144dad965d"
+        }
+      ],
+      "input_args": [
+        "local-state/extended-arithmetic-probes/source-literals-v8.json"
+      ],
+      "jq_flags": [
+        "-jr"
+      ],
+      "jqz_flags": [
+        "-r"
+      ],
+      "status": "expected_gap",
+      "reason": "jq -jr emits NUL-delimited bytes with no newlines. jqz has raw output but no join-output/-j option; its mandatory newlines change this protocol.",
+      "jq": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 171708,
+        "stdout_sha256": "6d29d1f6345a82dab354910291aae02170f90fa9e5bc430b65bf634477f25d4a",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "jqz": {
+        "code": 0,
+        "outcome": "completed",
+        "stdout_bytes": 178362,
+        "stdout_sha256": "c2cac3d442fab4ce2c966d01d22be295493991f7c9ea80784675652632124c66",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "operational": true
+      },
+      "byte_identical": false,
+      "json_equal": null
+    }
+  ]
+}

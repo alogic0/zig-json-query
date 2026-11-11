@@ -6,6 +6,7 @@ manifest at `docs/experiments/zllvm_translations.json` record the reference jq
 filters. Actual retained compiler inputs were checked with independent jq
 results; synthetic checks cover missing/null fields, ties, empty streams and
 negative predicate status. These examples add no query-language features.
+The jq reference uses `-c` to match jqz's compact JSON default.
 
 Run from the jqz checkout, after `zig build`:
 
@@ -37,7 +38,8 @@ metadata uses `? ?? null` because jqz shorthand is strict about missing fields.
 
 `provenance-duration.query` is a reviewed alternative with a numeric difference:
 it emits exact nanosecond-precision decimal seconds. The original jq floating
-calculation produces different decimals on the checked real reports. Accept
+calculation loses precision while subtracting epoch nanosecond timestamps beyond
+`2^53`, producing different decimals on the checked reports. Accept
 that contract explicitly before adopting this example as a report replacement.
 
 The observed NUL-delimited path protocol (`jq -jr`) also differs: jqz raw output

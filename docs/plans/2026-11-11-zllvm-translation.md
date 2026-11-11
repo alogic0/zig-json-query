@@ -1,7 +1,7 @@
 # z_llvm jq usage and jqz translations
 
-Status: extraction and translation experiments verified with jqz 0.28.0;
-final report/evidence documentation and private-file cleanup are next.
+Status: complete. jqz 0.28.0 translations are checked on retained compiler data,
+with explicit gaps, preserved evidence and private-file cleanup.
 
 ## Scope
 
@@ -40,7 +40,7 @@ and will be removed after producing the query-only inventory.
    exact bytes or ordered JSON values with exact-decimal comparison, output
    cardinality and exit statuses. Include negative gates and counterexamples for
    unsupported features. Preserve hashes/counts, not private output payloads.
-4. [ ] Document verified translations, required invocation changes, genuine
+4. [x] Document verified translations, required invocation changes, genuine
    language/CLI gaps and practical priorities. Add focused Zig checks for any
    audit helper and sanitized cases that demonstrate the translated semantics.
    Validate native x86_64 Linux Debug only, preserve the original 45-case corpus
@@ -59,7 +59,7 @@ message file after success with plain `rm`.
 
 The conservative scanner recognizes 2,711 command-position invocations, all
 named `jq`, with 1,225 distinct literal inline filters. There are 305 dynamic
-contexts and 90 `-f` invocations naming 22 query-file paths. It recognizes 215
+contexts and 90 `-f` invocations with 22 distinct argument strings. It recognizes 215
 `--slurpfile` uses and eleven `--rawfile` uses. These are bounded lexical counts,
 not an exhaustive shell trace; original command bodies remain private.
 
@@ -72,9 +72,23 @@ and after each pair; outputs are represented by sizes/hashes only. Query files
 are checked against the manifest before execution. No historical shell command
 is executed and no compiler workload is launched.
 
-Seven fresh Zig audit checks pass, including independent jq expectations for
+Eight fresh Zig audit checks pass, including independent jq expectations for
 truthiness, empty completion, multiple results, negative `-e` status, null group
-keys, tie ordering and the NUL protocol difference. Native Debug project build
+keys, tie ordering, the NUL protocol difference and timestamp precision beyond
+`2^53`. Native Debug project build
 and tests also pass, reusing unchanged cached results. The extraction/checking
 helper and its shared mapping/fixture data form one verified experiment slice;
 the final interpretation and preserved result files are a separate slice.
+
+The experiment slice is `5cc4fbe5fb848ee4e17936673e3b5025ff265dc7`, followed by
+timestamp-precision regression `27cbc34`. The
+[completed report](../qualification/zllvm-usage-2026-11-11.md) links the
+[query-only inventory](../qualification/2026-11-11-zllvm-inventory.json) and
+[live check results](../qualification/2026-11-11-zllvm-translations.json), explains
+limits and reproduction, and ranks joined raw output/file bindings/local dynamic
+maps from actual usage. Both generated results are preserved byte-identically;
+helper/manifest/binary hashes match. The fixed-boundary extraction is independently
+reproduced. Private command/invocation extracts are removed with plain `rm`.
+The compiler checkout stays clean and production jqz sources/version remain
+unchanged. No further work remains in this audit plan; the identified feature
+requirements are recommendations for separately authorized implementation.

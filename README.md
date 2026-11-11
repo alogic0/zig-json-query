@@ -95,6 +95,12 @@ stopping and `-e` status apply. For example, `jqz -n 'count'` emits `1`, while
 The [null-input implementation plan](docs/plans/2026-11-11-null-input.md)
 records the behavior and its workflow qualification.
 
+The [real compiler-workflow audit](docs/qualification/zllvm-usage-2026-11-11.md)
+checks translations of `z_llvm` jq usage on retained reports. The
+[compiler query examples](examples/zllvm/README.md) cover command summaries,
+census progress and grouped rejections, with explicit notes on raw-output and
+numeric differences.
+
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
 for CLI stdin. Completion aggregates, null input and slurped input have no unique
 filename and return null. Capture provenance before aggregation:
