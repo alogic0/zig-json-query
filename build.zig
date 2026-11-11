@@ -116,14 +116,42 @@ pub fn build(b: *std.Build) void {
     const run_qualification_tests = b.addRunArtifact(qualification_tests);
     tests.dependOn(&run_qualification_tests.step);
 
+    const profile_options = b.addOptions();
+    profile_options.addOptionPath("exe", exe.getEmittedBin());
+    profile_options.addOption([]const u8, "version", @import("build.zig.zon").version);
+    profile_options.addOption([]const u8, "compiler", b.graph.zig_exe);
+    profile_options.addOption([]const u8, "target", b.fmt("{s}-{s}-{s}", .{ @tagName(b.graph.host.result.cpu.arch), @tagName(b.graph.host.result.os.tag), @tagName(b.graph.host.result.abi) }));
+    const profile_engine = b.createModule(.{
+        .root_source_file = b.path("src/profile_engine.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+        .imports = &.{.{ .name = "regex", .module = regex }},
+    });
+    const profile_module = b.createModule(.{
+        .root_source_file = b.path("tools/profile.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+        .imports = &.{ .{ .name = "test_support", .module = support }, .{ .name = "profile_engine", .module = profile_engine } },
+    });
+    profile_module.addOptions("profile_options", profile_options);
+    const profiler = b.addExecutable(.{ .name = "query-profile", .root_module = profile_module });
+    const run_profile = b.addRunArtifact(profiler);
+    run_profile.setCwd(b.path("."));
+    run_profile.addPassthruArgs();
+    b.step("profile", "Measure native Debug engine phases and allocator requests").dependOn(&run_profile.step);
+    const profile_tests = b.addTest(.{ .root_module = profile_module });
+    const run_profile_tests = b.addRunArtifact(profile_tests);
+    tests.dependOn(&run_profile_tests.step);
+    b.step("test-profile", "Check phase measurements and allocation accounting").dependOn(&run_profile_tests.step);
+
     const archive = b.addSystemCommand(&.{
         "tar",                  "--format=gnu",      "--sort=name",       "--mtime=@0", "--owner=0", "--group=0", "--numeric-owner", "--mode=u+rwX,go+rX,go-w",
         "--exclude=.zig-cache", "--exclude=zig-pkg", "--exclude=zig-out", "-czf",
     });
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.17.0.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.18.0.tar.gz");
     archive.addArgs(&.{ "build.zig", "build.zig.zon", ".zigversion", ".gitignore", "AGENTS.md", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" });
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.17.0.tar.gz");
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.18.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

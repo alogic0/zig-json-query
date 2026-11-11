@@ -222,6 +222,19 @@ The [automation plan](docs/plans/2026-11-10-automation.md) adds shell gates,
 external arguments, batch input/provenance, quantified predicates and statistics.
 The [scalar-aggregate plan](docs/plans/2026-11-10-scalar-aggregates.md) adds totals,
 grouping and sorting inside report fields in response to workflow qualification.
+The [remaining-workflow plan](docs/plans/2026-11-10-remaining-workflows.md) closes
+serialization, immutable configuration-edit and structural-schema gaps, then
+measures Debug phases before selecting optimizations. `input.zig` owns the same
+strict parser used by feeds and phase profiling; `tools/fixtures.zig` shares
+deterministic scale data with qualification. The separate profiling module has
+internal engine access without extending the public query API. Its allocator
+meter wraps successful requested capacity, preserves phase start/end baselines,
+and checks zero live bytes after cleanup. Timed execution follows public stream
+order, separating parsed-document release before completion, and includes
+emission to an allocating writer. Input IO, expectations and report allocations
+are excluded.
+Tiny CLI measurements include supervision/capture rather than isolating loader
+startup. Raw samples, source/input/tool hashes and environment describe the scope.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
 fuzz coverage and benchmark evidence. Routine validation uses native x86_64
 Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.

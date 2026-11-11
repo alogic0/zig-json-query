@@ -593,6 +593,17 @@ The [scalar-aggregate plan](docs/plans/2026-11-10-scalar-aggregates.md) records
 implementation and qualification of report totals and grouped summaries.
 The [remaining-workflow plan](docs/plans/2026-11-10-remaining-workflows.md) tracks
 serialization, immutable edits, structural distinctness and Debug profiling.
+
+`zig build profile -- --repeat 10 --out .zig-cache/profile.json` measures query
+compilation, session setup, strict parsing, feed/evaluation, document release,
+stream completion/output and cleanup on sanitized small and generated scale
+inputs. It checks
+every result against ordinary public execution and requires zero tracked live
+bytes after cleanup. Per-phase allocator requests and live-byte peaks measure
+requested capacity, not RSS. Supervised null-input CLI samples include process
+launch, IO capture and scheduling. Inputs are preloaded and caches warmed; these
+native Debug measurements guide investigation and do not establish optimized
+performance. `zig build test-profile` checks the profiler and allocation meter.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 

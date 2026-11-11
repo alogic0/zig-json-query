@@ -61,7 +61,7 @@ All implementation and helpers use Zig. Validate native x86_64 Linux Debug only.
    Cover mixed types, lexicographic arrays/objects, numeric spellings, stable
    representatives, independent generated models and allocation failures. Qualify
    `distinct-schema-shapes`; validate and commit with the next minor version.
-5. [ ] Add a Zig profiling build step using sanitized small/large corpus inputs.
+5. [x] Add a Zig profiling build step using sanitized small/large corpus inputs.
    Separate compilation, strict parsing, session setup, evaluation/emission and
    cleanup timings and allocator requests/peak live bytes. Check outputs against
    the ordinary public execution path. Measure supervised tiny CLI invocations
@@ -123,3 +123,16 @@ exhaustive allocation failures with retained input lifetimes. All 45 corpus
 cases passed: 30/30 observed translations, zero unsupported, ten probes and 68
 smoke samples. The distinct-schema oracle and its array order are unchanged.
 Formatting and diff checks passed.
+
+Slice 5, 0.18.0: native Debug build and 194 project checks passed (145
+language/library, 37 CLI, four version-workflow, three qualification-runner and
+five profiler/meter tests), with eight consumer tests. Profiling follows public
+execution order through seven phases: compile, setup, parse, feed/evaluate,
+document release, finish/emit and cleanup. The strict parser and deterministic
+scale generator are shared with normal feeds and qualification. The generated
+507,825-byte command and 860,080-byte backend input hashes match the earlier
+qualification. A seven-case smoke profile produced 49 phase samples and one
+supervised launch; all outputs match ordinary execution and all cleanup live
+counts are zero. Tests cover request growth/shrink/failure, phase baselines,
+strict parsing, output mismatches, raw sample order and exhaustive allocation
+cleanup. Formatting/diff checks passed; no additional external tool was needed.

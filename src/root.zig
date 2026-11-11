@@ -7,10 +7,11 @@ const Execution = @import("execution.zig");
 const Budget = @import("collection_budget.zig");
 const Buffered = @import("buffered.zig");
 const scalar = @import("evaluator.zig");
+const input_json = @import("input.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
-pub const max_input_bytes = 64 * 1024 * 1024;
-pub const version = "0.17.0";
+pub const max_input_bytes = input_json.max_bytes;
+pub const version = "0.18.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.
@@ -224,57 +225,8 @@ pub const Slurp = struct {
     }
 };
 
-fn parseInput(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagnostic) !std.json.Parsed(std.json.Value) {
-    if (input.len > max_input_bytes) return error.InputTooLarge;
-    try checkInputDepth(input, diagnostic);
-    var scanner = std.json.Scanner.initCompleteInput(allocator, input);
-    defer scanner.deinit();
-    var json_diagnostic: std.json.Diagnostics = .{};
-    scanner.enableDiagnostics(&json_diagnostic);
-    return std.json.parseFromTokenSource(std.json.Value, allocator, &scanner, .{ .parse_numbers = false }) catch |err| {
-        diagnostic.input_offset = @intCast(json_diagnostic.getByteOffset());
-        diagnostic.input_line = json_diagnostic.getLine();
-        diagnostic.input_column = json_diagnostic.getColumn();
-        return err;
-    };
-}
-
-fn checkInputDepth(input: []const u8, diagnostic: *Diagnostic) error{InputTooDeep}!void {
-    var in_string = false;
-    var escaped = false;
-    var depth: usize = 0;
-    var line: u64 = 1;
-    var column: u64 = 0;
-    for (input, 0..) |byte, offset| {
-        column += 1;
-        if (byte == '\n') {
-            line += 1;
-            column = 0;
-        }
-        if (in_string) {
-            if (escaped) {
-                escaped = false;
-            } else if (byte == '\\') {
-                escaped = true;
-            } else if (byte == '"') {
-                in_string = false;
-            }
-        } else switch (byte) {
-            '"' => in_string = true,
-            '[', '{' => {
-                depth += 1;
-                if (depth > 128) {
-                    diagnostic.input_offset = offset;
-                    diagnostic.input_line = line;
-                    diagnostic.input_column = column;
-                    return error.InputTooDeep;
-                }
-            },
-            ']', '}' => depth -|= 1,
-            else => {},
-        }
-    }
-}
+const parseInput = input_json.parse;
+const checkInputDepth = input_json.checkDepth;
 
 test {
     _ = @import("number.zig");

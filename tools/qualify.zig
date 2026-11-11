@@ -5,6 +5,7 @@ const builtin = @import("builtin");
 const S = @import("test_support");
 const number = @import("exact_number");
 const options = @import("qualification_options");
+const generated = @import("fixtures.zig");
 const A = std.mem.Allocator;
 const Io = std.Io;
 const V = std.json.Value;
@@ -15,7 +16,7 @@ const Origin = struct { session: []const u8, record: usize, prefix: []const u8 =
 const Scope = enum { observed, component, probe, scale };
 const Classification = enum { equivalent, intentional, unsupported };
 const Case = struct { id: []const u8, scope: Scope = .observed, classification: Classification = .equivalent, origin: Origin, jq: Invocation, jqz: ?Invocation = null, measure: bool = true, note: []const u8 = "" };
-const FixtureSpec = struct { id: []const u8, path: ?[]const u8 = null, generator: ?enum { commands, backend } = null, rows: usize = 0 };
+const FixtureSpec = struct { id: []const u8, path: ?[]const u8 = null, generator: ?generated.Kind = null, rows: usize = 0 };
 const Manifest = struct { schema_version: u32, fixtures: []const FixtureSpec, cases: []const Case };
 const Source = struct { session: []const u8, record: usize, query: []const u8, flags: []const []const u8 };
 const Provenance = struct { schema_version: u32, sessions: struct { backend: []const u8, compiler: []const u8 }, origins: []const Source };
@@ -56,7 +57,7 @@ pub fn main(init: std.process.Init) !void {
     const provenance = try read(Provenance, a, io, provenance_path);
     if (manifest.schema_version != 1 or provenance.schema_version != 1) return error.UnknownCorpusSchema;
     var source_hashes: std.ArrayList(Hash) = .empty;
-    for ([_][]const u8{ "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/buffered.zig", "src/rows.zig", "src/json_order.zig", "src/collection_budget.zig", "src/diagnostic.zig", "tools/qualify.zig", manifest_path, provenance_path, "vendor/SHA256SUMS" }) |path| try source_hashes.append(a, .{ .path = path, .sha256 = try digestFile(a, io, path) });
+    for ([_][]const u8{ "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/input.zig", "src/number.zig", "src/statistics.zig", "src/buffered.zig", "src/rows.zig", "src/json_order.zig", "src/collection_budget.zig", "src/diagnostic.zig", "tools/qualify.zig", "tools/fixtures.zig", manifest_path, provenance_path, "vendor/SHA256SUMS" }) |path| try source_hashes.append(a, .{ .path = path, .sha256 = try digestFile(a, io, path) });
     const tools = [_]Tool{ try pin(a, io, "jqz", options.exe, "jqz " ++ options.version), try pin(a, io, "jq", jq_path, jq_version) };
     const time = try pinVersion(a, io, "/usr/bin/time");
     const time_hash = try digestFile(a, io, "/usr/bin/time");
@@ -70,7 +71,7 @@ pub fn main(init: std.process.Init) !void {
         const bytes = if (spec.path) |path| blk: {
             if (!safePath(path)) return error.UnsafeFixturePath;
             break :blk try Io.Dir.cwd().readFileAlloc(io, path, a, .limited(64 * 1024 * 1024));
-        } else try generate(a, spec);
+        } else try generated.generate(a, spec.generator.?, spec.rows);
         const path = if (spec.path) |path| path else try std.fs.path.join(a, &.{ workspace.path, spec.id });
         if (spec.path == null) try S.files.writeAtomic(io, .{ .path = path, .replace = false }, &.{bytes});
         try fixtures.append(a, .{ .id = spec.id, .path = path, .label = spec.path orelse spec.id, .rows = spec.rows, .bytes = bytes.len, .sha256 = try digest(a, bytes) });
@@ -303,32 +304,6 @@ fn stats(values: []u64) Stats {
     const middle = values.len / 2;
     return .{ .samples = values.len, .min = values[0], .median = if (values.len % 2 == 1) values[middle] else values[middle - 1] + (values[middle] - values[middle - 1]) / 2, .max = values[values.len - 1] };
 }
-fn generate(a: A, spec: FixtureSpec) ![]const u8 {
-    if (spec.rows == 0 or spec.rows > 100000) return error.InvalidGeneratedRowCount;
-    var output = Io.Writer.Allocating.init(a);
-    if (spec.generator.? == .commands) {
-        try output.writer.writeByte('[');
-        for (0..spec.rows) |index| {
-            if (index != 0) try output.writer.writeByte(',');
-            try output.writer.writeAll("{\"argv\":[\"bin/z_llvm\",\"compile\",\"unit.zig\"],\"cwd\":\"workspace\",\"returncode\":0,\"wall_ns\":1000000,\"timeout_ms\":5000,\"stdout\":\"\",\"stderr\":\"\",\"outcome\":\"exited\",\"actual_returncode\":0}");
-        }
-        try output.writer.writeAll("]\n");
-    } else {
-        try output.writer.writeAll("{\"passed\":true,\"cleanup_passed\":true,\"result\":{\"code\":0},\"http\":[");
-        for (0..spec.rows) |index| {
-            if (index != 0) try output.writer.writeByte(',');
-            try output.writer.writeAll("{\"case\":\"check\",\"path\":\"/health\",\"status\":200}");
-        }
-        try output.writer.writeAll("],\"fixtures\":[");
-        for (0..spec.rows) |index| {
-            if (index != 0) try output.writer.writeByte(',');
-            try output.writer.writeAll("{\"case\":\"compile\",\"result\":{\"code\":0}}");
-        }
-        try output.writer.writeAll("]}\n");
-    }
-    return output.written();
-}
-
 test "qualification comparison preserves decimal precision and array order" {
     const t = std.testing;
     const a = try std.json.parseFromSlice(V, t.allocator, "{\"n\":9007199254740993,\"a\":[1,2]}", .{ .parse_numbers = false });
