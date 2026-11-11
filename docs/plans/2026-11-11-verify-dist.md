@@ -1,6 +1,6 @@
 # Automated standalone-package qualification
 
-Status: implementation verified in native Debug as jqz 0.27.0; full standalone
+Status: implementation verified in native Debug as jqz 0.27.1; full standalone
 qualification and final checkpoint documentation are next.
 
 ## Objective
@@ -87,6 +87,15 @@ seven focused verifier checks, CLI help compilation, synchronized version marker
 and formatting/diff checks passed. The feature snapshot is committed before the
 explicit full qualification below; these focused checks make no standalone
 qualification claim by themselves.
+
+The first real 0.27.0 run exposed borrowed command-argument arrays in retained
+evidence: serialization aborted after archive validation. That run is excluded.
+Its last progress/logs and an explicit failure/recovery note remain under
+`zig-out/verify-dist/run-9f27a3371026418bc5de01c9`; the marked workspace was removed
+with plain `rm`/`rmdir`. The separate 0.27.1 fix copies each argument and its array.
+A regression mutates both caller buffers before serializing the retained record.
+Native build/all 228 tests, eight verifier checks, help, version and formatting
+checks pass before repeating full qualification.
 
 One explicit build command performs the previously manual source/consumer
 qualification and leaves inspectable evidence. Every required check is executed

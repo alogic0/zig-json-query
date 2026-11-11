@@ -358,7 +358,11 @@ const Runner = struct {
     }
 
     fn record(self: *Runner, label: []const u8, cwd: []const u8, argv: []const []const u8, env: *const Env, stdout: ?[]const u8, stderr: ?[]const u8, outcome: []const u8, code: ?i32, cleanup: ?anyerror, success: bool) !void {
-        try self.commands.append(self.a, .{ .label = label, .argv = argv, .cwd = cwd, .timeout_ms = self.timeout, .global_cache = env.get("ZIG_GLOBAL_CACHE_DIR"), .local_cache = env.get("ZIG_LOCAL_CACHE_DIR"), .package_dir = env.get("ZIG_LOCAL_PKG_DIR"), .stdout_log = stdout, .stderr_log = stderr, .outcome = outcome, .exit_code = code, .cleanup_error = if (cleanup) |err| @errorName(err) else null, .success = success });
+        // Callers commonly construct argv arrays on their stack. Evidence
+        // outlives those calls and must own both the array and its strings.
+        const owned_argv = try self.a.alloc([]const u8, argv.len);
+        for (argv, owned_argv) |arg, *owned| owned.* = try self.a.dupe(u8, arg);
+        try self.commands.append(self.a, .{ .label = label, .argv = owned_argv, .cwd = cwd, .timeout_ms = self.timeout, .global_cache = env.get("ZIG_GLOBAL_CACHE_DIR"), .local_cache = env.get("ZIG_LOCAL_CACHE_DIR"), .package_dir = env.get("ZIG_LOCAL_PKG_DIR"), .stdout_log = stdout, .stderr_log = stderr, .outcome = outcome, .exit_code = code, .cleanup_error = if (cleanup) |err| @errorName(err) else null, .success = success });
     }
 
     fn inflate(self: *Runner, path: []const u8) !void {
@@ -440,4 +444,35 @@ fn compareFiles(io: Io, x_path: []const u8, y_path: []const u8) !void {
 test {
     _ = C;
     _ = W;
+}
+
+test "distribution command evidence owns arguments after caller mutation" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const io = std.testing.io;
+    const owned = try W.Owned.create(a, io);
+    const Cleanup = struct {
+        pub fn remove(_: *@This(), argv: []const []const u8) !void {
+            const report = try S.command.runReport(std.testing.allocator, std.testing.io, .{ .run = .{ .spawn = .{ .argv = argv }, .timeout_ms = 5000 } });
+            defer report.deinit(std.testing.allocator);
+            if (!report.success()) return error.CleanupFailed;
+        }
+    };
+    var cleanup: Cleanup = .{};
+    defer owned.cleanup(a, io, &cleanup) catch @panic("test cleanup failed");
+    var env = Env.init(a);
+    var runner: Runner = .{ .a = a, .io = io, .root = owned.path, .out = try C.join(a, owned.path, "evidence.json"), .artifacts = owned.path, .env = &env, .timeout = 5000, .started = 0 };
+    var message = "caller-owned".*;
+    var argv: [3][]const u8 = .{ "/usr/bin/printf", "%s", &message };
+    const result = try runner.command("lifetime", owned.path, &argv, &env);
+    try std.testing.expectEqualStrings("caller-owned", result.stdout);
+    @memset(&message, 'x');
+    @memset(&argv, "changed");
+    try runner.evidence("running", null, null);
+    const evidence = (try S.json.parse(a, try runner.read(runner.out, 65536))).value;
+    const commands = try S.json.arr(evidence, "commands");
+    const saved = try S.json.arr(commands[0], "argv");
+    try std.testing.expectEqualStrings("/usr/bin/printf", try S.json.text(saved[0]));
+    try std.testing.expectEqualStrings("caller-owned", try S.json.text(saved[2]));
 }
