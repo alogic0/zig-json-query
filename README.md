@@ -622,6 +622,10 @@ separates depth/scanner experiments, standard DOM allocation traffic and matched
 full-parser controls. Scanner experiments overlap full parsing; they are not
 additive timings or duplicate-key validation. Logical token/container requests
 are reported separately from backing arena capacity.
+`zig build profile -- --study builder --repeat 12 --out .zig-cache/builder.json`
+compares the frozen 0.22.0 builder and current parser with paired controls, then
+observes token/container operations with counters alone and with clocks. Narrow
+operation timings include probe overhead; acceptance uses ordinary full parses.
 `zig build profile -- --study invocation --repeat 10 --out .zig-cache/invocation.json`
 compares native Debug launch controls, repeated processes, multi-file/NDJSON
 batching and compiled-Program reuse. An optional `--reference-cli PATH` pins an

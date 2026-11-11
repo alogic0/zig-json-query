@@ -162,7 +162,7 @@ pub fn run(init: std.process.Init, repeat: usize, out: ?[]const u8) !void {
     try guard.publish("parser", repeat, "One warm-up; rotated variants. standard/control are the same frozen 0.18.1 std.json.Value parser; current is the production boundary. Scan-only/depth experiments overlap full parse and are not additive or fully equivalent validation. standard_dom uses the same Value parser, a counter above its explicit arena and a separate backing counter; token traffic is nested allocation activity, not a timing subtraction. Logical outstanding requests are reclaimed in bulk by arena release; only backing must reach zero. Encoding/checks are outside timers. No production clocks or standard-library changes.", records.items, .{ .checks = checks.items }, out);
 }
 
-fn variation(a: A) ![]const u8 {
+pub fn variation(a: A) ![]const u8 {
     var bytes = Io.Writer.Allocating.init(a);
     defer bytes.deinit();
     for (0..32) |_| try bytes.writer.writeByte('[');

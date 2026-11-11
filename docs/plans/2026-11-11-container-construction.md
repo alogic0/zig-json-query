@@ -59,7 +59,7 @@ temporary file, use `git commit -F`, then remove it with plain `rm`.
 
 1. [x] Record this plan, link it from the completed report/project docs and retain
    the baseline CLI. Verify document links and the diff; commit the plan.
-2. [ ] Add current-builder profiling and a fresh baseline:
+2. [x] Add current-builder profiling and a fresh baseline:
    - Expose internal compile-time observation points for token acquisition,
      array growth/non-growing append, duplicate checking, indexed insertion,
      object finalization and the bounded arena seed. Capture exclusive operation
@@ -129,3 +129,36 @@ builder uses repeated array append and small-object buffering; `keys` and `map`
 know their final output lengths but use growing-capacity reservation. The
 structural sorter always enters stable block sort. These are hypotheses to
 measure, not proof that any particular replacement is faster.
+
+Slice 2, 0.23.0: the [builder baseline](../profiling/2026-11-11-builder-baseline.json)
+has 576 checked samples: eight inputs, six rotated variants and twelve
+repetitions. A frozen 0.22.0 builder provides reference/control; current/control
+are ordinary parses. Counter-only and timed probes observe the same generic
+production builder with a compile-time observer; the void specialization has no
+probe calls/clocks/counters. Native Debug build and all 213 checks pass, including
+operation coverage, logical-request attribution, malformed/decoded-duplicate
+locations and failure cleanup. Original and current uninstrumented large-case
+times/peaks agree within control variation after adding observation points.
+
+Backend full-parser medians are 54.319/54.188 ms reference/control and
+53.941/54.381 ms current/control, with the same 10,517,879-byte backing peak.
+Counter-only takes 60.959 ms and timed probes 120.888 ms. The probe owner setup
+is outside its timer, so tiny-input timing is not a matched startup comparison.
+Narrow timings include substantial per-operation overhead and are not a CPU
+budget for ordinary parsing. Token acquisition, duplicate checks and object
+finalization are separately labeled; indexed insertion includes hashing/growth.
+
+Backend array growth requests 4,705,792 logical bytes in 38 growth allocations,
+versus 4,560,760 bytes in 30,002 object-storage allocations. The two large arrays
+interleave child objects with storage growth, leaving old buffers in the arena.
+Command arrays request 1,169,280 bytes; small argv arrays also have spare capacity.
+The largest bounded allocation candidate is chunked array accumulation with a
+small stack prefix and one exact final array, without another scanner pass.
+
+Gate recorded before slice 3: use the memory-focused path. Require at least 50%
+less backend logical array-request traffic and at least 20% lower full-parser
+backing peak, with ordinary large-parser time no more than 5% above matched
+reference/control medians. Investigate other-case regressions exceeding both 10%
+and 0.05 ms and every unexplained peak increase. Cover flat/nested/wide/escaped
+cases and capacity boundaries. Reject or adjust a candidate that fails these
+gates; do not claim a CPU improvement from the narrow instrumented intervals.
