@@ -651,7 +651,7 @@ controls check the component model against the actual evaluator.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 The completed [standalone-package plan](docs/plans/2026-11-11-standalone-package.md)
-and [package checkpoint](docs/qualification/2026-11-11-package-evidence.json) record
+and [earlier package checkpoint](docs/qualification/2026-11-11-package-evidence.json) record
 byte-identical archive rebuilds, fresh extracted-source checks and an independent
 consumer for 0.26.2, plus practical report/configuration queries checked against jq.
 `zig build verify-dist` automates archive reproducibility/content checks, fresh
@@ -666,6 +666,11 @@ records the failure; cleanup errors prevent a verified result. Only its marked
 temporary workspace is removed. `zig build test` includes the focused verifier
 tests and never launches full qualification. The
 [implementation plan](docs/plans/2026-11-11-verify-dist.md) records the stages.
+The [automated checkpoint](docs/qualification/2026-11-11-verify-dist-evidence.json)
+qualifies 0.27.1: 228 source tests, all 45 corpus cases, eight consumer checks,
+identical archives and successful cleanup. The
+[qualification report](docs/qualification/README.md) records the frozen snapshot,
+artifact hashes, raw logs and an intentional timeout check.
 
 See [DESIGN.md](DESIGN.md), the completed
 [stream plan](docs/plans/2026-11-09-stream-runtime.md), the

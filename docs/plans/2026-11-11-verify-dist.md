@@ -1,7 +1,7 @@
 # Automated standalone-package qualification
 
-Status: implementation verified in native Debug as jqz 0.27.1; full standalone
-qualification and final checkpoint documentation are next.
+Status: complete. jqz 0.27.1 passes automated standalone qualification and the
+intentional timeout check in native x86_64 Linux Debug.
 
 ## Objective
 
@@ -69,12 +69,12 @@ remove that file with plain `rm` after success.
      results and an isolation failure that must prevent consumer launch.
    - Run native Debug build/tests and focused checks. Commit the feature with
      its synchronized version markers before the full real qualification.
-3. [ ] Run `zig build verify-dist` end to end on the feature snapshot. Require
+3. [x] Run `zig build verify-dist` end to end on the feature snapshot. Require
    byte-identical archives, complete extracted-file/dependency checks, all source
    tests, all 45 corpus cases and eight consumer checks with no source-cache
    reuse. Inspect machine-readable evidence, raw logs and cleanup. If a failure
    exposes a bug, fix/test/version/commit it separately and qualify that fix.
-4. [ ] Document usage, failure behavior and the frozen snapshot/result boundary.
+4. [x] Document usage, failure behavior and the frozen snapshot/result boundary.
    Preserve the automated evidence/checkpoint without rebuilding an archive to
    contain its own hash. Verify hashes, links and diff, mark this plan complete
    and commit the final evidence/documentation slice. Keep runtime language
@@ -96,6 +96,27 @@ with plain `rm`/`rmdir`. The separate 0.27.1 fix copies each argument and its ar
 A regression mutates both caller buffers before serializing the retained record.
 Native build/all 228 tests, eight verifier checks, help, version and formatting
 checks pass before repeating full qualification.
+
+The complete 0.27.1 run qualifies clean snapshot
+`c5f8fa415e5d7a5376fa0b767c2f3e4b3b6cde7b`: all 15 stages/41 commands succeed,
+228 source checks and eight consumer checks pass, and the replay validates all
+45 cases (30 observed translations, ten probes, 68 smoke samples). All five
+source artifact paths are quarantined and remain absent after the consumer;
+the payload is unchanged, the two archives are byte-identical, and workspace
+cleanup succeeds. Archive SHA-256:
+`eec2ae0179be88b872a3a8222c3191155afab515b36f02e101cfc59d0d3f38e2`.
+The [generated evidence](../qualification/2026-11-11-verify-dist-evidence.json),
+[complete payload manifest](../qualification/2026-11-11-verify-dist-payload.json),
+[replay](../qualification/2026-11-11-verify-dist-replay.json) and selected raw logs
+are preserved unchanged after freezing that archive.
+
+A separate [intentional timeout](../qualification/2026-11-11-verify-dist-timeout.json)
+uses a 100 ms per-command deadline: packaging times out, the runner exits nonzero,
+the consumer never starts, and cleanup succeeds. The complete passing result
+uses a different report path and remains intact. Artifact/report hashes and
+byte-identical copies are checked, both workspaces are absent, and the
+[qualification report](../qualification/README.md) records usage, limits and the
+snapshot/result boundary. No further implementation steps remain in this plan.
 
 One explicit build command performs the previously manual source/consumer
 qualification and leaves inspectable evidence. Every required check is executed

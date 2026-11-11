@@ -1,0 +1,28 @@
+Build Summary: 24/24 steps succeeded; 228/228 tests passed
+test success
++- run test 158 pass (158 total) 2s MaxRSS:75M
+|  +- compile test debug native success 1s MaxRSS:186M
++- run test 37 pass (37 total) 1s MaxRSS:7M
+|  +- compile test debug native success 742ms MaxRSS:155M
+|     +- options success
+|        +- compile exe jqz debug native success 1s MaxRSS:172M
++- run test 4 pass (4 total) 118ms MaxRSS:7M
+|  +- compile test debug native success 724ms MaxRSS:160M
+|     +- options success
+|        +- compile exe zig-package-version debug native success 839ms MaxRSS:149M
++- run test 3 pass (3 total) 7ms MaxRSS:7M
+|  +- compile test debug native success 728ms MaxRSS:153M
+|     +- options success
+|        +- compile exe jqz debug native (reused)
++- run test 18 pass (18 total) 25ms MaxRSS:7M
+|  +- compile test debug native success 948ms MaxRSS:185M
+|     +- options success
+|        +- compile exe profile-exit debug native success 902ms MaxRSS:147M
+|        |  +- options success
+|        +- compile exe profile-echo debug native success 805ms MaxRSS:147M
+|        |  +- options success
+|        +- compile exe jqz debug native (reused)
++- run test 8 pass (8 total) 45ms MaxRSS:6M
+   +- compile test debug native success 985ms MaxRSS:164M
+      +- options success
+

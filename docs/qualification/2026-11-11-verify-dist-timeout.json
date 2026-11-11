@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "version": "0.27.1",
+  "zig": "0.17.0",
+  "target": "native-x86_64-linux",
+  "optimization": "debug",
+  "started_unix_seconds": 1794430474,
+  "updated_unix_seconds": 1794430476,
+  "snapshot": {
+    "root": "/home/oleg/prog/zig-json-query",
+    "git_head": "c5f8fa415e5d7a5376fa0b767c2f3e4b3b6cde7b",
+    "git_status_porcelain": "",
+    "boundary": "Payload captured before the first archive; identical archives and unchanged payload required through qualification. Final evidence is outside that archive.",
+    "files": 178
+  },
+  "current_stage": "archive_first",
+  "completed_stages": [
+    "payload",
+    "tools"
+  ],
+  "error_name": "CommandFailed",
+  "cleanup_error": null,
+  "workspace": {
+    "path": "/tmp/jqz-verify-dist-2dc9972746827f59daf5d8e9",
+    "removed": true
+  },
+  "artifacts": {
+    "directory": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6",
+    "archive": null,
+    "payload_manifest": {
+      "path": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/payload.json",
+      "bytes": 30438,
+      "sha256": "24b32ec4c64e49bc16d09ce5031d65186fbe7787b75801fb030f5c03738cc5aa"
+    },
+    "cli": null,
+    "corpus": null
+  },
+  "source_tests_passed": null,
+  "consumer_tests_passed": null,
+  "corpus": null,
+  "quarantined_source_artifacts": [],
+  "tools": [
+    {
+      "path": "/home/oleg/.zig/0.17.0/files/zig",
+      "version": "0.17.0",
+      "sha256": "7c61539af19fa4082c94848f1c2b57b89e76dc6cfd5bd4c57764c3caf8f82272"
+    },
+    {
+      "path": "/usr/bin/git",
+      "version": "git version 2.43.0",
+      "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201"
+    },
+    {
+      "path": "/usr/bin/tar",
+      "version": "tar (GNU tar) 1.35\nCopyright (C) 2023 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by John Gilmore and Jay Fenlason.",
+      "sha256": "3ee2c3c0b4dd9aacebfd2f0fbae44bad36348203acff78a44888dd58c05f811c"
+    },
+    {
+      "path": "/usr/bin/gzip",
+      "version": "gzip 1.12\nCopyright (C) 2018 Free Software Foundation, Inc.\nCopyright (C) 1993 Jean-loup Gailly.\nThis is free software.  You may redistribute copies of it under the terms of\nthe GNU General Public License <https://www.gnu.org/licenses/gpl.html>.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Jean-loup Gailly.",
+      "sha256": "afea077ce127d4fa9ad410d3066ba2b54dea19c0b44f04adf56c72d5f7b7a9bb"
+    },
+    {
+      "path": "/usr/bin/jq",
+      "version": "jq-1.7",
+      "sha256": "59cfd58d7e470b103aede0e7589cfea929e45ee27f5471f08aa9676ac7bfc566"
+    },
+    {
+      "path": "/usr/bin/time",
+      "version": "time (GNU Time) UNKNOWN\nCopyright (C) 2018 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David Keppel, David MacKenzie, and Assaf Gordon.",
+      "sha256": "3b11dec50514a8473e9f6efa7a34d584d0657538c09988f61b72d38ad4991a10"
+    },
+    {
+      "path": "/usr/bin/rm",
+      "version": "rm (GNU coreutils) 9.4\nCopyright (C) 2023 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Paul Rubin, David MacKenzie, Richard M. Stallman,\nand Jim Meyering.",
+      "sha256": "78721a1709e77e74163f73067cef7049496463325adb300f4b7fd6155fca1c62"
+    },
+    {
+      "path": "/usr/bin/rmdir",
+      "version": "rmdir (GNU coreutils) 9.4\nCopyright (C) 2023 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David MacKenzie.",
+      "sha256": "a5f021a2a7ebbde761e035114aacc1ef071bbc81d85e6431b843d9e25a0ce85f"
+    }
+  ],
+  "capture_limit_bytes_per_stream": 8388608,
+  "commands": [
+    {
+      "label": "tool-version",
+      "argv": [
+        "/home/oleg/.zig/0.17.0/files/zig",
+        "version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/000-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/000-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "tool-version",
+      "argv": [
+        "/usr/bin/git",
+        "--version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/001-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/001-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "tool-version",
+      "argv": [
+        "/usr/bin/tar",
+        "--version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/002-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/002-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "tool-version",
+      "argv": [
+        "/usr/bin/gzip",
+        "--version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/003-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/003-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "tool-version",
+      "argv": [
+        "/usr/bin/jq",
+        "--version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/004-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/004-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "tool-version",
+      "argv": [
+        "/usr/bin/time",
+        "--version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/005-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/005-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "tool-version",
+      "argv": [
+        "/usr/bin/rm",
+        "--version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/006-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/006-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "tool-version",
+      "argv": [
+        "/usr/bin/rmdir",
+        "--version"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/007-tool-version.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/007-tool-version.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "snapshot-head",
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/008-snapshot-head.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/008-snapshot-head.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "snapshot-status",
+      "argv": [
+        "/usr/bin/git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/009-snapshot-status.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/009-snapshot-status.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "package",
+      "argv": [
+        "/home/oleg/.zig/0.17.0/files/zig",
+        "build",
+        "dist"
+      ],
+      "cwd": "/home/oleg/prog/zig-json-query",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/010-package.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/010-package.stderr.log",
+      "outcome": "timed_out",
+      "exit_code": -15,
+      "cleanup_error": null,
+      "success": false
+    },
+    {
+      "label": "cleanup",
+      "argv": [
+        "/usr/bin/rm",
+        "/tmp/jqz-verify-dist-2dc9972746827f59daf5d8e9/.jqz-verify-dist-owner"
+      ],
+      "cwd": "/",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/011-cleanup.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/011-cleanup.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    },
+    {
+      "label": "cleanup",
+      "argv": [
+        "/usr/bin/rmdir",
+        "/tmp/jqz-verify-dist-2dc9972746827f59daf5d8e9"
+      ],
+      "cwd": "/",
+      "timeout_ms": 100,
+      "global_cache": null,
+      "local_cache": null,
+      "package_dir": null,
+      "stdout_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/012-cleanup.stdout.log",
+      "stderr_log": "/home/oleg/prog/zig-json-query/zig-out/verify-dist/run-9dd78185063fd7ba1cc450a6/012-cleanup.stderr.log",
+      "outcome": "completed",
+      "exit_code": 0,
+      "cleanup_error": null,
+      "success": true
+    }
+  ]
+}

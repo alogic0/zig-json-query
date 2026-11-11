@@ -61,9 +61,10 @@ four version-workflow, three qualification-runner and eighteen profiler checks),
 plus eight separate-package consumer tests on 0.26.2. Changed checks ran before
 their commits; all 220 executed on the final version.
 These checks include retention ownership, Unicode sizing, immutable edits and
-structural sets. The current standalone checkpoint below also verifies 0.26.2
-from an extraction and independent consumer, with fresh caches. The historical
-0.12.0 checkpoint remains unchanged.
+structural sets. The standalone checkpoints below verify extraction and an
+independent consumer with fresh caches. The current automated 0.27.1 checkpoint
+adds eight verifier tests to those 220 checks; the historical 0.26.2 and 0.12.0
+evidence remains unchanged.
 
 ## Behavior differences
 
@@ -134,7 +135,66 @@ retaining the original sorter/comparator after rejected experiments. Its
 complete-document construction, expression/path work and sorting costs. Additional
 language features need new practical evidence.
 
-## Current standalone source and consumer (0.26.2)
+## Automated standalone source and consumer (0.27.1)
+
+`zig build verify-dist` passed on the clean implementation/fix snapshot
+`c5f8fa415e5d7a5376fa0b767c2f3e4b3b6cde7b`. The
+[unchanged generated evidence](2026-11-11-verify-dist-evidence.json) records all
+15 stages and 41 successful commands, including cleanup. Two archives contain
+identical bytes: 1,757,755 bytes, SHA-256
+`eec2ae0179be88b872a3a8222c3191155afab515b36f02e101cfc59d0d3f38e2`.
+The [payload manifest](2026-11-11-verify-dist-payload.json) covers all 178 regular
+files and intended directories. The verifier checks safe paths, exact content,
+complete membership, duplicate/link/special-file rejection and the three bundled
+dependency checksums before building the extracted source.
+
+The [source tests](2026-11-11-verify-dist-source-tests.log) pass all 228 checks,
+including eight verifier checks, and the
+[build](2026-11-11-verify-dist-source-build.log) produces `jqz 0.27.1` using fresh
+local/global caches and an absent relative package directory. The
+[corpus replay](2026-11-11-verify-dist-replay.json) passes all 45 cases, with
+30/30 selected observed translations, ten probes and 68 smoke samples at one
+repetition. The [runner log](2026-11-11-verify-dist-corpus.log) and report agree;
+every case, invocation, exit, sample and reported source hash is validated.
+These samples establish packaged behavior; earlier repeated performance evidence
+remains the timing checkpoint and observed coverage does not increase.
+
+All five source artifact paths (local/global caches, `zig-pkg`, `zig-out` and the
+residual default `.zig-cache`) are quarantined before starting the sibling
+consumer. Its independent fresh-cache
+[run passes all eight checks](2026-11-11-verify-dist-consumer-tests.log). Those
+source artifact paths remain absent afterwards; all source file hashes still
+match. Consumer build/main files remain byte-identical, with only the manifest
+dependency path changed. Both source and consumer are independent Git projects.
+The owned workspace is removed with plain `rm`/`rmdir` and no cleanup errors.
+All validation uses native x86_64 Linux Debug.
+
+A separate deliberate `--timeout-ms 100` run
+[records failure](2026-11-11-verify-dist-timeout.json): its first packaging command
+times out, exits nonzero, launches no consumer and removes its workspace. The
+successful report is preserved at a distinct output path. The first 0.27.0 run
+exposed an argument-lifetime bug and is excluded; 0.27.1 fixes it with a caller
+buffer mutation regression, and only the complete 0.27.1 run is qualified.
+
+Archive, Debug CLI, every command log and the original per-run report remain
+under `zig-out/verify-dist/run-0ac2fa8e5d71c68b6e8aab61`. The evidence records the
+commands, tool identities, log paths and artifact sizes/hashes. The generated evidence,
+manifest, replay and selected raw logs above are byte-for-byte copies; their
+recorded absolute artifact paths refer to that retained local run. Report hashes
+are `410fd62a18517ca9699f63beaa07017adcdf4f0169e3edc9679f6ce673cc6716`
+(successful evidence) and
+`1f0c2e00b18f6b220ba9c167a5b294a7b5a4a8d62f4ddd7ef0e74bca906ff428`
+(intentional timeout). Rebuild snapshot `c5f8fa4` to reproduce the source payload;
+Debug executable paths and timing samples can vary between runs.
+
+These result files and documentation are added after qualification, so the
+qualified archive does not contain its own results/hash. Later documentation
+commits can change complete archive bytes while preserving the qualified code.
+Usage, deadlines, failure handling and focused-test behavior are described in
+the [README](../../README.md) and
+[completed implementation plan](../plans/2026-11-11-verify-dist.md).
+
+## Historical standalone source and consumer (0.26.2)
 
 [2026-11-11-package-evidence.json](2026-11-11-package-evidence.json) records the
 qualified 1,713,603-byte source snapshot at commit
