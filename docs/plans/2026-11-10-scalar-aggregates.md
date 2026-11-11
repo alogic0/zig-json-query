@@ -36,7 +36,7 @@ Use Zig for implementation and native x86_64 Linux Debug for all validation.
    source diagnostics and nested/empty/error/overflow/allocation tests. Update
    language documentation. Check the current version and increment its minor
    component using `zig build version -- set`; commit the verified feature.
-3. [ ] Add scalar grouping and sorting, sharing row sorting/group construction
+3. [x] Add scalar grouping and sorting, sharing row sorting/group construction
    with stream stages. Cover parser compatibility, stable ordering, structural
    keys, nested scopes/paths, lifetime/retention and allocation failure. Extend
    the separate package consumer. Document the functions and commit with the
@@ -62,3 +62,12 @@ language/library, 33 CLI, four version-workflow and three qualification-runner
 tests). Six new sum tests cover generated wider-integer reference totals,
 malformed calls, existing stage syntax, source paths, exact tokens and exhaustive
 allocation failures. Formatting and diff checks passed.
+
+Slice 3, version 0.14.0: native Debug build, all 163 project tests (123
+language/library, 33 CLI, four version-workflow and three qualification-runner)
+and five separate-consumer tests passed. Ten new tests cover exact stable
+sorting, structural first-seen grouping, empty identities, nested scopes,
+postfix/operator parsing, source diagnostics, generated independent models,
+retained buffer lifetimes, retention-budget boundaries and exhaustive allocation
+failures. The new shared row module is included in qualification fingerprints.
+Formatting and diff checks passed.

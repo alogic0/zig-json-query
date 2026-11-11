@@ -100,6 +100,11 @@ value is an in-range integer. Division is exact, fractions and overflow are
 errors, and remainder follows the dividend's sign. Number preservation and
 unbounded-token decimal comparison keep their separate contracts.
 
+Scalar `sum(array)` uses the same checked integer addition in array order,
+including intermediate-overflow checks, with `0` for an empty array. It locates
+bad elements against the argument's source path when available. Parsing
+distinguishes this call from the bare stream stage using the next token.
+
 `mean` and `divide` provide explicit bounded decimal statistics with a mandatory
 0..18-place precision. Normalized inputs have i128 coefficients and at most 18
 fractional places. Zig i512 intermediates align scales, sum exactly and perform
@@ -115,6 +120,17 @@ validated before retention, keeping the sort comparator infallible. Results
 are individual records. `group_by` uses structural equality, preserves first-seen
 group order and input order within groups, and emits one array per group. The
 initial grouping scan is quadratic; sorting/grouping empty streams emit nothing.
+
+The two-argument scalar forms `sort_by(array,key)` and `group_by(array,key)`
+return one array, with `[]` for empty input. They cache each key once per item in
+a scalar arena, borrow the original values, and restore the caller's item/path
+scope after key evaluation. `rows.zig` shares stable sorting and group-array
+construction across scalar and stream execution. Validation also shares exact
+numeric, uniform sort-key and structural group-key rules. Scalar group order is
+first-seen; summaries explicitly sort when ascending group keys are required.
+The parser distinguishes top-level stage calls from scalar calls by arity;
+scalar calls support postfix access and operators in the ordinary expression
+parser. Retaining stages clone their results into the existing shared budget.
 
 When `take(n)` is satisfied, every stage up to that point stops accepting work.
 The last accepted value still travels downstream, and later aggregates finish.
@@ -182,6 +198,8 @@ tracks shorthand, container functions, relative indexes/slices and scalar array
 transformations motivated by real acceptance/compiler sessions.
 The [automation plan](docs/plans/2026-11-10-automation.md) adds shell gates,
 external arguments, batch input/provenance, quantified predicates and statistics.
+The [scalar-aggregate plan](docs/plans/2026-11-10-scalar-aggregates.md) adds totals,
+grouping and sorting inside report fields in response to workflow qualification.
 The [qualification report](docs/validation-2026-11-09.md) records runtime tests,
 fuzz coverage and benchmark evidence. Routine validation uses native x86_64
 Linux Debug. Earlier GNU/musl and other-mode results remain historical evidence.

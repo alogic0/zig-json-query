@@ -27,6 +27,11 @@ pub const Transform = struct {
     array: *const Node,
     body: *const Node,
 };
+pub const KeyedArray = struct {
+    kind: enum { sort, group },
+    array: *const Node,
+    key: *const Node,
+};
 pub const Node = struct {
     offset: usize,
     height: usize,
@@ -45,6 +50,7 @@ pub const Node = struct {
         keys: *const Node,
         sum: *const Node,
         transform: Transform,
+        keyed_array: KeyedArray,
         mean: struct { array: *const Node, places: u8 },
         decimal_divide: struct { lhs: *const Node, rhs: *const Node, places: u8 },
         matches: struct { value: *const Node, pattern: usize },
@@ -243,8 +249,13 @@ pub const Parser = struct {
                 try self.advance();
                 try self.expect(.lparen, "expected ( before key expression");
                 const key = try self.expression(0);
-                try self.expect(.rparen, "expected ) after key expression");
-                try stages.append(self.allocator, if (sorting) .{ .sort = .{ .offset = offset, .key = key } } else .{ .group = .{ .offset = offset, .key = key } });
+                if (self.token.tag == .comma) {
+                    const value = try self.keyedArrayTail(offset, if (sorting) .sort else .group, key);
+                    try stages.append(self.allocator, .{ .expression = try self.expressionTail(value, 0) });
+                } else {
+                    try self.expect(.rparen, "expected ) after key expression");
+                    try stages.append(self.allocator, if (sorting) .{ .sort = .{ .offset = offset, .key = key } } else .{ .group = .{ .offset = offset, .key = key } });
+                }
             } else if (self.word("take")) {
                 const offset = self.token.start;
                 try self.advance();
@@ -293,7 +304,11 @@ pub const Parser = struct {
         self.recursion += 1;
         defer self.recursion -= 1;
         if (self.recursion > 128) return self.fail(self.token.start, "expression nesting exceeds 128 levels");
-        var lhs = try self.postfix(try self.primary());
+        return self.expressionTail(try self.primary(), min_precedence);
+    }
+
+    fn expressionTail(self: *Parser, initial: *const Node, min_precedence: u8) Error!*const Node {
+        var lhs = try self.postfix(initial);
         while (self.operator()) |op| {
             if (op.precedence < min_precedence) break;
             const offset = self.token.start;
@@ -302,6 +317,13 @@ pub const Parser = struct {
             lhs = try self.make(offset, .{ .binary = .{ .op = op.op, .lhs = lhs, .rhs = rhs } }, @max(lhs.height, rhs.height) + 1);
         }
         return lhs;
+    }
+
+    fn keyedArrayTail(self: *Parser, offset: usize, kind: @FieldType(KeyedArray, "kind"), source: *const Node) Error!*const Node {
+        try self.expect(.comma, "scalar sort_by/group_by expects an array and a per-element key");
+        const key = try self.expression(0);
+        try self.expect(.rparen, "expected ) after array key expression");
+        return self.make(offset, .{ .keyed_array = .{ .kind = kind, .array = source, .key = key } }, @max(source.height, key.height) + 1);
     }
 
     fn jsonLiteral(self: *Parser) Error!std.json.Value {
@@ -363,6 +385,12 @@ pub const Parser = struct {
                     try self.expect(.lparen, "expected ( after input_filename");
                     try self.expect(.rparen, "input_filename takes no arguments");
                     return self.make(offset, .input_filename, 1);
+                }
+                if (self.word("sort_by") or self.word("group_by")) {
+                    const sorting = self.word("sort_by");
+                    try self.advance();
+                    try self.expect(.lparen, "expected ( before array expression");
+                    return self.keyedArrayTail(offset, if (sorting) .sort else .group, try self.expression(0));
                 }
                 if (self.word("mean") or self.word("divide")) {
                     const division = self.word("divide");

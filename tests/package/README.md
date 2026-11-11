@@ -2,9 +2,9 @@
 
 This is an independent Zig build/package graph. In the checkout, run
 `zig build test --summary all` from `tests/package`; its dependency points at
-`../..`. Four tests cover the earlier stream/sort/group interface and the
-expanded binding, named-feed, slurp, quantifier, decimal-statistics and predicate
-status APIs. They overwrite caller buffers and destroy the input collector
+`../..`. Five tests cover the earlier stream/sort/group interface and the
+expanded binding, named-feed, slurp, quantifier, decimal-statistics, scalar-array
+aggregate and predicate-status APIs. They overwrite caller buffers and destroy the input collector
 before finishing downstream retention to check ownership through the public API.
 
 For standalone qualification, copy `build.zig`, `build.zig.zon` and `main.zig`

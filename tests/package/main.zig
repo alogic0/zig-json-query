@@ -16,6 +16,22 @@ test "external consumer owns sessions and composes new stages" {
     try std.testing.expectEqualStrings("18014398509481988\n", output.written());
 }
 
+test "external consumer composes scalar totals and ordered groups within a report" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "{passed, total: sum(map(.rows,.v)), groups: sort_by(map(group_by(.rows,.k),{key: .[0].k, count: length(.)}),.key)} | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var session = try program.start(t.allocator, &output.writer, &diagnostic, .{});
+    defer session.deinit();
+    var input = "{\"passed\":false,\"rows\":[{\"k\":2,\"v\":9007199254740993},{\"k\":1,\"v\":1},{\"k\":2,\"v\":2}]}".*;
+    _ = try session.feed(&input);
+    @memset(&input, 'x');
+    try session.finish();
+    try t.expectEqualStrings("[{\"passed\":false,\"total\":9007199254740996,\"groups\":[{\"key\":1,\"count\":1},{\"key\":2,\"count\":2}]}]\n", output.written());
+}
+
 test "external consumer combines owned bindings named feeds predicates and decimal statistics" {
     const t = std.testing;
     var diagnostic: query.Diagnostic = .{};

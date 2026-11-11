@@ -155,6 +155,8 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `sum(.items)` | Sum one array of integers inside an expression; `0` for an empty array |
 | `sort`, `sort_by(.age)` | Buffer records, then emit them in stable ascending key order |
 | `group_by(.team)` | Emit one array per equal key, in first-seen key order |
+| `sort_by(.items, .age)` | One stably sorted array, with `.` bound to each item for its key |
+| `group_by(.items, .team)` | One array of groups, in first-seen key order |
 | `{name: .name, age: .age}` | Construct one object |
 | `{name, age, count: length(.items)}` | Shorthand strict fields mixed with computed values |
 | `[.name, .age]` | Construct one array; does not collect a stream |
@@ -289,8 +291,9 @@ evaluation after `n` values, while downstream aggregates still finish:
 End-of-stream signals propagate in pipeline order, so `count | collect` on empty
 input produces `[0]`, and `collect | collect` produces `[[]]`.
 An aggregate's output can be filtered, projected or expanded like any other
-value. `count`, `collect`, `sort`, `sort_by`, `group_by` and `take` are stream
-stages. Bare `sum` is a stream stage; `sum(array)` is a scalar function.
+value. `count`, `collect`, `sort` and `take` are stream stages. Bare `sum` and
+one-argument `sort_by(key)` / `group_by(key)` are stream stages. `sum(array)`
+and two-argument `sort_by(array,key)` / `group_by(array,key)` are scalar functions.
 
 `sum(array)` evaluates its argument once and adds its elements in array order.
 It uses the same checked integer rules as the stream stage, including overflow
@@ -301,7 +304,7 @@ other report fields:
 {status, reviewed_moves: sum(map(.artifact_differences, .changed_moves))}
 ```
 
-An empty array gives `0`. Nonarrays, missing arguments, nonnumeric or fractional
+An empty array gives `0`. Nonarrays, missing values, nonnumeric or fractional
 elements and values outside i128 fail. Element errors identify the original array
 index when its source path is available.
 
@@ -370,11 +373,33 @@ records with equal keys. Groups appear in first-seen key order; records within
 a group retain input order. Missing keys error. Empty input emits nothing.
 Unlike jq's `group_by`, this stage does not sort groups by their keys.
 
+`sort_by(array, key)` and `group_by(array, key)` provide the same key rules and
+ordering inside scalar expressions. They evaluate the array once, then evaluate
+each key once with `.` bound to that item, restoring the caller's scope afterward.
+Both return one array, including `[]` for empty input, which does not evaluate
+the key expression. Scalar grouping returns an array of group arrays. Original
+item values and number tokens are preserved; missing keys require an explicit
+default. Source paths identify failing key expressions when available.
+
+To retain report context and match jq's ascending status-group order, sort the
+constructed summaries explicitly:
+
+```text
+{
+  passed,
+  statuses: sort_by(
+    map(group_by(.http, .status), {status: .[0].status, count: length(.)}),
+    .status
+  )
+}
+```
+
 Both stages share the collection budget and the existing ownership, error,
 early-stop and ordered-completion contracts. A downstream `take(0)` avoids
 reading input; a positive downstream limit still requires source completion.
-Sorting is stable and in-place after buffering; grouping initially uses a
-quadratic scan of retained keys. There is no spill-to-disk fallback.
+Sorting is stable and in-place after buffering; grouping uses a quadratic scan
+of keys. The scalar forms reuse these algorithms with temporary rows and keys.
+There is no spill-to-disk fallback.
 
 ## Scope and limits
 
@@ -395,8 +420,8 @@ All retaining stages in a session share a 64 MiB limit on live retained allocato
 requests, including arena/container capacity. Library callers can override it
 with `StreamOptions.max_collect_bytes`. This is not a process RSS limit: input
 parsing, scalar temporaries, writer buffers and allocator metadata are separate.
-Materialized `map`/`filter` arrays and `keys` results use those scalar-stage
-temporaries, rather than the retention budget. Retaining their results charges
+Materialized `map`/`filter` arrays, `keys` results and scalar sort/group rows,
+keys and arrays use those scalar-stage temporaries. Retaining their results charges
 the existing shared budget and copies borrowed input values.
 Retained sort/group keys and grouping scratch count too. Passing values between retaining stages
 temporarily retains both copies within that shared budget. A limit failure
@@ -496,6 +521,8 @@ Generated checks compare stream compositions, decimal comparisons, integer
 arithmetic, stable sorting and grouping order with independent reference models.
 Fault injection covers every allocation in a sorting/grouping/arithmetic handoff.
 The separate `tests/package` consumer checks the exported module boundary.
+The [scalar-aggregate plan](docs/plans/2026-11-10-scalar-aggregates.md) records
+implementation and qualification of report totals and grouped summaries.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
 dependencies included and build caches excluded; it requires GNU tar.
 

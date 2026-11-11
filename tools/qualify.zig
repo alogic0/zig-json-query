@@ -56,7 +56,7 @@ pub fn main(init: std.process.Init) !void {
     const provenance = try read(Provenance, a, io, provenance_path);
     if (manifest.schema_version != 1 or provenance.schema_version != 1) return error.UnknownCorpusSchema;
     var source_hashes: std.ArrayList(Hash) = .empty;
-    for ([_][]const u8{ "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/buffered.zig", "src/collection_budget.zig", "src/diagnostic.zig", "tools/qualify.zig", manifest_path, provenance_path, "vendor/SHA256SUMS" }) |path| try source_hashes.append(a, .{ .path = path, .sha256 = try digestFile(a, io, path) });
+    for ([_][]const u8{ "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/parser.zig", "src/evaluator.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/buffered.zig", "src/rows.zig", "src/collection_budget.zig", "src/diagnostic.zig", "tools/qualify.zig", manifest_path, provenance_path, "vendor/SHA256SUMS" }) |path| try source_hashes.append(a, .{ .path = path, .sha256 = try digestFile(a, io, path) });
     const tools = [_]Tool{ try pin(a, io, "jqz", options.exe, "jqz " ++ options.version), try pin(a, io, "jq", jq_path, jq_version) };
     const time = try pinVersion(a, io, "/usr/bin/time");
     const time_hash = try digestFile(a, io, "/usr/bin/time");

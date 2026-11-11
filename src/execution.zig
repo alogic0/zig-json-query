@@ -280,14 +280,7 @@ fn retain(self: *Self, index: usize, input: Value, key_node: ?*const syntax.Node
     const key = if (key_node) |node| try self.evaluator.evalRequired(temporary.allocator(), node, input) else input;
     if (!scalar.withinDepth(key, 0)) return self.fail(offset, "key nesting exceeds 128 levels");
     const buffered = &self.states[index].buffered;
-    if (sorting) {
-        if (key != .number_string and key != .string) return self.fail(offset, "sort keys must all be numbers or all strings");
-        if (buffered.rows.items.len != 0 and std.meta.activeTag(key) != std.meta.activeTag(buffered.rows.items[0].key)) return self.fail(offset, "sort keys must all be numbers or all strings");
-        _ = try self.evaluator.compare(key, key, offset);
-    } else {
-        // Validate every nested numeric exponent before any grouping shortcuts.
-        _ = try self.evaluator.equal(key, key, offset, 0);
-    }
+    try self.evaluator.validateKey(key, if (buffered.rows.items.len == 0) null else buffered.rows.items[0].key, offset, sorting);
     self.budget.denied = false;
     buffered.append(input, key) catch |err| return self.retentionError(offset, if (sorting) "sort exceeded the session memory limit" else "group_by exceeded the session memory limit", err);
 }

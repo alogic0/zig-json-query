@@ -3,6 +3,7 @@ const regex = @import("regex");
 const syntax = @import("parser.zig");
 const number = @import("number.zig");
 const statistics = @import("statistics.zig");
+const row_ops = @import("rows.zig");
 const Diagnostic = @import("diagnostic.zig").Diagnostic;
 const Path = @import("diagnostic.zig").Path;
 const Value = std.json.Value;
@@ -245,6 +246,7 @@ pub const Evaluator = struct {
                     .map, .filter => Value{ .array = result },
                 };
             },
+            .keyed_array => |operation| try self.keyedArray(allocator, node, input, operation),
             .mean => |mean| blk: {
                 const source = try self.evalRequired(allocator, mean.array, input);
                 if (source != .array) return self.typeFailure(node, mean.array, "mean expects an array of numbers");
@@ -297,6 +299,50 @@ pub const Evaluator = struct {
                 break :blk Value{ .array = array };
             },
         };
+    }
+
+    fn keyedArray(self: *Evaluator, allocator: A, node: *const Node, input: Value, operation: syntax.KeyedArray) Error!Value {
+        const source = try self.evalRequired(allocator, operation.array, input);
+        if (source != .array) return self.typeFailure(node, operation.array, "scalar sort_by/group_by expects an array");
+        const rows = try allocator.alloc(row_ops.Row, source.array.items.len);
+        const caller_path = self.path;
+        defer self.path = caller_path;
+        const array_path = self.pathFor(operation.array);
+        for (source.array.items, 0..) |item, index| {
+            self.path = array_path;
+            if (self.path.len != 0) self.path.index(index);
+            const key = try self.evalRequired(allocator, operation.key, item);
+            self.validateKey(key, if (index == 0) null else rows[0].key, node.offset, operation.kind == .sort) catch |err| {
+                self.locate(operation.key);
+                return err;
+            };
+            rows[index] = .{ .value = item, .key = key };
+        }
+        self.path = caller_path;
+        var result = std.json.Array.init(allocator);
+        if (operation.kind == .sort) {
+            row_ops.sort(rows);
+            try result.ensureTotalCapacity(rows.len);
+            for (rows) |row| result.appendAssumeCapacity(row.value);
+        } else {
+            const visited = try allocator.alloc(bool, rows.len);
+            @memset(visited, false);
+            for (rows, 0..) |_, start| {
+                if (!visited[start]) try result.append(try row_ops.group(allocator, rows, visited, start, self, node.offset));
+            }
+        }
+        return .{ .array = result };
+    }
+
+    pub fn validateKey(self: *Evaluator, key: Value, first: ?Value, offset: usize, sorting: bool) Error!void {
+        if (sorting) {
+            if (key != .number_string and key != .string) return self.fail(offset, "sort keys must all be numbers or all strings");
+            if (first) |initial| if (std.meta.activeTag(key) != std.meta.activeTag(initial)) return self.fail(offset, "sort keys must all be numbers or all strings");
+            _ = try self.compare(key, key, offset);
+        } else {
+            // Validate nested numeric exponents even for a single group key.
+            _ = try self.equal(key, key, offset, 0);
+        }
     }
 
     fn typeFailure(self: *Evaluator, node: *const Node, argument: *const Node, message: []const u8) Error {
