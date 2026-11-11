@@ -610,10 +610,12 @@ launch, IO capture and scheduling. Inputs are preloaded and caches warmed; these
 native Debug measurements guide investigation and do not establish optimized
 performance. `zig build test-profile` checks the profiler and allocation meter.
 The [profile report](docs/profiling/README.md) records measurements, limits and
-the next experiments suggested by them.
+the original experiments suggested by them. The completed
+[performance report](docs/profiling/performance-2026-11-11.md) records the accepted
+parser/structural improvements and matched original/current CLI comparisons.
 The [parser/runtime performance plan](docs/plans/2026-11-11-parser-and-runtime-performance.md)
-tracks those experiments and measured optimization steps.
-`zig build profile -- --study parser --repeat 10 --out .zig-cache/parser.json`
+records those completed experiments and measured optimization steps.
+`zig build profile -- --study parser --repeat 14 --out .zig-cache/parser.json`
 separates depth/scanner experiments, standard DOM allocation traffic and matched
 full-parser controls. Scanner experiments overlap full parsing; they are not
 additive timings or duplicate-key validation. Logical token/container requests

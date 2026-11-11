@@ -3,9 +3,12 @@
 The [initial implementation plan](../plans/2026-11-10-workload-qualification.md),
 [scalar-aggregate follow-up](../plans/2026-11-10-scalar-aggregates.md) and
 [remaining-workflow plan](../plans/2026-11-10-remaining-workflows.md) track these
-checkpoints. [The latest evidence](2026-11-11-remaining-workflows.json) records
-jqz 0.18.1 versus installed jq 1.7, including queries/flags, source/fixture/binary
-hashes and raw measurements. The historical [0.14.0 evidence](2026-11-10-scalar-aggregates.json)
+checkpoints. [The latest evidence](2026-11-11-performance.json) records
+jqz 0.22.0 versus installed jq 1.7 after the
+[performance plan](../plans/2026-11-11-parser-and-runtime-performance.md), including
+queries/flags, source/fixture/binary hashes and raw measurements. The historical
+[0.18.1 evidence](2026-11-11-remaining-workflows.json),
+[0.14.0 evidence](2026-11-10-scalar-aggregates.json)
 and [0.12.0 evidence](2026-11-10.json) remain unchanged. The
 [corpus notes](../../tests/qualification/README.md) explain source recovery,
 sanitization and reconstruction limits.
@@ -52,10 +55,11 @@ The three remaining gaps now pass their unchanged frozen jq expectations:
 sorted-output component checks compact bytes, including nested object-key order.
 The earlier embedded grouping/totals translations still pass.
 
-Native Debug build/tests pass: 195 project checks (145 language/library, 37 CLI,
-four version-workflow, three qualification-runner and six profiler/meter), plus
-eight separate-package consumer tests. Changed checks ran before their commits;
-the final invocation reused valid cached checks and ran the final consumer tests.
+Native Debug build/tests pass: 210 project checks (154 language/library, 37 CLI,
+four version-workflow, three qualification-runner and twelve profiler checks),
+plus eight separate-package consumer tests on 0.22.0. Changed checks ran before
+their commits; the final full invocation ran 198 checks and reused twelve valid
+cached profiler checks.
 These checks include retention ownership, Unicode sizing, immutable edits and
 structural sets. The consumer uses the checkout; the standalone archive checkpoint
 below remains version 0.12.0.
@@ -94,33 +98,37 @@ was available for all 340 samples.
 
 | Case | jqz median ms | jq median ms | jqz median RSS MiB | jq median RSS MiB |
 | --- | ---: | ---: | ---: | ---: |
-| Report summary, 990 bytes | 10.661 | 4.192 | 6.172 | 3.461 |
-| Serialized sample size, 264 bytes | 9.566 | 4.078 | 6.047 | 3.578 |
-| Normalized configuration, 115 bytes | 9.425 | 4.152 | 6.047 | 3.465 |
-| Distinct schema shapes, 990 bytes | 9.393 | 4.090 | 6.172 | 3.551 |
-| 2,837 generated commands, 507,825 bytes | 54.519 | 16.001 | 13.422 | 8.102 |
-| 10,000 HTTP + 10,000 fixtures, 860,080 bytes | 101.977 | 24.315 | 18.242 | 18.402 |
+| Report summary, 990 bytes | 10.702 | 4.304 | 6.203 | 3.566 |
+| Serialized sample size, 264 bytes | 9.714 | 4.498 | 6.078 | 3.547 |
+| Normalized configuration, 115 bytes | 9.605 | 4.237 | 5.953 | 3.520 |
+| Distinct schema shapes, 990 bytes | 10.789 | 4.101 | 6.078 | 3.621 |
+| 2,837 generated commands, 507,825 bytes | 37.650 | 16.957 | 9.703 | 8.156 |
+| 10,000 HTTP + 10,000 fixtures, 860,080 bytes | 64.533 | 27.517 | 15.828 | 18.473 |
 
-For the last two cases, jqz wall-time ranges were 54.326–57.584 ms and
-98.189–103.065 ms; jq ranges were 12.515–17.401 ms and 23.279–25.683 ms.
+For the last two cases, jqz wall-time ranges were 36.191–40.444 ms and
+63.307–68.963 ms; jq ranges were 14.670–17.751 ms and 26.697–32.465 ms.
 All 34 timed cases had higher jqz median wall time. The larger report had
-comparable peak RSS. Small cases are strongly affected by startup and process
+lower peak RSS in this run. Small cases are strongly affected by startup and process
 supervision/capture. Scale fixtures preserve shapes/cardinalities, not original
 payload bytes/distributions. Five repetitions, warm caches, Debug versus an
 installed distribution binary, and these selected jobs do not establish general
-performance advantages. The separate [phase profile](../profiling/README.md)
-isolates engine phases and requested allocation capacity. Differences from
-historical runs do not establish an engine speedup.
+performance advantages. The separate
+[performance report](../profiling/performance-2026-11-11.md) records matched
+original/current comparisons, phase measurements and requested allocation
+capacity. Differences between historical qualification runs alone do not
+establish an engine speedup.
 
 ## Priorities supported by this sample
 
 All four follow-up priorities are complete: serialization/sizing, immutable
 configuration edits and sorted output, structural distinctness, and a measured
-Debug profile. No selected observed workflow remains unsupported. The next work
-is performance investigation guided by the [profile findings](../profiling/README.md):
-subdivide parsing/DOM construction, isolate process/supervision overhead, and
-investigate comparison-copy allocation for large structural sets before choosing
-optimizations. Additional language features need new practical evidence.
+Debug profile. No selected observed workflow remains unsupported. The subsequent
+[performance plan](../plans/2026-11-11-parser-and-runtime-performance.md) is also
+complete: parser construction and structural comparison allocation improved,
+while controlled launch studies support the existing batching/reuse interfaces.
+The [performance report](../profiling/performance-2026-11-11.md) identifies remaining
+complete-document construction and key-materialization/sorting costs. Additional
+language features need new practical evidence.
 
 ## Historical standalone source and consumer (0.12.0)
 

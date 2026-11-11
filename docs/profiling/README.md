@@ -1,5 +1,10 @@
 # Native Debug phase profile
 
+The completed [0.22.0 performance report](performance-2026-11-11.md) records the
+accepted parser/structural improvements, controlled invocation comparisons,
+rejected experiments and final verification. Its linked raw runs are the latest
+evidence. The phase tables below preserve the original 0.18.1 baseline.
+
 [2026-11-11.json](2026-11-11.json) records jqz 0.18.1, Zig 0.17.0,
 x86_64-linux-gnu, CPU `znver4`, Linux `7.0.0-42-generic`. This completes the
 profiling slice of the [implementation plan](../plans/2026-11-10-remaining-workflows.md).
@@ -85,11 +90,13 @@ The larger interval includes process/runtime initialization, stdin/output
 capture, supervision and scheduling, as well as engine work. It cannot identify
 which of those costs dominates without a controlled launch baseline.
 
-## Findings and next experiments
+## Original findings and completed experiments
 
 The [parser/runtime performance plan](../plans/2026-11-11-parser-and-runtime-performance.md)
-defines the measurement controls, implementation slices and acceptance gates for
-these next steps. Implementation has not started.
+completed these investigations in 0.22.0. The
+[performance report](performance-2026-11-11.md) explains their controls, accepted
+changes and remaining costs. The following priorities describe the original
+0.18.1 observations that motivated that plan.
 
 1. Whole-document parsing dominates the selected large count projections.
    Split depth scanning, JSON tokenization, DOM construction and arena growth
@@ -105,7 +112,7 @@ these next steps. Implementation has not started.
    choosing caching or a different deduplication strategy. Preserve exact
    numeric equality, sorted results and first original representatives.
 
-These are measured investigation priorities, with no engine speedup claimed.
+These were investigation priorities, before the matched implementation studies.
 The inputs are selected and highly repetitive, the build is Debug, and the
 instrumented writer/meter differ from an ordinary CLI invocation. Profiles
 were run after qualification, without overlapping benchmark runners.

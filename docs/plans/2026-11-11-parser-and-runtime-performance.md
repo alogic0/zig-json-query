@@ -1,6 +1,6 @@
 # Parsing, invocation overhead and structural-set memory
 
-Status: implementation in progress; authorized on 2026-11-11.
+Status: completed on 2026-11-11 in jqz 0.22.0; authorized on 2026-11-11.
 
 ## Objective and baseline
 
@@ -142,7 +142,7 @@ and runtime optimizations are separate commits.
      arrays, exponent/depth failures, stable representatives, caller-buffer reuse
      and allocation cleanup. Apply the same time/memory regression gates to
      repeated and all-distinct inputs; commit only accepted runtime improvements.
-7. [ ] Complete native Debug build/tests and separate-consumer verification.
+7. [x] Complete native Debug build/tests and separate-consumer verification.
    Run the full workflow qualification at five repetitions and the matched
    performance suite at the established repetition count. Preserve all 30
    selected observed translations, all 45 existing corpus cases and ten intentional probes
@@ -169,12 +169,12 @@ Negative experiments are recorded honestly. All functional checks pass in the
 one routine mode; historical evidence remains intact. No fixed speedup, RSS
 reduction or support for unseen jq workflows is promised by the existing sample.
 
-## Planning validation
+## Initial planning validation
 
 Reviewed the current input/parser boundary, structural comparison-copy path,
 profiling harness, pinned Zig parser allocation defaults and completed evidence.
-This change records the implementation plan only; runtime/profiler changes,
-new benchmark runs and implementation checkboxes remain pending.
+At the initial documentation commit, runtime/profiler changes, new benchmark
+runs and implementation checkboxes remained pending.
 Linked repository documents and `git diff --check` were verified. No package
 version increment is needed for this documentation-only slice.
 
@@ -293,3 +293,30 @@ median is 44.330 ms current versus 66.436 ms original; backend count is 81.794
 versus 121.714 ms, about 33% lower in each case. Current controls are 42.639 and
 80.846 ms. This confirms the complete invocation benefits while keeping its
 combined startup/IO/supervision costs explicit. Twelve profiler checks pass.
+
+Slice 7, final 0.22.0 verification: native Debug `zig build` and `zig build test`
+pass all 210 project checks (198 executed in the final full invocation, twelve
+valid cached profiler checks), plus eight separate-package consumer checks.
+The [full qualification](../qualification/2026-11-11-performance.json) preserves
+all 45 corpus cases, 30/30 selected observed translations and ten intentional
+probes against unchanged frozen expectations. All 340 timed samples have RSS.
+
+The final [phase profile](../profiling/2026-11-11-performance.json) records 490
+phase intervals and ten null-query launches; the
+[parser comparison](../profiling/2026-11-11-parser-final.json) has 490 samples,
+the [structural comparison](../profiling/2026-11-11-structural-final.json) 800,
+and the original/current invocation comparison 170. Final parser medians are
+26.340/54.621 ms versus 49.661/96.479 ms reference on commands/backend. Repeated
+structural preparation still requests 71% fewer bytes with a 42% lower backing
+peak, and all five full-query distributions improve without a peak increase.
+The predeclared gates pass. Source and tool fingerprints match the evidence;
+historical raw evidence and frozen corpus files remain unchanged.
+
+The [completed report](../profiling/performance-2026-11-11.md) records accepted
+changes, both rejected reproducible parser patches, launch/batching limits,
+remaining costs and reproduction commands. The original 0.18.1 binary is retained
+as an ignored local artifact after removing its temporary checkout. Launch
+controls did not justify a startup runtime change; bounded structural borrowing
+and compaction passed without hash-based deduplication. No new query syntax,
+external tool or extra build mode was needed. Documentation links and
+`git diff --check` pass; this final evidence/documentation slice keeps 0.22.0.
