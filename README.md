@@ -581,6 +581,8 @@ zig build check
 zig build fuzz -Dfuzz-target='fuzz parser' --fuzz=10000
 zig build fuzz -Dfuzz-target='fuzz evaluator' --fuzz=10000
 zig build dist
+zig build test-verify-dist
+zig build verify-dist
 zig fmt --check build.zig build.zig.zon src tests tools
 ```
 
@@ -652,8 +654,18 @@ The completed [standalone-package plan](docs/plans/2026-11-11-standalone-package
 and [package checkpoint](docs/qualification/2026-11-11-package-evidence.json) record
 byte-identical archive rebuilds, fresh extracted-source checks and an independent
 consumer for 0.26.2, plus practical report/configuration queries checked against jq.
-The [verification automation plan](docs/plans/2026-11-11-verify-dist.md) tracks
-the Zig `verify-dist` command and its failure/isolation checks.
+`zig build verify-dist` automates archive reproducibility/content checks, fresh
+source tests/build, a one-repetition corpus replay and the separate consumer.
+It uses native x86_64 Linux Debug and the existing Zig, Git, GNU tar/gzip/coreutils,
+jq 1.7 and GNU time tools. Evidence defaults to `zig-out/verify-dist/evidence.json`;
+each run retains its archive, CLI, manifest, corpus JSON and bounded command logs
+beside that file. Use `-- --out FILE --timeout-ms 600000` to choose another report
+or per-command deadline. Output must be under `zig-out` or outside the checkout,
+with no symlink ancestors. A failed check stops dependent work, exits nonzero and
+records the failure; cleanup errors prevent a verified result. Only its marked
+temporary workspace is removed. `zig build test` includes the focused verifier
+tests and never launches full qualification. The
+[implementation plan](docs/plans/2026-11-11-verify-dist.md) records the stages.
 
 See [DESIGN.md](DESIGN.md), the completed
 [stream plan](docs/plans/2026-11-09-stream-runtime.md), the

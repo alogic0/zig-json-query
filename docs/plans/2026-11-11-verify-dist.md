@@ -1,6 +1,7 @@
 # Automated standalone-package qualification
 
-Status: authorized implementation in progress, starting from jqz 0.26.2.
+Status: implementation verified in native Debug as jqz 0.27.0; full standalone
+qualification and final checkpoint documentation are next.
 
 ## Objective
 
@@ -58,7 +59,7 @@ remove that file with plain `rm` after success.
 1. [x] Record this plan and inspect current packaging, command, filesystem and
    workspace APIs. Check the existing inventory, keep all dependencies pinned
    and link the plan from project/package documentation. Commit the plan.
-2. [ ] Implement the Zig verifier and `verify-dist` build target:
+2. [x] Implement the Zig verifier and `verify-dist` build target:
    - Add shared payload/manifest validation, archive reproducibility/content
      checks, dependency checksums and safe output/workspace handling.
    - Add source/corpus/consumer orchestration, checked command transitions,
@@ -80,6 +81,12 @@ remove that file with plain `rm` after success.
    behavior and historical checkpoints unchanged.
 
 ## Completion
+
+Feature checks: native `zig build`, `zig build test --summary all` (227 tests),
+seven focused verifier checks, CLI help compilation, synchronized version markers
+and formatting/diff checks passed. The feature snapshot is committed before the
+explicit full qualification below; these focused checks make no standalone
+qualification claim by themselves.
 
 One explicit build command performs the previously manual source/consumer
 qualification and leaves inspectable evidence. Every required check is executed

@@ -17,5 +17,10 @@ package directory. This Zig 0.17.0 installation uses `ZIG_GLOBAL_CACHE_DIR`,
 not a `zig build --global-cache-dir` option; keep `ZIG_LOCAL_PKG_DIR` relative.
 Use native Debug, with no target/optimization overrides.
 
+From the project root, `zig build verify-dist` automates these steps, including
+quarantining all source caches/artifacts before starting this consumer. The
+[implementation plan](../../docs/plans/2026-11-11-verify-dist.md) describes its
+isolation, evidence and cleanup checks.
+
 The [qualification report](../../docs/qualification/README.md) records the
 executed source-package and separate-consumer checkpoint and archive hashes.

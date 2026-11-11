@@ -1,4 +1,5 @@
 const std = @import("std");
+const dist_layout = @import("tools/dist_layout.zig");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -152,14 +153,39 @@ pub fn build(b: *std.Build) void {
     tests.dependOn(&run_profile_tests.step);
     b.step("test-profile", "Check phase measurements and allocation accounting").dependOn(&run_profile_tests.step);
 
-    const archive = b.addSystemCommand(&.{
-        "tar",                  "--format=gnu",      "--sort=name",       "--mtime=@0", "--owner=0", "--group=0", "--numeric-owner", "--mode=u+rwX,go+rX,go-w",
-        "--exclude=.zig-cache", "--exclude=zig-pkg", "--exclude=zig-out", "-czf",
+    const dist_options = b.addOptions();
+    dist_options.addOption([]const u8, "root", b.root.joinString(b.allocator, "") catch @panic("OOM"));
+    dist_options.addOption([]const u8, "compiler", b.graph.zig_exe);
+    dist_options.addOption([]const u8, "version", @import("build.zig.zon").version);
+    dist_options.addOption([]const u8, "archive_name", "zig-json-query-" ++ @import("build.zig.zon").version ++ ".tar.gz");
+    dist_options.addOption(bool, "native_requested", target.query.isNative());
+    const dist_module = b.createModule(.{
+        .root_source_file = b.path("tools/verify_dist.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+        .imports = &.{.{ .name = "test_support", .module = support }},
     });
+    dist_module.addOptions("dist_options", dist_options);
+    const verifier = b.addExecutable(.{ .name = "verify-dist", .root_module = dist_module });
+    const run_verifier = b.addRunArtifact(verifier);
+    run_verifier.setCwd(b.path("."));
+    run_verifier.addPassthruArgs();
+    run_verifier.has_side_effects = true;
+    b.step("verify-dist", "Verify a standalone source archive, isolated corpus replay and consumer (native Debug)").dependOn(&run_verifier.step);
+    const verifier_tests = b.addTest(.{ .root_module = dist_module });
+    const run_verifier_tests = b.addRunArtifact(verifier_tests);
+    tests.dependOn(&run_verifier_tests.step);
+    b.step("test-verify-dist", "Check distribution validation, cleanup and failure gating without full qualification").dependOn(&run_verifier_tests.step);
+
+    const archive = b.addSystemCommand(&.{
+        "tar", "--format=gnu", "--sort=name", "--mtime=@0", "--owner=0", "--group=0", "--numeric-owner", "--mode=u+rwX,go+rX,go-w",
+    });
+    for (dist_layout.excluded) |name| archive.addArg(b.fmt("--exclude={s}", .{name}));
+    archive.addArg("-czf");
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.26.2.tar.gz");
-    archive.addArgs(&.{ "build.zig", "build.zig.zon", ".zigversion", ".gitignore", "AGENTS.md", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" });
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.26.2.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.27.0.tar.gz");
+    archive.addArgs(dist_layout.roots);
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.27.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }
