@@ -197,6 +197,28 @@ pub const Evaluator = struct {
                 }
                 break :blk Value{ .array = array };
             },
+            .sum => |child| blk: {
+                const source = try self.evalRequired(allocator, child, input);
+                if (source != .array) return self.typeFailure(node, child, "sum expects an array of integers");
+                const array_path = self.pathFor(child);
+                var total: i128 = 0;
+                for (source.array.items, 0..) |value, index| {
+                    var path = array_path;
+                    if (path.len != 0) path.index(index);
+                    const term = self.integer(value, node.offset) catch |err| {
+                        self.diagnostic.path = path;
+                        self.diagnostic.path_reported = true;
+                        return err;
+                    };
+                    total = number.arithmetic(.add, total, term) catch |err| {
+                        const failure = self.integerFailure(node.offset, err);
+                        self.diagnostic.path = path;
+                        self.diagnostic.path_reported = true;
+                        return failure;
+                    };
+                }
+                break :blk try integerValue(allocator, total);
+            },
             .transform => |transform| blk: {
                 const source = try self.evalRequired(allocator, transform.array, input);
                 if (source != .array) return self.typeFailure(node, transform.array, "array function expects an array");

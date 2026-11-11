@@ -43,6 +43,7 @@ pub const Node = struct {
         exists: *const Node,
         length: *const Node,
         keys: *const Node,
+        sum: *const Node,
         transform: Transform,
         mean: struct { array: *const Node, places: u8 },
         decimal_divide: struct { lhs: *const Node, rhs: *const Node, places: u8 },
@@ -121,6 +122,12 @@ pub const Parser = struct {
 
     fn word(self: *const Parser, expected: []const u8) bool {
         return self.token.tag == .identifier and std.mem.eql(u8, self.text(), expected);
+    }
+
+    fn followedByCall(self: *const Parser) Error!bool {
+        var lookahead = self.*;
+        try lookahead.advance();
+        return lookahead.token.tag == .lparen;
     }
 
     fn advance(self: *Parser) Error!void {
@@ -226,7 +233,7 @@ pub const Parser = struct {
                 const offset = self.token.start;
                 try self.advance();
                 try stages.append(self.allocator, .{ .each = offset });
-            } else if (self.word("count") or self.word("collect") or self.word("sum") or self.word("sort")) {
+            } else if (self.word("count") or self.word("collect") or (self.word("sum") and !try self.followedByCall()) or self.word("sort")) {
                 const stage: Stage = if (self.word("count")) .{ .count = self.token.start } else if (self.word("sum")) .{ .sum = self.token.start } else if (self.word("sort")) .{ .sort = .{ .offset = self.token.start, .key = null } } else .{ .collect = self.token.start };
                 try self.advance();
                 try stages.append(self.allocator, stage);
@@ -386,17 +393,18 @@ pub const Parser = struct {
                 const matches = self.word("matches");
                 const length = self.word("length");
                 const keys = self.word("keys");
+                const sum = self.word("sum");
                 const mapping = self.word("map");
                 const filtering = self.word("filter");
                 const all = self.word("all");
                 const any = self.word("any");
-                if (!exists and !matches and !length and !keys and !mapping and !filtering and !all and !any) return self.fail(offset, "unknown expression; fields start with .");
+                if (!exists and !matches and !length and !keys and !sum and !mapping and !filtering and !all and !any) return self.fail(offset, "unknown expression; fields start with .");
                 try self.advance();
                 try self.expect(.lparen, "expected ( after function name");
                 const value = try self.expression(0);
-                if (exists or length or keys) {
+                if (exists or length or keys or sum) {
                     try self.expect(.rparen, "expected ) after function argument");
-                    return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else .{ .keys = value }, value.height + 1);
+                    return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else if (keys) .{ .keys = value } else .{ .sum = value }, value.height + 1);
                 }
                 if (mapping or filtering or all or any) {
                     try self.expect(.comma, "array function expects an array and a per-element expression");

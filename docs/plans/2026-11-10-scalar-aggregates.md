@@ -32,7 +32,7 @@ Use Zig for implementation and native x86_64 Linux Debug for all validation.
 ## Verified commit slices
 
 1. [x] Record this implementation plan before changing the language.
-2. [ ] Implement `sum(array)` with parser disambiguation, exact numeric rules,
+2. [x] Implement `sum(array)` with parser disambiguation, exact numeric rules,
    source diagnostics and nested/empty/error/overflow/allocation tests. Update
    language documentation. Check the current version and increment its minor
    component using `zig build version -- set`; commit the verified feature.
@@ -57,4 +57,8 @@ explicitly classified. No additional target or optimization-mode matrix is run.
 
 ## Validation record
 
-Plan recorded; implementation checks pending.
+Slice 2, version 0.13.0: native Debug build and all 153 tests passed (113
+language/library, 33 CLI, four version-workflow and three qualification-runner
+tests). Six new sum tests cover generated wider-integer reference totals,
+malformed calls, existing stage syntax, source paths, exact tokens and exhaustive
+allocation failures. Formatting and diff checks passed.

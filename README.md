@@ -152,6 +152,7 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `collect` | Retain arriving values and emit one array when the stream ends |
 | `take(10)` | Forward at most ten values, then stop upstream processing |
 | `sum` | Sum arriving integers and emit one exact integer; `0` for empty input |
+| `sum(.items)` | Sum one array of integers inside an expression; `0` for an empty array |
 | `sort`, `sort_by(.age)` | Buffer records, then emit them in stable ascending key order |
 | `group_by(.team)` | Emit one array per equal key, in first-seen key order |
 | `{name: .name, age: .age}` | Construct one object |
@@ -288,8 +289,21 @@ evaluation after `n` values, while downstream aggregates still finish:
 End-of-stream signals propagate in pipeline order, so `count | collect` on empty
 input produces `[0]`, and `collect | collect` produces `[[]]`.
 An aggregate's output can be filtered, projected or expanded like any other
-value. Aggregates, `sort`, `sort_by`, `group_by` and `take` are stages, not scalar
-expression functions.
+value. `count`, `collect`, `sort`, `sort_by`, `group_by` and `take` are stream
+stages. Bare `sum` is a stream stage; `sum(array)` is a scalar function.
+
+`sum(array)` evaluates its argument once and adds its elements in array order.
+It uses the same checked integer rules as the stream stage, including overflow
+of an intermediate total. It works inside summary objects without discarding
+other report fields:
+
+```text
+{status, reviewed_moves: sum(map(.artifact_differences, .changed_moves))}
+```
+
+An empty array gives `0`. Nonarrays, missing arguments, nonnumeric or fractional
+elements and values outside i128 fail. Element errors identify the original array
+index when its source path is available.
 
 Skipped records are not validated, and errors in skipped upstream expressions
 are not evaluated. Buffered IO may already have read ahead. Except for queries
