@@ -1,0 +1,1 @@
+where((.event? ?? null) == "function") | .function? ?? null | collect | {completed:length(.),last:.[-1]? ?? null}

@@ -1,0 +1,1 @@
+where((.event? ?? null) == "function" and (.selected? ?? null) == false) | {boundary:.selector_detail? ?? null,function:.function? ?? null} | group_by(tojson(.boundary)) | [.[0].boundary,.] | collect | sort_by(map(sort_values(.),{boundary:.[0],count:length(.[1]),examples:map(.[1][0:2],.function)}),0-.count)

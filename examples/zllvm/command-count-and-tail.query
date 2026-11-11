@@ -1,0 +1,1 @@
+[length(.),{argv:.[-1]?.argv? ?? null,returncode:.[-1]?.returncode? ?? null}] | each

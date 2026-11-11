@@ -1,0 +1,1 @@
+where((.event? ?? null) == "function" and (.selected? ?? null) == false) | {tag:.selector_tag? ?? null,detail:.selector_detail? ?? null,function:.function? ?? null} | group_by(tojson([.tag,.detail])) | [.[0].tag,.[0].detail,.] | collect | sort_by(map(sort_values(.),{tag:.[0],detail:.[1],count:length(.[2]),functions:map(.[2],.function)}),0-.count)

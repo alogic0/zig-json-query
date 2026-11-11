@@ -1,6 +1,7 @@
 # z_llvm jq usage and jqz translations
 
-Status: authorized audit and translation work, using jqz 0.28.0.
+Status: extraction and translation experiments verified with jqz 0.28.0;
+final report/evidence documentation and private-file cleanup are next.
 
 ## Scope
 
@@ -27,13 +28,13 @@ and will be removed after producing the query-only inventory.
 1. [x] Locate project guidance, session records, existing sanitized compiler
    provenance, query scripts and actual report inputs. Freeze the audit boundary
    and commit this plan before writing translation artifacts.
-2. [ ] Extract a conservative literal-query inventory with a Zig helper. Respect
+2. [x] Extract a conservative literal-query inventory with a Zig helper. Respect
    shell quoting and ignore heredoc bodies; never evaluate shell text, command
    substitutions, dynamic paths or query interpolation. Report extraction limits
    and preserve record references. Keep private commands and report payloads out
    of committed artifacts. Classify retained scripts separately from confirmed
    inline invocations.
-3. [ ] Write representative reusable jqz query files for real compiler jobs,
+3. [x] Write representative reusable jqz query files for real compiler jobs,
    including full original windows/fields where supported. Run jq and jqz with
    explicit argv and bounded process capture against existing inputs. Compare
    exact bytes or ordered JSON values with exact-decimal comparison, output
@@ -53,3 +54,27 @@ behavior, so the binary under comparison stays at 0.28.0. Any necessary runtime
 fix/feature would require its own verified slice and the normal pinned version
 workflow. Commit messages use a temporary file and `git commit -F`; remove the
 message file after success with plain `rm`.
+
+## Experiment verification
+
+The conservative scanner recognizes 2,711 command-position invocations, all
+named `jq`, with 1,225 distinct literal inline filters. There are 305 dynamic
+contexts and 90 `-f` invocations naming 22 query-file paths. It recognizes 215
+`--slurpfile` uses and eleven `--rawfile` uses. These are bounded lexical counts,
+not an exhaustive shell trace; original command bodies remain private.
+
+The 30-filter translation manifest matches 1,148 recognized uses. On retained
+inputs, 62 differential checks cover 27 filters: 56 pass across 25 equivalent
+filters, and six checks demonstrate two reviewed differences (joined raw output
+and exact-decimal duration calculations). Three further filters have no directly
+resolvable retained input and remain unverified. Actual inputs are hashed before
+and after each pair; outputs are represented by sizes/hashes only. Query files
+are checked against the manifest before execution. No historical shell command
+is executed and no compiler workload is launched.
+
+Seven fresh Zig audit checks pass, including independent jq expectations for
+truthiness, empty completion, multiple results, negative `-e` status, null group
+keys, tie ordering and the NUL protocol difference. Native Debug project build
+and tests also pass, reusing unchanged cached results. The extraction/checking
+helper and its shared mapping/fixture data form one verified experiment slice;
+the final interpretation and preserved result files are a separate slice.

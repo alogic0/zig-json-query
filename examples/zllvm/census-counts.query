@@ -1,0 +1,1 @@
+where((.event? ?? null) == "function") | tojson((.selected? ?? null) == null or (.selected? ?? null) == false) | group_by(.) | {failed:.[0] == "true",n:length(.)} | collect | {examined:sum(map(.,.n)),failed:sum(map(filter(.,.failed),.n))}

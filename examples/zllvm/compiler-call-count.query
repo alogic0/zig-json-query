@@ -1,0 +1,1 @@
+{commands:length(.),compiler_calls:length(filter(.,matches(.argv[0],"/z_llvm$"))),last:.[-1]?.argv? ?? null}
