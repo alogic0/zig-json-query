@@ -63,6 +63,8 @@ their commits; all 220 executed on the final version.
 These checks include retention ownership, Unicode sizing, immutable edits and
 structural sets. The consumer uses the checkout; the standalone archive checkpoint
 below remains version 0.12.0.
+The [standalone-package plan](../plans/2026-11-11-standalone-package.md) records
+the current archive/extraction/consumer qualification work.
 
 ## Behavior differences
 
