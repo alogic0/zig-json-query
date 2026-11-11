@@ -26,6 +26,7 @@ evaluator: scalar.Evaluator,
 writer: *std.Io.Writer,
 budget: Budget,
 raw_output: bool,
+last_output: enum { none, false_or_null, other } = .none,
 lifecycle: enum { active, failed, finished } = .active,
 // Exhausting take at index i closes every stage through i. Stages after i can
 // still receive its last value and finish their own aggregates.
@@ -79,6 +80,14 @@ pub fn checkActive(self: *const Self) Error!void {
 
 pub fn needsInput(self: *const Self) bool {
     return self.lifecycle == .active and self.closed_through == null;
+}
+
+pub fn predicateStatus(self: *const Self) u8 {
+    return switch (self.last_output) {
+        .none => 4,
+        .false_or_null => 1,
+        .other => 0,
+    };
 }
 
 pub fn abort(self: *Self) void {
@@ -195,6 +204,11 @@ fn stageInner(self: *Self, index: usize, input: Value) Error!void {
             try self.writer.writeAll(input.string);
         } else try std.json.Stringify.value(input, .{}, self.writer);
         try self.writer.writeByte('\n');
+        self.last_output = switch (input) {
+            .null => .false_or_null,
+            .bool => |value| if (value) .other else .false_or_null,
+            else => .other,
+        };
         return;
     }
     switch (self.stages[index]) {

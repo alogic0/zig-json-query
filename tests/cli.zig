@@ -25,6 +25,28 @@ test "CLI reads stdin and emits filtered records" {
     try check(&.{"each | where(false)"}, "[1,2]", 0, "", null);
 }
 
+test "CLI exit-status mode uses the last value without changing output" {
+    try check(&.{ "-e", "." }, "false", 1, "false\n", null);
+    try check(&.{ "--exit-status", "." }, "null", 1, "null\n", null);
+    try check(&.{ "-e", "each" }, "[false,true]", 0, "false\ntrue\n", null);
+    try check(&.{ "-e", "each" }, "[true,false]", 1, "true\nfalse\n", null);
+    try check(&.{ "-e", "each" }, "[0,\"\",[],{}]", 0, "0\n\"\"\n[]\n{}\n", null);
+    try check(&.{ "-e", "where(false)" }, "{}", 4, "", null);
+    try check(&.{ "-e", "-r", "." }, "\"\"", 0, "\n", null);
+    try check(&.{ "-e", "-r", "." }, "\"false\"", 0, "false\n", null);
+    try check(&.{"."}, "false", 0, "false\n", null);
+}
+
+test "CLI exit-status mode handles aggregates early stops and error precedence" {
+    try check(&.{ "-e", "--ndjson", "each" }, "", 4, "", null);
+    try check(&.{ "-e", "--ndjson", "count" }, "", 0, "0\n", null);
+    try check(&.{ "-e", "take(0) | collect" }, "{bad}", 0, "[]\n", null);
+    try check(&.{ "-e", "each | take(1)" }, "[false,true]", 1, "false\n", null);
+    try check(&.{ "-e", ".missing" }, "{}", 2, "", "absent");
+    try check(&.{ "-e", "." }, "{bad}", 2, "", "SyntaxError");
+    try check(&.{ "-e", "--ndjson", "." }, "false\n{bad}\n", 2, "false\n", "<stdin>:2:");
+}
+
 test "CLI streams NDJSON with blank lines CRLF and no trailing newline" {
     try check(&.{ "--ndjson", ".x? ?? false" }, "{\"x\":0}\r\n\n{}\n{\"x\":true}", 0, "0\nfalse\ntrue\n", null);
     try check(&.{ "--ndjson", "." }, "", 0, "", null);
@@ -86,8 +108,12 @@ test "CLI input and EOF failures do not emit buffered partial aggregates" {
 }
 
 fn expectExitWithOpenInput(source: []const u8, input: []const u8, expected: []const u8) !void {
+    return expectExitWithOpenInputArgs(&.{ exe, "--ndjson", source }, input, expected);
+}
+
+fn expectExitWithOpenInputArgs(argv: []const []const u8, input: []const u8, expected: []const u8) !void {
     var child = try S.process.Child.spawn(t.allocator, t.io, .{
-        .argv = &.{ exe, "--ndjson", source },
+        .argv = argv,
         .stdin = .pipe,
         .stdout = .pipe,
         .stderr = .pipe,
@@ -141,6 +167,7 @@ test "CLI take terminates with stdin still open after enough records" {
     try expectExitWithOpenInput("take(2) | collect", "1\n2\n", "[1,2]\n");
     try expectExitWithOpenInput("take(0) | count", "", "0\n");
     try expectExitWithOpenInput("collect | take(0) | collect", "", "[]\n");
+    try expectExitWithOpenInputArgs(&.{ exe, "-e", "--ndjson", "take(1) | collect" }, "false\n", "[false]\n");
 }
 
 test "CLI raw output preserves JSON for non-strings and accepts long option" {

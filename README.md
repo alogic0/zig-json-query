@@ -83,6 +83,12 @@ an explicit non-stdin input file. Query files have the same 64 KiB text limit.
 `zig-json-query`.
 
 Exit status is 0 for success (including zero matches) and 2 for any error.
+With `-e` / `--exit-status`, successful completion returns 1 when the last
+emitted value is false or null, 4 when nothing was emitted, and 0 otherwise.
+Zero, empty strings/containers and raw strings such as `"false"` return 0.
+The status uses the JSON value before raw serialization. Errors still return 2
+and take precedence over previously emitted values. Output remains unchanged.
+For a shell gate, use `jqz -e '.passed and .cleanup_passed' report.json`.
 An error stops processing; output produced before the error remains on stdout.
 Failed streams discard buffered aggregates instead of emitting partial totals.
 

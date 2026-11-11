@@ -74,6 +74,12 @@ deep-copies values into session-owned storage. Completion visits aggregate stage
 in pipeline order, forwarding their outputs before completing later aggregates.
 Thus aggregates compose across NDJSON records and handle empty streams.
 
+Sessions record only the classification of the last fully emitted value, not
+its storage. `Stream.predicateStatus()` maps false/null to 1, absence of output
+to 4 and all other values to 0. CLI `-e` applies this after successful completion
+and flushing, while all execution/IO errors retain status 2. Raw output does not
+affect classification or strict boolean expression semantics.
+
 `sum` and scalar arithmetic operate on checked signed 128-bit integers. Decimal
 tokens are converted by digit/exponent normalization only if their mathematical
 value is an in-range integer. Division is exact, fractions and overflow are

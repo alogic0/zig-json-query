@@ -7,7 +7,7 @@ const Execution = @import("execution.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = 64 * 1024 * 1024;
-pub const version = "0.6.0";
+pub const version = "0.7.0";
 
 pub const Program = struct {
     allocator: std.mem.Allocator,
@@ -75,6 +75,12 @@ pub const Stream = struct {
 
     pub fn needsInput(self: *const Stream) bool {
         return self.execution.needsInput();
+    }
+
+    /// After successful completion: 0 for a last value other than false/null,
+    /// 1 for false/null, 4 for no output. Execution/IO failures take precedence.
+    pub fn predicateStatus(self: *const Stream) u8 {
+        return self.execution.predicateStatus();
     }
 
     /// Returns whether another input value is needed. Once take is satisfied,
@@ -154,6 +160,7 @@ test {
     _ = @import("stream_tests.zig");
     _ = @import("followup_tests.zig");
     _ = @import("summary_tests.zig");
+    _ = @import("automation_tests.zig");
     _ = @import("property_tests.zig");
     _ = @import("fuzz_tests.zig");
 }

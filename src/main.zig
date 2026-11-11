@@ -10,6 +10,7 @@ const usage =
     \\
     \\  --ndjson                  Parse one JSON record per nonblank line
     \\  -r, --raw-output          Write strings raw; other values as JSON
+    \\  -e, --exit-status         Status 1 for false/null, 4 for no output
     \\  -f, --from-file FILE      Read the query from FILE (only once)
     \\  --                       End options (e.g. before a negative query)
     \\  -h, --help               Show this help
@@ -33,6 +34,7 @@ const usage =
     \\        Retaining stages share 64 MiB; no disk spilling.
     \\take stops upstream work; skipped records are not validated.
     \\Exit: 0 success (including no matches), 2 query/input/evaluation/IO error.
+    \\With -e: last output determines 0/1/4; errors still return 2.
     \\
 ;
 
@@ -54,6 +56,7 @@ fn run(init: std.process.Init) !u8 {
     var errors = std.Io.File.stderr().writer(io, &error_buffer);
     var ndjson = false;
     var raw_output = false;
+    var exit_status = false;
     var options = true;
     var query_file: ?[]const u8 = null;
     var positional: [2][]const u8 = undefined;
@@ -75,6 +78,8 @@ fn run(init: std.process.Init) !u8 {
             ndjson = true;
         } else if (options and (std.mem.eql(u8, arg, "-r") or std.mem.eql(u8, arg, "--raw-output"))) {
             raw_output = true;
+        } else if (options and (std.mem.eql(u8, arg, "-e") or std.mem.eql(u8, arg, "--exit-status"))) {
+            exit_status = true;
         } else if (options and (std.mem.eql(u8, arg, "-f") or std.mem.eql(u8, arg, "--from-file"))) {
             if (query_file != null) return argumentError(&errors.interface, "only one -f query source is allowed");
             index += 1;
@@ -122,7 +127,7 @@ fn run(init: std.process.Init) !u8 {
     defer program.deinit();
     var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output });
     defer stream.deinit();
-    var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = label, .output = &output.interface, .errors = &errors.interface };
+    var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = label, .output = &output.interface, .errors = &errors.interface, .exit_status = exit_status };
     if (!stream.needsInput()) return runner.finish();
     const file = if (from_stdin) std.Io.File.stdin() else std.Io.Dir.cwd().openFile(io, path.?, .{}) catch |err| return fileError(&errors.interface, label, "open input file", err);
     defer if (!from_stdin) file.close(io);
@@ -178,6 +183,7 @@ const Runner = struct {
     label: []const u8,
     output: *std.Io.Writer,
     errors: *std.Io.Writer,
+    exit_status: bool,
 
     fn evaluate(self: *Runner, bytes: []const u8, line: usize) !u8 {
         _ = self.stream.feed(bytes) catch |err| return self.report(err, bytes, line);
@@ -187,7 +193,7 @@ const Runner = struct {
     fn finish(self: *Runner) !u8 {
         self.stream.finish() catch |err| return self.report(err, "", null);
         self.output.flush() catch |err| return fileError(self.errors, self.label, "write output", err);
-        return 0;
+        return if (self.exit_status) self.stream.predicateStatus() else 0;
     }
 
     fn report(self: *Runner, err: anyerror, input: []const u8, line: ?usize) !u8 {

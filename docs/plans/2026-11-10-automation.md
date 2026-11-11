@@ -1,6 +1,6 @@
 # Automation and report comparison
 
-Status: planned; implementation authorized on 2026-11-10.
+Status: in progress; implementation authorized on 2026-11-10.
 
 ## Objective
 
@@ -15,16 +15,16 @@ uses native x86_64 Linux Debug only.
 
 ### 1. Predicate exit status (0.7.0)
 
-- [ ] Track the last successfully emitted JSON value in the execution session,
+- [x] Track the last successfully emitted JSON value in the execution session,
   independently of raw serialization, without retaining the value itself.
-- [ ] Expose `Stream.predicateStatus()`: 0 for any last value except false/null,
+- [x] Expose `Stream.predicateStatus()`: 0 for any last value except false/null,
   1 for false/null, 4 for no emitted value. Zero, empty strings/containers are
   values and produce 0. This output classification does not change strict
   boolean expression/predicate semantics.
-- [ ] Add `-e` / `--exit-status` to the CLI. Apply the status after successful
+- [x] Add `-e` / `--exit-status` to the CLI. Apply the status after successful
   completion and output flush. Query/input/evaluation/IO errors retain status 2
   and take precedence. Default successful status remains 0, including no output.
-- [ ] Cover last-value ordering, raw strings, empty/no-output streams, completion
+- [x] Cover last-value ordering, raw strings, empty/no-output streams, completion
   aggregates, early stop, open stdin, error precedence and failed output writes.
 
 ### 2. Typed external arguments (0.8.0)
@@ -116,4 +116,7 @@ plan's cross-reference when finished.
 
 ## Verification record
 
-Implementation has not started.
+- 0.7.0: native Debug `zig build test --summary all` passed 105 tests (80 library,
+  21 CLI, 4 version workflow). Includes raw-output classification, completion and
+  last-value behavior, early termination with stdin open, IO/error precedence.
+  Native Debug build and formatting checks passed.
