@@ -79,6 +79,8 @@ positional arguments then name input files. Options can precede or follow
 positional arguments until `--`. Multiple `-f` options are errors. `-f -` reads
 the query from stdin and requires explicit named input files, without `-` input.
 Query files have the same 64 KiB text limit.
+The [null-input implementation plan](docs/plans/2026-11-11-null-input.md)
+records the next CLI increment for constructing JSON from arguments.
 `--version` prints the package version.
 
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
