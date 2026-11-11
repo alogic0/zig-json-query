@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "status": "archive_verified",
+  "status": "source_verified",
   "version": "0.26.2",
   "verified_at_utc": "2026-11-11T13:07:36Z",
   "target": "x86_64-linux-gnu",
@@ -18,7 +18,8 @@
     "regular_files_and_directories_only": true,
     "file_manifest": "docs/qualification/2026-11-11-package-files.sha256",
     "file_manifest_sha256": "97d0d0ccac92e35d2814b35d0c6ad22868fb3344e7f92ba52a5a455791558c44",
-    "snapshot_note": "Qualified snapshot at the plan commit. Package-result documents are written after archiving to avoid a self-referential hash. Later documentation commits do not have this complete archive hash; runtime/corpus identity is checked separately."
+    "snapshot_note": "Qualified snapshot at the plan commit. Package-result documents are written after archiving to avoid a self-referential hash. Later documentation commits do not have this complete archive hash; runtime/corpus identity is checked separately.",
+    "retained_path": "zig-out/qualification/zig-json-query-0.26.2-db25365.tar.gz"
   },
   "toolchain": {
     "zig_version": "0.17.0",
@@ -72,6 +73,111 @@
         "zig-pkg",
         "zig-out"
       ]
+    },
+    {
+      "id": "extracted-files",
+      "cwd": "<workspace>/source",
+      "argv": [
+        "sha256sum",
+        "--check",
+        "<workspace>/snapshot.sha256"
+      ],
+      "exit_code": 0,
+      "files": 159,
+      "checked_before_and_after_build": true,
+      "log": "docs/qualification/2026-11-11-package-source-integrity.log"
+    },
+    {
+      "id": "bundled-dependencies",
+      "cwd": "<workspace>/source/vendor",
+      "argv": [
+        "sha256sum",
+        "--check",
+        "SHA256SUMS"
+      ],
+      "exit_code": 0,
+      "passed": 3,
+      "log": "docs/qualification/2026-11-11-package-vendor-integrity.log"
+    },
+    {
+      "id": "source-tests",
+      "cwd": "<workspace>/source",
+      "env": {
+        "ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/source-global",
+        "ZIG_LOCAL_PKG_DIR": "zig-pkg"
+      },
+      "argv": [
+        "zig",
+        "build",
+        "test",
+        "--summary",
+        "all",
+        "--cache-dir",
+        "<workspace>/caches/source-local"
+      ],
+      "exit_code": 0,
+      "tests": {
+        "total": 220,
+        "language_library": 158,
+        "cli": 37,
+        "version_workflow": 4,
+        "qualification_runner": 3,
+        "profiler": 18
+      },
+      "all_checks_executed": true,
+      "log": "docs/qualification/2026-11-11-package-source-tests.log"
+    },
+    {
+      "id": "source-build",
+      "cwd": "<workspace>/source",
+      "env": {
+        "ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/source-global",
+        "ZIG_LOCAL_PKG_DIR": "zig-pkg"
+      },
+      "argv": [
+        "zig",
+        "build",
+        "--summary",
+        "all",
+        "--cache-dir",
+        "<workspace>/caches/source-local"
+      ],
+      "exit_code": 0,
+      "cli_version": "jqz 0.26.2",
+      "cli_sha256": "0734a725fca28f5d0b9c098e7bf7bbeafbe60b0f0c5ebc40041b94a57b010156",
+      "cache_note": "Installs the CLI compiled by the same fresh source-test invocation.",
+      "log": "docs/qualification/2026-11-11-package-source-build.log"
+    },
+    {
+      "id": "packaged-corpus-replay",
+      "cwd": "<workspace>/source",
+      "env": {
+        "ZIG_GLOBAL_CACHE_DIR": "<workspace>/caches/source-global",
+        "ZIG_LOCAL_PKG_DIR": "zig-pkg"
+      },
+      "argv": [
+        "zig",
+        "build",
+        "qualify",
+        "--cache-dir",
+        "<workspace>/caches/source-local",
+        "--",
+        "--repeat",
+        "1",
+        "--out",
+        "<workspace>/source-qualification.json"
+      ],
+      "exit_code": 0,
+      "case_checks": 45,
+      "observed": 30,
+      "translated": 30,
+      "intentional_probes": 10,
+      "smoke_samples": 68,
+      "raw": "docs/qualification/2026-11-11-package-replay.json",
+      "log": "docs/qualification/2026-11-11-package-source-replay.log",
+      "runtime_corpus_fingerprints_match": "docs/qualification/2026-11-11-container-construction.json",
+      "purpose": "Packaged runner/data smoke verification, not a new performance baseline.",
+      "raw_sha256": "d56e3b52afeaf2259a0647a052c0ba88b14e06874610e98eb9172916cd20525e"
     }
   ],
   "required_checks": {
@@ -81,5 +187,19 @@
     "observed_translations": 30,
     "intentional_probes": 10,
     "corpus_smoke_samples": 68
+  },
+  "isolation": {
+    "outside_original_checkout": true,
+    "path_notation": "Temporary prefixes are normalized to <workspace>; source and consumer are independent sibling projects.",
+    "source_repository_initialized": true,
+    "source_local_cache_initially_empty": true,
+    "source_global_cache_initially_empty": true,
+    "source_package_directory_initially_absent": true,
+    "source_local_cache": "<workspace>/caches/source-local",
+    "source_global_cache": "<workspace>/caches/source-global",
+    "consumer_local_cache": "<workspace>/caches/consumer-local",
+    "consumer_global_cache": "<workspace>/caches/consumer-global",
+    "source_and_consumer_cache_paths_distinct": true,
+    "package_cache_setting": "ZIG_LOCAL_PKG_DIR=zig-pkg, relative to each build working directory."
   }
 }

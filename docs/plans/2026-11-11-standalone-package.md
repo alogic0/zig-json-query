@@ -59,7 +59,7 @@ with plain `rm`, without flags.
    - Match archive members to the intended tracked files, check exclusion of
      caches/Git/build outputs, and preserve a complete SHA-256 file manifest.
    - Record compiler/tar identities and keep the qualified archive in `zig-out`.
-3. [ ] Verify a fresh extraction:
+3. [x] Verify a fresh extraction:
    - Initialize an independent source repository outside the checkout and check
      every extracted file against the manifest and all three vendor checksums.
    - With fresh local/global caches and an absent `zig-pkg`, run native Debug
@@ -116,3 +116,18 @@ the snapshot and normalized archive commands/logs. Vendor manifests use only
 bundled file/path dependencies; their license/notice files are present. Remaining
 qualification results are recorded after this frozen archive, without rebuilding
 it to include its own result hash. Version remains 0.26.2.
+
+Slice 3: the independent extraction passes all 220 project checks (158 library,
+37 CLI, four version, three qualification and eighteen profiler checks) with
+initially empty source local/global caches and no package directory. The installed
+CLI reports 0.26.2. All 159 file fingerprints still match after build/replay;
+three vendor checksums pass. The
+[packaged corpus replay](../qualification/2026-11-11-package-replay.json) passes
+all 45 cases, 30/30 observed translations and ten probes, recording 68 smoke
+samples rather than a new timing baseline. Runtime/corpus fingerprints match
+the current checkout evidence. The extracted CLI hash is
+`0734a725fca28f5d0b9c098e7bf7bbeafbe60b0f0c5ebc40041b94a57b010156`;
+its different Debug build paths explain the difference from the checkout binary.
+Raw logs and commands are recorded in the checkpoint. A retained qualified copy
+at `zig-out/qualification/zig-json-query-0.26.2-db25365.tar.gz` protects this
+snapshot if a later `zig build dist` replaces the standard output filename.

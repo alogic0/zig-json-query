@@ -1,0 +1,5241 @@
+{
+  "schema_version": 1,
+  "version": "0.26.2",
+  "zig": "0.17.0",
+  "target": "x86_64-linux-gnu",
+  "optimization": "debug",
+  "cpu_model": "znver4",
+  "measured_at_unix_seconds": 1794402646,
+  "repeat": 1,
+  "tools": [
+    {
+      "name": "jqz",
+      "version": "jqz 0.26.2",
+      "sha256": "0734a725fca28f5d0b9c098e7bf7bbeafbe60b0f0c5ebc40041b94a57b010156"
+    },
+    {
+      "name": "jq",
+      "version": "jq-1.7",
+      "sha256": "59cfd58d7e470b103aede0e7589cfea929e45ee27f5471f08aa9676ac7bfc566"
+    }
+  ],
+  "gnu_time": {
+    "version": "time (GNU Time) UNKNOWN",
+    "sha256": "3b11dec50514a8473e9f6efa7a34d584d0657538c09988f61b72d38ad4991a10"
+  },
+  "method": "Frozen independent output/exit expectations; JSON objects unordered, arrays/results ordered, decimal values exact, raw bytes exact. Preflight warms both tools. Supervised monotonic wall time includes process launch/capture. GNU time child peak RSS is null when zero/unavailable. Rotated tool order. Only equivalent cases timed. Coverage is the hand-selected observed sample, not all session query sites; components/probes/scale cases are separate. No general speed claim.",
+  "coverage": {
+    "observed": 30,
+    "translated": 30,
+    "unsupported": 0,
+    "invocation_adaptations": 1,
+    "components": 3,
+    "semantic_probes": 10,
+    "scale_cases": 2,
+    "measured_cases": 34
+  },
+  "fixtures": [
+    {
+      "id": "backend",
+      "input": "tests/qualification/backend.json",
+      "rows": 0,
+      "bytes": 990,
+      "sha256": "b9da476bef6a50de9d73f069d257dcab09f363dc2fb804025f464fb589d6f651"
+    },
+    {
+      "id": "passed",
+      "input": "tests/qualification/passed.json",
+      "rows": 0,
+      "bytes": 282,
+      "sha256": "51a86ec627f62ea2caf633475adc4d573bfdee70b5e3415d2a4669aa89ec1f02"
+    },
+    {
+      "id": "qualification",
+      "input": "tests/qualification/qualification.json",
+      "rows": 0,
+      "bytes": 346,
+      "sha256": "b073c23bb64d82ca1a79c9ea6bf97d760a4e45cea3aabc0945cccb6ae95433af"
+    },
+    {
+      "id": "compiler",
+      "input": "tests/qualification/compiler.json",
+      "rows": 0,
+      "bytes": 154,
+      "sha256": "b99052799f7502003edb6e7f4789c818e6e84741f07c7a32b4bc617c6b733369"
+    },
+    {
+      "id": "toolchain",
+      "input": "tests/qualification/toolchain.json",
+      "rows": 0,
+      "bytes": 174,
+      "sha256": "df31e39f2db0eeecebac877c7ac12e6c0da2969155787bd91593523af1a09f2f"
+    },
+    {
+      "id": "commands",
+      "input": "tests/qualification/commands.json",
+      "rows": 0,
+      "bytes": 523,
+      "sha256": "3aa8a62d101072c8e9014571d6114aa6ee44798de182841910cf1e2ff51ea127"
+    },
+    {
+      "id": "run",
+      "input": "tests/qualification/run.json",
+      "rows": 0,
+      "bytes": 264,
+      "sha256": "6480a1f365896ab7ff55b3bdce70e27b7e04480dd5626ffd634d682fc26c2d3a"
+    },
+    {
+      "id": "comparison",
+      "input": "tests/qualification/comparison.json",
+      "rows": 0,
+      "bytes": 430,
+      "sha256": "08d6f1142e4430809ec176e5e56307593c5268b8ac007b687d8e2ad760134fd9"
+    },
+    {
+      "id": "measurements",
+      "input": "tests/qualification/measurements.json",
+      "rows": 0,
+      "bytes": 342,
+      "sha256": "73be577fbd6af5c14dbe6d922491172bde81478d84a75cc6e0e67b371c53ec94"
+    },
+    {
+      "id": "timing",
+      "input": "tests/qualification/timing.json",
+      "rows": 0,
+      "bytes": 65,
+      "sha256": "6703f1621349116ca65cc614e6116d94bd711d630e14e0d201527f0ff1acd7ae"
+    },
+    {
+      "id": "config",
+      "input": "tests/qualification/config.json",
+      "rows": 0,
+      "bytes": 115,
+      "sha256": "35b5f844651c3d1977ab7e0090a352ae607a420175700c4c88b29769e2f5ab77"
+    },
+    {
+      "id": "defaults",
+      "input": "tests/qualification/defaults.json",
+      "rows": 0,
+      "bytes": 37,
+      "sha256": "645b143d114e134682ada43e4d87ec5eaaa161846fdfe1e5fa7183ab317f7459"
+    },
+    {
+      "id": "integer",
+      "input": "tests/qualification/large-integer.json",
+      "rows": 0,
+      "bytes": 17,
+      "sha256": "8262bb9547876bca86bbeb88f04ad9c4b3cbcac056cfdfbd30ede24496ef47b4"
+    },
+    {
+      "id": "duplicate",
+      "input": "tests/qualification/duplicate.json",
+      "rows": 0,
+      "bytes": 17,
+      "sha256": "48c7e6b7a88a429b7010d01c368744f4d70202d13099e3eba641408511b47161"
+    },
+    {
+      "id": "null",
+      "input": "tests/qualification/null.json",
+      "rows": 0,
+      "bytes": 5,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    {
+      "id": "halfway",
+      "input": "tests/qualification/halfway.json",
+      "rows": 0,
+      "bytes": 7,
+      "sha256": "ffe49be4516a8b9709cd0a351d523f89e21f09e82b932ddcf08d85b22db2c60e"
+    },
+    {
+      "id": "unicode",
+      "input": "tests/qualification/unicode.json",
+      "rows": 0,
+      "bytes": 18,
+      "sha256": "80ea001a45687ce1ff5befa1e65a5e3faa0cd4fee49e8de1db64fd99b014308f"
+    },
+    {
+      "id": "large-commands",
+      "input": "large-commands",
+      "rows": 2837,
+      "bytes": 507825,
+      "sha256": "81c811339ac8305f0a36226dd52d59696763a7a28eef591c651e028e2d3200e9"
+    },
+    {
+      "id": "large-backend",
+      "input": "large-backend",
+      "rows": 10000,
+      "bytes": 860080,
+      "sha256": "8dd2adef77aa99ee9b54d857662453ae2fe02e7edf04a7615a774d0f382bee53"
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "build.zig",
+      "sha256": "6b6cb4e9d8f83e0f1ff6eb140272a1cf267806825341aa6b2b6136a1e7880433"
+    },
+    {
+      "path": "build.zig.zon",
+      "sha256": "5d8b8292e38ac91a192afc0d830d5140fdd8bfceaf1e54cbe4b2fc819ba11677"
+    },
+    {
+      "path": "src/main.zig",
+      "sha256": "11542b8e3e1742c67e4276196f71672e688977d55258bf380ed0780f4d9f0878"
+    },
+    {
+      "path": "src/root.zig",
+      "sha256": "41faaa0a2e9e55a386cd92433aa4552817d7f133eeff89f3ca780d2c1f64ad54"
+    },
+    {
+      "path": "src/parser.zig",
+      "sha256": "c503a08eab1dcfa280717bceb34835737776cdc9ae6c6819080a286da9a4834a"
+    },
+    {
+      "path": "src/evaluator.zig",
+      "sha256": "e76b24e6f9f54f0e46de25fa3113431924e9b4710821c862b81485c16e78ab3f"
+    },
+    {
+      "path": "src/array_storage.zig",
+      "sha256": "5b806d297213bd0c7757781fc5a7f7ce286e89e4c3ff20e0098e76c63e3a503e"
+    },
+    {
+      "path": "src/execution.zig",
+      "sha256": "6b2173778fbefdf20a407d9ec344631f67fd57c08b42fe7d05193d49141eb0b7"
+    },
+    {
+      "path": "src/input.zig",
+      "sha256": "72dc434e7767f9dc3bda1f5402e46696b7d5bf2ef5421fd05c8068c0b2b6a918"
+    },
+    {
+      "path": "src/value_builder.zig",
+      "sha256": "6a5629f4d814b2291667224be4a7dadeb1cfbf52a19cbd62098c1514ef02ced6"
+    },
+    {
+      "path": "src/number.zig",
+      "sha256": "d633847bf3da38397c0b3f3ab46a71aed12d31eb2a4e44424253078628f4bc8f"
+    },
+    {
+      "path": "src/statistics.zig",
+      "sha256": "5a6680e5c2b4f0fb8872a892ab181e09a5d8421cb0c9e75b78d4597e0ed232e4"
+    },
+    {
+      "path": "src/buffered.zig",
+      "sha256": "7727d1af39d52e164c3b422d8f7e7e37506ae3b71f45de470c2007c0fce363a2"
+    },
+    {
+      "path": "src/rows.zig",
+      "sha256": "cf0e1a5ce5b492f7e288188593a13e9d122515af2c9dd2efc813ef318caa1798"
+    },
+    {
+      "path": "src/json_order.zig",
+      "sha256": "7ced25e7715f79d27956ede1d3720f938208779f7c93cf7bb806b6d33466a9bd"
+    },
+    {
+      "path": "src/collection_budget.zig",
+      "sha256": "6f2f3ba38af43c983788b36549a6c9621151b95cfa5a569de50ea039096dcefb"
+    },
+    {
+      "path": "src/diagnostic.zig",
+      "sha256": "2f292c75463ca99243de1dfb96487b61595d8f750d1e2836041e8dc95038728a"
+    },
+    {
+      "path": "tools/qualify.zig",
+      "sha256": "6ebe9d3eb9328dcc9c4d38d0e3bb8ecac022361bf2c6bff8ef14f2800e4a491a"
+    },
+    {
+      "path": "tools/fixtures.zig",
+      "sha256": "a7bc622ac56fc49858d7fb1ba437efeff92997446d982037cfc9b7ad7fbbd6b6"
+    },
+    {
+      "path": "tests/qualification/cases.json",
+      "sha256": "a9b7e41b362059596dfed47e295ac215f5a393dcda8bafcaac73c45a93be03d7"
+    },
+    {
+      "path": "tests/qualification/provenance.json",
+      "sha256": "e0433585d2b0ce0fb3c89f50750cf47bb17f07382114b5f8c969050b162545ba"
+    },
+    {
+      "path": "vendor/SHA256SUMS",
+      "sha256": "59470be14e8a9a97d3d1dfdc0dc6493f04692d0833860186c31db762e0720f05"
+    }
+  ],
+  "cases": [
+    {
+      "id": "report-summary",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 395,
+        "prefix": ""
+      },
+      "original_query": "{passed,cleanup_passed,result,http_count:(.http|length)}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{passed,cleanup_passed,result,http_count:(.http|length)}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "cleanup_passed": true,
+              "result": {
+                "code": 1,
+                "frontend_dirty": false
+              },
+              "http_count": 5
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{passed,cleanup_passed,result,http_count:length(.http)}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "cleanup_passed": true,
+              "result": {
+                "code": 1,
+                "frontend_dirty": false
+              },
+              "http_count": 5
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 97,
+        "stdout_sha256": "8a03aa03ca6df13fd5231156bc8fc8843de009fa02d6db89ee45ed961956a8f5",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 97,
+        "stdout_sha256": "8a03aa03ca6df13fd5231156bc8fc8843de009fa02d6db89ee45ed961956a8f5",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "fixture-results",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 285,
+        "prefix": ""
+      },
+      "original_query": "{passed,cleanup_passed,http_count:(.http|length),fixtures:[.fixtures[]|{case,result:.result.code}],source_dirty}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{passed,cleanup_passed,http_count:(.http|length),fixtures:[.fixtures[]|{case,result:.result.code}],source_dirty}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "cleanup_passed": true,
+              "http_count": 5,
+              "fixtures": [
+                {
+                  "case": "compile",
+                  "result": 0
+                },
+                {
+                  "case": "link",
+                  "result": 1
+                },
+                {
+                  "case": "browser",
+                  "result": 0
+                },
+                {
+                  "case": "optional",
+                  "result": 0
+                }
+              ],
+              "source_dirty": false
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{passed,cleanup_passed,http_count:length(.http),fixtures:map(.fixtures,{case,result:.result.code}),source_dirty}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "cleanup_passed": true,
+              "http_count": 5,
+              "fixtures": [
+                {
+                  "case": "compile",
+                  "result": 0
+                },
+                {
+                  "case": "link",
+                  "result": 1
+                },
+                {
+                  "case": "browser",
+                  "result": 0
+                },
+                {
+                  "case": "optional",
+                  "result": 0
+                }
+              ],
+              "source_dirty": false
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 206,
+        "stdout_sha256": "339110d8c6308d8e8e6c4fa17e3ef9540bc96d2d45c0447d461e279dffe81b6a",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 206,
+        "stdout_sha256": "339110d8c6308d8e8e6c4fa17e3ef9540bc96d2d45c0447d461e279dffe81b6a",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "report-provenance",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 518,
+        "prefix": ""
+      },
+      "original_query": "{passed,cleanup_passed,source_revision,source_dirty,http:(.http|length)}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{passed,cleanup_passed,source_revision,source_dirty,http:(.http|length)}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "cleanup_passed": true,
+              "source_revision": "revision-1",
+              "source_dirty": false,
+              "http": 5
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{passed,cleanup_passed,source_revision,source_dirty,http:length(.http)}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "cleanup_passed": true,
+              "source_revision": "revision-1",
+              "source_dirty": false,
+              "http": 5
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 100,
+        "stdout_sha256": "400bdd5bb7c502b4f7a338dcb03d97c0942f92fd4fb784525b538389ec7d0fc3",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 100,
+        "stdout_sha256": "400bdd5bb7c502b4f7a338dcb03d97c0942f92fd4fb784525b538389ec7d0fc3",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "latest-http",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 3526,
+        "prefix": ""
+      },
+      "original_query": "{passed,result,cleanup_passed,http:(.http|length),last_http:.http[-1]}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{passed,result,cleanup_passed,http:(.http|length),last_http:.http[-1]}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "result": {
+                "code": 1,
+                "frontend_dirty": false
+              },
+              "cleanup_passed": true,
+              "http": 5,
+              "last_http": {
+                "case": "check-5",
+                "path": "/last",
+                "status": 500
+              }
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{passed,result,cleanup_passed,http:length(.http),last_http:.http[-1]}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "result": {
+                "code": 1,
+                "frontend_dirty": false
+              },
+              "cleanup_passed": true,
+              "http": 5,
+              "last_http": {
+                "case": "check-5",
+                "path": "/last",
+                "status": 500
+              }
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 150,
+        "stdout_sha256": "273deab38a1dc3be9de3406ba6c88adb6c16d72322720b33b4853cb743bcfcb9",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 150,
+        "stdout_sha256": "273deab38a1dc3be9de3406ba6c88adb6c16d72322720b33b4853cb743bcfcb9",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "failure-log-path",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 3659,
+        "prefix": ".api_failure_log"
+      },
+      "original_query": ".api_failure_log",
+      "note": "",
+      "reference_invocation": {
+        "query": ".api_failure_log",
+        "flags": [
+          "-r"
+        ],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [],
+          "raw": "failure.log\n"
+        }
+      },
+      "candidate_invocation": {
+        "query": ".api_failure_log",
+        "flags": [
+          "-r"
+        ],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [],
+          "raw": "failure.log\n"
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 12,
+        "stdout_sha256": "1ce9029f55c3cb8e90e2a41d804cdd63779623f4b5c474e7834b87c5707b7bb3",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 12,
+        "stdout_sha256": "1ce9029f55c3cb8e90e2a41d804cdd63779623f4b5c474e7834b87c5707b7bb3",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "recent-http",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 3659,
+        "prefix": ".http[-5:]"
+      },
+      "original_query": ".http[-5:] | map({case,path,status})",
+      "note": "Window reduced from five to two so the bounded fixture exercises a nonzero slice start.",
+      "reference_invocation": {
+        "query": ".http[-2:] | map({case,path,status})",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "case": "check-4",
+                "path": "/fourth",
+                "status": 404
+              },
+              {
+                "case": "check-5",
+                "path": "/last",
+                "status": 500
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "map(.http[-2:],{case,path,status})",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "case": "check-4",
+                "path": "/fourth",
+                "status": 404
+              },
+              {
+                "case": "check-5",
+                "path": "/last",
+                "status": 500
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 98,
+        "stdout_sha256": "23245d94d475708bf70b9fdc9470adec6e3234e3057e9b768b323ca9ec69f393",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 98,
+        "stdout_sha256": "23245d94d475708bf70b9fdc9470adec6e3234e3057e9b768b323ca9ec69f393",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "schema-keys",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 9389,
+        "prefix": "keys"
+      },
+      "original_query": "keys",
+      "note": "",
+      "reference_invocation": {
+        "query": "keys",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              "api_binary_sha256",
+              "api_failure_log",
+              "cleanup_passed",
+              "coordinator_optimize",
+              "fixtures",
+              "http",
+              "passed",
+              "result",
+              "source_dirty",
+              "source_revision",
+              "suite",
+              "workers"
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "keys(.)",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              "api_binary_sha256",
+              "api_failure_log",
+              "cleanup_passed",
+              "coordinator_optimize",
+              "fixtures",
+              "http",
+              "passed",
+              "result",
+              "source_dirty",
+              "source_revision",
+              "suite",
+              "workers"
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 167,
+        "stdout_sha256": "707b1f6208de730a3707e2e1d7a55d52868092a3cb66eb30251dcca479a67132",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 167,
+        "stdout_sha256": "707b1f6208de730a3707e2e1d7a55d52868092a3cb66eb30251dcca479a67132",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "screenshot-provenance",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 20697,
+        "prefix": ""
+      },
+      "original_query": "[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}]",
+      "note": "Translate jq truthiness explicitly; presence alone would incorrectly keep a null screenshot.",
+      "reference_invocation": {
+        "query": "[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}]",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "path": "capture.png",
+                "sha256": "image-hash"
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "map(filter(.fixtures,exists(.screenshot?) and .screenshot != null and .screenshot != false),{path:.screenshot,sha256})",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "path": "capture.png",
+                "sha256": "image-hash"
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 47,
+        "stdout_sha256": "1f7d97e1f2bb95df0933fd8e3256fe70cf4c8f6ac699e9f73d0d770c618024a8",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 47,
+        "stdout_sha256": "1f7d97e1f2bb95df0933fd8e3256fe70cf4c8f6ac699e9f73d0d770c618024a8",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "batch-provenance",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 23763,
+        "prefix": ""
+      },
+      "original_query": "{file:input_filename,passed,cleanup_passed,http:(.http|length)}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{file:input_filename,passed,cleanup_passed,http:(.http|length)}",
+        "flags": [],
+        "files": [
+          "backend",
+          "passed"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "file": "tests/qualification/backend.json",
+              "passed": false,
+              "cleanup_passed": true,
+              "http": 5
+            },
+            {
+              "file": "tests/qualification/passed.json",
+              "passed": true,
+              "cleanup_passed": true,
+              "http": 0
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{file:input_filename(),passed,cleanup_passed,http:length(.http)}",
+        "flags": [],
+        "files": [
+          "backend",
+          "passed"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "file": "tests/qualification/backend.json",
+              "passed": false,
+              "cleanup_passed": true,
+              "http": 5
+            },
+            {
+              "file": "tests/qualification/passed.json",
+              "passed": true,
+              "cleanup_passed": true,
+              "http": 0
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 178,
+        "stdout_sha256": "1f07d451f191c798c66e5a8df8748cde7e69a335ec3220cb5cea344555addcd3",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 178,
+        "stdout_sha256": "1f07d451f191c798c66e5a8df8748cde7e69a335ec3220cb5cea344555addcd3",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "qualification-gate",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 1264,
+        "prefix": ""
+      },
+      "original_query": ".qualification.total_selected_http == 84 and (.reports|length)==4 and all(.reports[]; .passed and .cleanup_passed and (.source_dirty|not))",
+      "note": "",
+      "reference_invocation": {
+        "query": ".qualification.total_selected_http == 84 and (.reports|length)==4 and all(.reports[]; .passed and .cleanup_passed and (.source_dirty|not))",
+        "flags": [
+          "-e"
+        ],
+        "files": [
+          "qualification"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            true
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".qualification.total_selected_http == 84 and length(.reports)==4 and all(.reports,.passed and .cleanup_passed and not .source_dirty)",
+        "flags": [
+          "-e"
+        ],
+        "files": [
+          "qualification"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            true
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "external-hash-gate",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 33238,
+        "prefix": ""
+      },
+      "original_query": ".passed and .cleanup_passed and (.source_dirty|not) and (.result.frontend_dirty|not) and .api_binary_sha256==$api and .coordinator_optimize==\"debug\"",
+      "note": "",
+      "reference_invocation": {
+        "query": ".passed and .cleanup_passed and (.source_dirty|not) and (.result.frontend_dirty|not) and .api_binary_sha256==$api and .coordinator_optimize==\"debug\"",
+        "flags": [
+          "-e",
+          "--arg",
+          "api",
+          "hash-a"
+        ],
+        "files": [
+          "passed"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            true
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".passed and .cleanup_passed and not .source_dirty and not .result.frontend_dirty and .api_binary_sha256==$api and .coordinator_optimize==\"debug\"",
+        "flags": [
+          "-e",
+          "--arg",
+          "api",
+          "hash-a"
+        ],
+        "files": [
+          "passed"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            true
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "argument-record",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 26535,
+        "prefix": "{name:"
+      },
+      "original_query": "{name:$name,path:$path,sha256:$sha256,bytes:$bytes}",
+      "note": "Invocation adaptation: jqz needs an explicit null document; it has no -n mode. Excluded from timing comparisons because input handling differs.",
+      "reference_invocation": {
+        "query": "{name:$name,path:$path,sha256:$sha256,bytes:$bytes}",
+        "flags": [
+          "-n",
+          "--arg",
+          "name",
+          "artifact",
+          "--arg",
+          "path",
+          "out/artifact",
+          "--arg",
+          "sha256",
+          "hash-a",
+          "--argjson",
+          "bytes",
+          "42"
+        ],
+        "files": [],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "name": "artifact",
+              "path": "out/artifact",
+              "sha256": "hash-a",
+              "bytes": 42
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{name:$name,path:$path,sha256:$sha256,bytes:$bytes}",
+        "flags": [
+          "--arg",
+          "name",
+          "artifact",
+          "--arg",
+          "path",
+          "out/artifact",
+          "--arg",
+          "sha256",
+          "hash-a",
+          "--argjson",
+          "bytes",
+          "42"
+        ],
+        "files": [
+          "null"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "name": "artifact",
+              "path": "out/artifact",
+              "sha256": "hash-a",
+              "bytes": 42
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 71,
+        "stdout_sha256": "d01d16bc2bc970b89a4a4c1297f3631247c5b338a3d1ca0540d0960d3d147ad2",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 71,
+        "stdout_sha256": "d01d16bc2bc970b89a4a4c1297f3631247c5b338a3d1ca0540d0960d3d147ad2",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "command-progress",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 542,
+        "prefix": "{commands:"
+      },
+      "original_query": "{commands:length,last:.[-1].argv}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{commands:length,last:.[-1].argv}",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 5,
+              "last": [
+                "bin/z_llvm",
+                "link",
+                "a.o",
+                "b.o"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{commands:length(.),last:.[-1].argv}",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 5,
+              "last": [
+                "bin/z_llvm",
+                "link",
+                "a.o",
+                "b.o"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 56,
+        "stdout_sha256": "34fd80c9fbe96234504ed125bf28dadcdfc1d534a21983a05496d66acb00aeb1",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 56,
+        "stdout_sha256": "34fd80c9fbe96234504ed125bf28dadcdfc1d534a21983a05496d66acb00aeb1",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "compiler-call-count",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 497,
+        "prefix": ""
+      },
+      "original_query": "{commands:length,compiler_calls:([.[]|select(.argv[0]|endswith(\"/z_llvm\"))]|length),last:.[-1].argv}",
+      "note": "A constant suffix test translates to the existing compiled regex function.",
+      "reference_invocation": {
+        "query": "{commands:length,compiler_calls:([.[]|select(.argv[0]|endswith(\"/z_llvm\"))]|length),last:.[-1].argv}",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 5,
+              "compiler_calls": 3,
+              "last": [
+                "bin/z_llvm",
+                "link",
+                "a.o",
+                "b.o"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{commands:length(.),compiler_calls:length(filter(.,matches(.argv[0],\"/z_llvm$\"))),last:.[-1].argv}",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 5,
+              "compiler_calls": 3,
+              "last": [
+                "bin/z_llvm",
+                "link",
+                "a.o",
+                "b.o"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 75,
+        "stdout_sha256": "3f56d3927b0a570b8b9c3d9d9194296ce15e0a4b62ab2a88d056f45670c06119",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 75,
+        "stdout_sha256": "3f56d3927b0a570b8b9c3d9d9194296ce15e0a4b62ab2a88d056f45670c06119",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "recent-commands",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 549,
+        "prefix": ""
+      },
+      "original_query": ".[-4:]|map({argv,wall_ns,returncode})",
+      "note": "Four-entry window reduced to two on the small fixture.",
+      "reference_invocation": {
+        "query": ".[-2:]|map({argv,wall_ns,returncode})",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "argv": [
+                  "bin/cc",
+                  "compile",
+                  "bridge.c"
+                ],
+                "wall_ns": 4000000,
+                "returncode": 0
+              },
+              {
+                "argv": [
+                  "bin/z_llvm",
+                  "link",
+                  "a.o",
+                  "b.o"
+                ],
+                "wall_ns": 5000000,
+                "returncode": 1
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "map(.[-2:],{argv,wall_ns,returncode})",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "argv": [
+                  "bin/cc",
+                  "compile",
+                  "bridge.c"
+                ],
+                "wall_ns": 4000000,
+                "returncode": 0
+              },
+              {
+                "argv": [
+                  "bin/z_llvm",
+                  "link",
+                  "a.o",
+                  "b.o"
+                ],
+                "wall_ns": 5000000,
+                "returncode": 1
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 152,
+        "stdout_sha256": "fc4aa4509b079e0924d8978e09c9eebc3ad34180ba16bacbaaab4c5dbf48129d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 152,
+        "stdout_sha256": "fc4aa4509b079e0924d8978e09c9eebc3ad34180ba16bacbaaab4c5dbf48129d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "argument-window",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 990,
+        "prefix": ""
+      },
+      "original_query": "{commands:length,last:.[-1].argv[1:4]}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{commands:length,last:.[-1].argv[1:4]}",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 5,
+              "last": [
+                "link",
+                "a.o",
+                "b.o"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{commands:length(.),last:.[-1].argv[1:4]}",
+        "flags": [],
+        "files": [
+          "commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 5,
+              "last": [
+                "link",
+                "a.o",
+                "b.o"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 43,
+        "stdout_sha256": "eb726e868a6c8997245cd2740774373a1b30719af35a647cea437f56f72780ca",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 43,
+        "stdout_sha256": "eb726e868a6c8997245cd2740774373a1b30719af35a647cea437f56f72780ca",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "compiler-status",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 238,
+        "prefix": ""
+      },
+      "original_query": "{status,failure_stage,backend,source: .compiler_ir}",
+      "note": "The inspected artifact lacked compiler_ir; jqz uses an explicit missing-field default.",
+      "reference_invocation": {
+        "query": "{status,failure_stage,backend,source:.compiler_ir}",
+        "flags": [],
+        "files": [
+          "compiler"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "passed",
+              "failure_stage": null,
+              "backend": "native",
+              "source": null
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{status,failure_stage,backend,source:.compiler_ir? ?? null}",
+        "flags": [],
+        "files": [
+          "compiler"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "passed",
+              "failure_stage": null,
+              "backend": "native",
+              "source": null
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 74,
+        "stdout_sha256": "85fc002fdb11efd0391c28af7522f0639ce0de87ca8ab6993001f6e2a03e32da",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 74,
+        "stdout_sha256": "85fc002fdb11efd0391c28af7522f0639ce0de87ca8ab6993001f6e2a03e32da",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "toolchain-status",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 402,
+        "prefix": ""
+      },
+      "original_query": "{status, toolchain: (.toolchain | {zllvm,zig_emitter,zig_source,zig_revision})}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{status,toolchain:(.toolchain|{zllvm,zig_emitter,zig_source,zig_revision})}",
+        "flags": [],
+        "files": [
+          "toolchain"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "passed",
+              "toolchain": {
+                "zllvm": "bin/z_llvm",
+                "zig_emitter": "bin/zig",
+                "zig_source": "zig-source",
+                "zig_revision": "revision-1"
+              }
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{status,toolchain:{zllvm:.toolchain.zllvm,zig_emitter:.toolchain.zig_emitter,zig_source:.toolchain.zig_source,zig_revision:.toolchain.zig_revision}}",
+        "flags": [],
+        "files": [
+          "toolchain"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "passed",
+              "toolchain": {
+                "zllvm": "bin/z_llvm",
+                "zig_emitter": "bin/zig",
+                "zig_source": "zig-source",
+                "zig_revision": "revision-1"
+              }
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 133,
+        "stdout_sha256": "5f7e4098314f850c2689e2b63dc86c3692dace00700e9709e55880c5f8b964e1",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 133,
+        "stdout_sha256": "5f7e4098314f850c2689e2b63dc86c3692dace00700e9709e55880c5f8b964e1",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "sample-count",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 366,
+        "prefix": ""
+      },
+      "original_query": "{status,wall_ns,samples: (.samples|length)}",
+      "note": "",
+      "reference_invocation": {
+        "query": "{status,wall_ns,samples:(.samples|length)}",
+        "flags": [],
+        "files": [
+          "run"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "passed",
+              "wall_ns": 1000000000,
+              "samples": 2
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{status,wall_ns,samples:length(.samples)}",
+        "flags": [],
+        "files": [
+          "run"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "passed",
+              "wall_ns": 1000000000,
+              "samples": 2
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 53,
+        "stdout_sha256": "600555237eceea1bf6723edb4b3abc7d68d7ba34565ba040f8315ed4d334c461",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 53,
+        "stdout_sha256": "600555237eceea1bf6723edb4b3abc7d68d7ba34565ba040f8315ed4d334c461",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "artifact-comparison",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 805,
+        "prefix": ""
+      },
+      "original_query": "{status,commands_per_suite,byte_identical_compiler_artifacts,differences:(.artifact_differences|length),examples:(.artifact_differences[:10]|map({kind,argv})),timing_and_duplication}",
+      "note": "Example window reduced from ten to two.",
+      "reference_invocation": {
+        "query": "{status,commands_per_suite,byte_identical_compiler_artifacts,differences:(.artifact_differences|length),examples:(.artifact_differences[:2]|map({kind,argv})),timing_and_duplication}",
+        "flags": [],
+        "files": [
+          "comparison"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "reviewed",
+              "commands_per_suite": {
+                "left": 5,
+                "right": 5
+              },
+              "byte_identical_compiler_artifacts": 3,
+              "differences": 3,
+              "examples": [
+                {
+                  "kind": "object",
+                  "argv": [
+                    "bin/cc",
+                    "a.c"
+                  ]
+                },
+                {
+                  "kind": "object",
+                  "argv": [
+                    "bin/cc",
+                    "b.c"
+                  ]
+                }
+              ],
+              "timing_and_duplication": {
+                "left_ns": 1000000,
+                "right_ns": 1100000
+              }
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{status,commands_per_suite,byte_identical_compiler_artifacts,differences:length(.artifact_differences),examples:map(.artifact_differences[:2],{kind,argv}),timing_and_duplication}",
+        "flags": [],
+        "files": [
+          "comparison"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "reviewed",
+              "commands_per_suite": {
+                "left": 5,
+                "right": 5
+              },
+              "byte_identical_compiler_artifacts": 3,
+              "differences": 3,
+              "examples": [
+                {
+                  "kind": "object",
+                  "argv": [
+                    "bin/cc",
+                    "a.c"
+                  ]
+                },
+                {
+                  "kind": "object",
+                  "argv": [
+                    "bin/cc",
+                    "b.c"
+                  ]
+                }
+              ],
+              "timing_and_duplication": {
+                "left_ns": 1000000,
+                "right_ns": 1100000
+              }
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 279,
+        "stdout_sha256": "83dda7ad20ecedd77ddcee4a07dd647075ace1ca6959fc1305bc92d5b5c25687",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 279,
+        "stdout_sha256": "83dda7ad20ecedd77ddcee4a07dd647075ace1ca6959fc1305bc92d5b5c25687",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "measurement-tail",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 920,
+        "prefix": ""
+      },
+      "original_query": ".[-3:]",
+      "note": "Project record counts after the observed tail slice to keep the oracle small.",
+      "reference_invocation": {
+        "query": ".[-3:]|map(.records)",
+        "flags": [],
+        "files": [
+          "measurements"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              10,
+              10,
+              10
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "map(.[-3:],.records)",
+        "flags": [],
+        "files": [
+          "measurements"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              10,
+              10,
+              10
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 11,
+        "stdout_sha256": "285ca2545feed6acf601dceae6c2c23b9065be3b07b8ea40bb88ab88dcd174e0",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 11,
+        "stdout_sha256": "285ca2545feed6acf601dceae6c2c23b9065be3b07b8ea40bb88ab88dcd174e0",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "timing-fallback",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 1154,
+        "prefix": ""
+      },
+      "original_query": "map(.sample_elapsed_ns? // .serialization_ns?)",
+      "note": "Numeric/null/missing timing fields; the supplemental false-default probe checks the differing default contract.",
+      "reference_invocation": {
+        "query": "map(.sample_elapsed_ns? // .serialization_ns?)",
+        "flags": [],
+        "files": [
+          "measurements"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              1000000,
+              2000000,
+              3000000,
+              4000000
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "map(.,.sample_elapsed_ns? ?? .serialization_ns?)",
+        "flags": [],
+        "files": [
+          "measurements"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              1000000,
+              2000000,
+              3000000,
+              4000000
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 34,
+        "stdout_sha256": "8681f7b265fb2dfc57d4d6286a5e5fb42625f35ee0bd58b3a87c19dfb48d63cc",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 34,
+        "stdout_sha256": "8681f7b265fb2dfc57d4d6286a5e5fb42625f35ee0bd58b3a87c19dfb48d63cc",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "mean-timing",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 1180,
+        "prefix": "{samples,mean_ms:"
+      },
+      "original_query": "{samples,mean_ms:([.sample_elapsed_ns[]]|add/length/1000000)}",
+      "note": "Exact decimal comparison ignores spelling/trailing zeros; finite mean is exactly representable by both tools.",
+      "reference_invocation": {
+        "query": "{samples,mean_ms:([.sample_elapsed_ns[]]|add/length/1000000)}",
+        "flags": [],
+        "files": [
+          "timing"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "samples": 3,
+              "mean_ms": 1.5
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{samples,mean_ms:mean(map(.sample_elapsed_ns,divide(.,1000000,6)),6)}",
+        "flags": [],
+        "files": [
+          "timing"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "samples": 3,
+              "mean_ms": 1.500000
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 28,
+        "stdout_sha256": "25805c7fdc73ead84d82a3bc70b82df4d95cae3aca0a0e2422062d3421785912",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 33,
+        "stdout_sha256": "d6ba350b42de53e07fe659ec31fb56cfd9269981dd2883a9eba6a13a8866c8af",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "negative-toolchain-gate",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 1436,
+        "prefix": ""
+      },
+      "original_query": ".zllvm == \"/bin/false\"",
+      "note": "",
+      "reference_invocation": {
+        "query": ".zllvm == \"/bin/false\"",
+        "flags": [
+          "-e"
+        ],
+        "files": [
+          "toolchain"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 1,
+          "values": [
+            false
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".zllvm == \"/bin/false\"",
+        "flags": [
+          "-e"
+        ],
+        "files": [
+          "toolchain"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 1,
+          "values": [
+            false
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 1,
+        "stdout_bytes": 6,
+        "stdout_sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 1,
+        "stdout_bytes": 6,
+        "stdout_sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "schema-key-union",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 33179,
+        "prefix": ""
+      },
+      "original_query": "[.fixtures[]|keys[]]|unique",
+      "note": "Unique scalar strings can be expressed through existing grouping and sorting stages.",
+      "reference_invocation": {
+        "query": "[.fixtures[]|keys[]]|unique",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              "actual_source_update",
+              "case",
+              "command",
+              "result",
+              "screenshot",
+              "sha256"
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".fixtures|each|keys(.)|each|group_by(.)|.[0]|sort|collect",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              "actual_source_update",
+              "case",
+              "command",
+              "result",
+              "screenshot",
+              "sha256"
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 73,
+        "stdout_sha256": "892919db4c6d0ddc0ddd4c4089c318e10c0cbfb78400b42bce186c4d21a9ad67",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 73,
+        "stdout_sha256": "892919db4c6d0ddc0ddd4c4089c318e10c0cbfb78400b42bce186c4d21a9ad67",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "embedded-group-summary",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 20680,
+        "prefix": ""
+      },
+      "original_query": "{path:input_filename,suite,passed,cleanup_passed,source_revision,source_dirty,coordinator_optimize,binary_sha256,api_binary_sha256,http_count:(.http|length),statuses:(.http|group_by(.status)|map({status:.[0].status,count:length})),result,source_service_profiles:([.fixtures[]|select(.actual_source_result?)]|length),source_service_statuses:([.fixtures[]|.actual_source_result? // empty]|group_by(.status)|map({status:.[0].status,count:length})),source_service_fault_commands:([.fixtures[]|select(.actual_source_update? and .command? and .command.code!=0)]|length),source_delivery_profiles:([.fixtures[]|select(.source_delivery_result?)]|length),source_delivery_seed_only:([.fixtures[]|select(.source_delivery_result? and .source_delivery_job.dispatch==false)]|length),source_delivery_fault_commands:([.fixtures[]|select(.source_delivery_job? and .command? and .command.code!=0)]|length),native_worker_outcomes:(.workers|length),images:[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}],front:([.result|select(.frontend_revision?)|{revision:.frontend_revision,dirty:.frontend_dirty,wasm_sha256}])}",
+      "note": "Scalar grouping retains the outer report context. Explicit scalar sorting preserves the frozen ascending status order; group_by itself remains first-seen. This representative projection covers the grouped portion of the larger source summary.",
+      "reference_invocation": {
+        "query": "{passed,statuses:(.http|group_by(.status)|map({status:.[0].status,count:length}))}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "statuses": [
+                {
+                  "status": 200,
+                  "count": 2
+                },
+                {
+                  "status": 404,
+                  "count": 1
+                },
+                {
+                  "status": 500,
+                  "count": 2
+                }
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{passed,statuses:sort_by(map(group_by(.http,.status),{status:.[0].status,count:length(.)}),.status)}",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": false,
+              "statuses": [
+                {
+                  "status": 200,
+                  "count": 2
+                },
+                {
+                  "status": 404,
+                  "count": 1
+                },
+                {
+                  "status": 500,
+                  "count": 2
+                }
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 105,
+        "stdout_sha256": "0235f065a4b4d6b2600ee15da41db1448ea1facd046d145a3bf04a7da7b1c164",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 105,
+        "stdout_sha256": "0235f065a4b4d6b2600ee15da41db1448ea1facd046d145a3bf04a7da7b1c164",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "embedded-total-summary",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 897,
+        "prefix": ""
+      },
+      "original_query": "{status,byte_identical_compiler_artifacts,reviewed_objects:(.artifact_differences|length),reviewed_moves:([.artifact_differences[].changed_moves]|add)}",
+      "note": "The nonempty fixture has integral changed_moves, matching the inspected artifact schema. Scalar sum retains report context and exact i128 totals. Its empty identity differs from jq add, checked by empty-array-total-probe.",
+      "reference_invocation": {
+        "query": "{status,byte_identical_compiler_artifacts,reviewed_objects:(.artifact_differences|length),reviewed_moves:([.artifact_differences[].changed_moves]|add)}",
+        "flags": [],
+        "files": [
+          "comparison"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "reviewed",
+              "byte_identical_compiler_artifacts": 3,
+              "reviewed_objects": 3,
+              "reviewed_moves": 3
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{status,byte_identical_compiler_artifacts,reviewed_objects:length(.artifact_differences),reviewed_moves:sum(map(.artifact_differences,.changed_moves))}",
+        "flags": [],
+        "files": [
+          "comparison"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "status": "reviewed",
+              "byte_identical_compiler_artifacts": 3,
+              "reviewed_objects": 3,
+              "reviewed_moves": 3
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 100,
+        "stdout_sha256": "ff7389c867d4893f30404034ce1d496b19cb1b3af689f9b54b147467b0ad2606",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 100,
+        "stdout_sha256": "ff7389c867d4893f30404034ce1d496b19cb1b3af689f9b54b147467b0ad2606",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "serialized-sample-size",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 667,
+        "prefix": "{air_roots"
+      },
+      "original_query": "{air_roots,sample_bytes:(.samples[0]|tojson|length)}",
+      "note": "This ASCII sample has equal encoded byte/scalar counts. jqz explicitly measures UTF-8 bytes; unicode-json-byte-count-probe establishes the difference on non-ASCII input.",
+      "reference_invocation": {
+        "query": "{air_roots,sample_bytes:(.samples[0]|tojson|length)}",
+        "flags": [],
+        "files": [
+          "run"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "air_roots": [],
+              "sample_bytes": 47
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{air_roots,sample_bytes:byte_length(tojson(.samples[0]))}",
+        "flags": [],
+        "files": [
+          "run"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "air_roots": [],
+              "sample_bytes": 47
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 35,
+        "stdout_sha256": "819fe118f7d147b29069624d13148066f8688304dd4fc31a829b5800f760d3bf",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 35,
+        "stdout_sha256": "819fe118f7d147b29069624d13148066f8688304dd4fc31a829b5800f760d3bf",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "normalize-config",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 17876,
+        "prefix": "del("
+      },
+      "original_query": "del(.groups[] | select(.id==\"calendar.journey\"))",
+      "note": "The immutable update filters the target array while preserving arbitrary other fields. Both tools sort object keys; jqz emits compact JSON. A separate component checks byte-exact compact normalized output.",
+      "reference_invocation": {
+        "query": "del(.groups[] | select(.id==\"calendar.journey\"))",
+        "flags": [
+          "-S"
+        ],
+        "files": [
+          "config"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "meta": {
+                "arbitrary": true
+              },
+              "groups": [
+                {
+                  "id": "kept",
+                  "done": false
+                }
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "update(.,.groups,filter(.,.id != \"calendar.journey\"))",
+        "flags": [
+          "-S"
+        ],
+        "files": [
+          "config"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "meta": {
+                "arbitrary": true
+              },
+              "groups": [
+                {
+                  "id": "kept",
+                  "done": false
+                }
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 66,
+        "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 66,
+        "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "distinct-schema-shapes",
+      "scope": "observed",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 19444,
+        "prefix": "[.fixtures"
+      },
+      "original_query": "[.fixtures[]|keys]|unique",
+      "note": "Scalar unique returns distinct structural values in lexicographic JSON order, preserving the frozen ordered array of schema-key arrays.",
+      "reference_invocation": {
+        "query": "[.fixtures[]|keys]|unique",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              [
+                "actual_source_update",
+                "case",
+                "command",
+                "result"
+              ],
+              [
+                "case",
+                "result"
+              ],
+              [
+                "case",
+                "result",
+                "screenshot"
+              ],
+              [
+                "case",
+                "result",
+                "screenshot",
+                "sha256"
+              ]
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "unique(map(.fixtures,keys(.)))",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              [
+                "actual_source_update",
+                "case",
+                "command",
+                "result"
+              ],
+              [
+                "case",
+                "result"
+              ],
+              [
+                "case",
+                "result",
+                "screenshot"
+              ],
+              [
+                "case",
+                "result",
+                "screenshot",
+                "sha256"
+              ]
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 142,
+        "stdout_sha256": "7fbb36009f179ca6c9d3e96265e82b0774fb8390935a1757fff564ddd196a936",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 142,
+        "stdout_sha256": "7fbb36009f179ca6c9d3e96265e82b0774fb8390935a1757fff564ddd196a936",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "sorted-config-bytes",
+      "scope": "component",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 17876,
+        "prefix": "del("
+      },
+      "original_query": "del(.groups[] | select(.id==\"calendar.journey\"))",
+      "note": "Exact compact sorted output, including nested field order, is checked as bytes rather than order-insensitive JSON objects. Excluded from observed coverage.",
+      "reference_invocation": {
+        "query": "del(.groups[] | select(.id==\"calendar.journey\"))",
+        "flags": [
+          "-c",
+          "-S"
+        ],
+        "files": [
+          "config"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [],
+          "raw": "{\"groups\":[{\"done\":false,\"id\":\"kept\"}],\"meta\":{\"arbitrary\":true}}\n"
+        }
+      },
+      "candidate_invocation": {
+        "query": "update(.,.groups,filter(.,.id != \"calendar.journey\"))",
+        "flags": [
+          "-S"
+        ],
+        "files": [
+          "config"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [],
+          "raw": "{\"groups\":[{\"done\":false,\"id\":\"kept\"}],\"meta\":{\"arbitrary\":true}}\n"
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 66,
+        "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 66,
+        "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "http-status-component",
+      "scope": "component",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 20680,
+        "prefix": ""
+      },
+      "original_query": "{path:input_filename,suite,passed,cleanup_passed,source_revision,source_dirty,coordinator_optimize,binary_sha256,api_binary_sha256,http_count:(.http|length),statuses:(.http|group_by(.status)|map({status:.[0].status,count:length})),result,source_service_profiles:([.fixtures[]|select(.actual_source_result?)]|length),source_service_statuses:([.fixtures[]|.actual_source_result? // empty]|group_by(.status)|map({status:.[0].status,count:length})),source_service_fault_commands:([.fixtures[]|select(.actual_source_update? and .command? and .command.code!=0)]|length),source_delivery_profiles:([.fixtures[]|select(.source_delivery_result?)]|length),source_delivery_seed_only:([.fixtures[]|select(.source_delivery_result? and .source_delivery_job.dispatch==false)]|length),source_delivery_fault_commands:([.fixtures[]|select(.source_delivery_job? and .command? and .command.code!=0)]|length),native_worker_outcomes:(.workers|length),images:[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}],front:([.result|select(.frontend_revision?)|{revision:.frontend_revision,dirty:.frontend_dirty,wasm_sha256}])}",
+      "note": "Isolated stream component of the grouped report summary; explicit sorting matches jq group order. Excluded from observed-workflow coverage even though the scalar summary is now supported.",
+      "reference_invocation": {
+        "query": ".http|group_by(.status)|map({status:.[0].status,count:length})",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "status": 200,
+                "count": 2
+              },
+              {
+                "status": 404,
+                "count": 1
+              },
+              {
+                "status": 500,
+                "count": 2
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".http|each|group_by(.status)|{status:.[0].status,count:length(.)}|sort_by(.status)|collect",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "status": 200,
+                "count": 2
+              },
+              {
+                "status": 404,
+                "count": 1
+              },
+              {
+                "status": 500,
+                "count": 2
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 77,
+        "stdout_sha256": "012af42f3fecb7ac8727fa2a1d8715ab0f6d387056b41959836ba75df98c26da",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 77,
+        "stdout_sha256": "012af42f3fecb7ac8727fa2a1d8715ab0f6d387056b41959836ba75df98c26da",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "source-command-failure-component",
+      "scope": "component",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 20680,
+        "prefix": ""
+      },
+      "original_query": "{path:input_filename,suite,passed,cleanup_passed,source_revision,source_dirty,coordinator_optimize,binary_sha256,api_binary_sha256,http_count:(.http|length),statuses:(.http|group_by(.status)|map({status:.[0].status,count:length})),result,source_service_profiles:([.fixtures[]|select(.actual_source_result?)]|length),source_service_statuses:([.fixtures[]|.actual_source_result? // empty]|group_by(.status)|map({status:.[0].status,count:length})),source_service_fault_commands:([.fixtures[]|select(.actual_source_update? and .command? and .command.code!=0)]|length),source_delivery_profiles:([.fixtures[]|select(.source_delivery_result?)]|length),source_delivery_seed_only:([.fixtures[]|select(.source_delivery_result? and .source_delivery_job.dispatch==false)]|length),source_delivery_fault_commands:([.fixtures[]|select(.source_delivery_job? and .command? and .command.code!=0)]|length),native_worker_outcomes:(.workers|length),images:[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}],front:([.result|select(.frontend_revision?)|{revision:.frontend_revision,dirty:.frontend_dirty,wasm_sha256}])}",
+      "note": "Isolated fault-selection component; jq truthiness is translated explicitly. Not a passing full-summary translation.",
+      "reference_invocation": {
+        "query": "[.fixtures[]|select(.actual_source_update? and .command? and .command.code!=0)]|length",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            1
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "length(filter(.fixtures,exists(.actual_source_update?) and .actual_source_update != null and .actual_source_update != false and exists(.command?) and .command != null and .command != false and .command.code != 0))",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            1
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 2,
+        "stdout_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 2,
+        "stdout_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "unicode-json-byte-count-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "compiler",
+        "record": 667,
+        "prefix": "{air_roots"
+      },
+      "original_query": "{air_roots,sample_bytes:(.samples[0]|tojson|length)}",
+      "note": "The two Unicode scalars occupy six UTF-8 bytes, plus two JSON quotes. jq length counts scalars; jqz byte_length explicitly counts bytes. This is not an equivalent translation.",
+      "reference_invocation": {
+        "query": ".text|tojson|length",
+        "flags": [],
+        "files": [
+          "unicode"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            4
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "byte_length(tojson(.text))",
+        "flags": [],
+        "files": [
+          "unicode"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            8
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 2,
+        "stdout_sha256": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 2,
+        "stdout_sha256": "aa67a169b0bba217aa0aa88a65346920c84c42447c36ba5f7ea65f422c1fe5d8",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "del-missing-path-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "backend",
+        "record": 17876,
+        "prefix": "del("
+      },
+      "original_query": "del(.groups[] | select(.id==\"calendar.journey\"))",
+      "note": "jq ignores deletion of an absent object field; jqz path edits require existing targets and report missing paths explicitly.",
+      "reference_invocation": {
+        "query": "{}|del(.missing)",
+        "flags": [],
+        "files": [
+          "null"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {}
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "del({},.missing)",
+        "flags": [],
+        "files": [
+          "null"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 2,
+          "values": [],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 3,
+        "stdout_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 2,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "false-default-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "compiler",
+        "record": 1154,
+        "prefix": ""
+      },
+      "original_query": "map(.sample_elapsed_ns? // .serialization_ns?)",
+      "note": "jq // defaults over false; jqz ?? preserves false. This is a contract probe, not an equivalent translation.",
+      "reference_invocation": {
+        "query": ".enabled // true",
+        "flags": [],
+        "files": [
+          "defaults"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            true
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".enabled? ?? true",
+        "flags": [],
+        "files": [
+          "defaults"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            false
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 6,
+        "stdout_sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "missing-field-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "compiler",
+        "record": 238,
+        "prefix": ""
+      },
+      "original_query": "{status,failure_stage,backend,source: .compiler_ir}",
+      "note": "Strict missing access is an error. The observed compiler-status translation supplies an explicit default.",
+      "reference_invocation": {
+        "query": ".compiler_ir",
+        "flags": [],
+        "files": [
+          "compiler"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            null
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".compiler_ir",
+        "flags": [],
+        "files": [
+          "compiler"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 2,
+          "values": [],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 2,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "group-order-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "backend",
+        "record": 20680,
+        "prefix": ""
+      },
+      "original_query": "{path:input_filename,suite,passed,cleanup_passed,source_revision,source_dirty,coordinator_optimize,binary_sha256,api_binary_sha256,http_count:(.http|length),statuses:(.http|group_by(.status)|map({status:.[0].status,count:length})),result,source_service_profiles:([.fixtures[]|select(.actual_source_result?)]|length),source_service_statuses:([.fixtures[]|.actual_source_result? // empty]|group_by(.status)|map({status:.[0].status,count:length})),source_service_fault_commands:([.fixtures[]|select(.actual_source_update? and .command? and .command.code!=0)]|length),source_delivery_profiles:([.fixtures[]|select(.source_delivery_result?)]|length),source_delivery_seed_only:([.fixtures[]|select(.source_delivery_result? and .source_delivery_job.dispatch==false)]|length),source_delivery_fault_commands:([.fixtures[]|select(.source_delivery_job? and .command? and .command.code!=0)]|length),native_worker_outcomes:(.workers|length),images:[.fixtures[]|select(.screenshot?)|{path:.screenshot,sha256}],front:([.result|select(.frontend_revision?)|{revision:.frontend_revision,dirty:.frontend_dirty,wasm_sha256}])}",
+      "note": "Scalar grouping preserves the stream stage's first-seen order, differing from jq's key-sorted order. Array order is never canonicalized away.",
+      "reference_invocation": {
+        "query": ".http|group_by(.status)|map({status:.[0].status,count:length})",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "status": 200,
+                "count": 2
+              },
+              {
+                "status": 404,
+                "count": 1
+              },
+              {
+                "status": 500,
+                "count": 2
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "map(group_by(.http,.status),{status:.[0].status,count:length(.)})",
+        "flags": [],
+        "files": [
+          "backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            [
+              {
+                "status": 500,
+                "count": 2
+              },
+              {
+                "status": 200,
+                "count": 2
+              },
+              {
+                "status": 404,
+                "count": 1
+              }
+            ]
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 77,
+        "stdout_sha256": "012af42f3fecb7ac8727fa2a1d8715ab0f6d387056b41959836ba75df98c26da",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 77,
+        "stdout_sha256": "5a1db3b8d613f26c37a124fc12d8fa64af0fa3f2c224685e3ad60abd326b241e",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "empty-array-total-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "compiler",
+        "record": 897,
+        "prefix": ""
+      },
+      "original_query": "{status,byte_identical_compiler_artifacts,reviewed_objects:(.artifact_differences|length),reviewed_moves:([.artifact_differences[].changed_moves]|add)}",
+      "note": "Scalar sum uses the stream sum identity 0, while jq add returns null for an empty array. The observed total summary has a nonempty integral fixture; equivalence is not asserted over all possible inputs.",
+      "reference_invocation": {
+        "query": "[]|add",
+        "flags": [],
+        "files": [
+          "comparison"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            null
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "sum([])",
+        "flags": [],
+        "files": [
+          "comparison"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            0
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 2,
+        "stdout_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "integer-arithmetic-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "compiler",
+        "record": 1180,
+        "prefix": "{samples,mean_ms:"
+      },
+      "original_query": "{samples,mean_ms:([.sample_elapsed_ns[]]|add/length/1000000)}",
+      "note": "The installed jq's arithmetic rounds through binary floating point; jqz integer arithmetic remains exact.",
+      "reference_invocation": {
+        "query": ".+0",
+        "flags": [],
+        "files": [
+          "integer"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            9007199254740992
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".+0",
+        "flags": [],
+        "files": [
+          "integer"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            9007199254740993
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 17,
+        "stdout_sha256": "39ec82d0fadb4e41acd3f99b1db1b7cc8001df98ad73ab63b819eda9b8636ccb",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 17,
+        "stdout_sha256": "8262bb9547876bca86bbeb88f04ad9c4b3cbcac056cfdfbd30ede24496ef47b4",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "duplicate-key-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "backend",
+        "record": 9389,
+        "prefix": "keys"
+      },
+      "original_query": "keys",
+      "note": "jq keeps the last duplicate key; jqz rejects duplicate input keys.",
+      "reference_invocation": {
+        "query": ".",
+        "flags": [],
+        "files": [
+          "duplicate"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "x": 2
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": ".",
+        "flags": [],
+        "files": [
+          "duplicate"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 2,
+          "values": [],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 8,
+        "stdout_sha256": "feb939020e9d63a4e5671c2fee3621703f45dcd172d5ab9380cec70a163dea5d",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 2,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "rounded-mean-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "compiler",
+        "record": 1180,
+        "prefix": "{samples,mean_ms:"
+      },
+      "original_query": "{samples,mean_ms:([.sample_elapsed_ns[]]|add/length/1000000)}",
+      "note": "An explicit zero-place mean rounds a halfway result to even; it is not an unrounded jq mean.",
+      "reference_invocation": {
+        "query": "add/length",
+        "flags": [],
+        "files": [
+          "halfway"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            2.5
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "mean(.,0)",
+        "flags": [],
+        "files": [
+          "halfway"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            2
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 4,
+        "stdout_sha256": "686513ed91231892fbf0c4e72acee20264caa8538e8389157a942a808dba6531",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 2,
+        "stdout_sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "type-error-exit-probe",
+      "scope": "probe",
+      "classification": "intentional",
+      "origin": {
+        "session": "backend",
+        "record": 9389,
+        "prefix": "keys"
+      },
+      "original_query": "keys",
+      "note": "Both reject an unsupported type, with their documented evaluation-error exit codes.",
+      "reference_invocation": {
+        "query": "keys",
+        "flags": [],
+        "files": [
+          "null"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 5,
+          "values": [],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "keys(.)",
+        "flags": [],
+        "files": [
+          "null"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 2,
+          "values": [],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 5,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 2,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": false
+    },
+    {
+      "id": "command-progress-scale",
+      "scope": "scale",
+      "classification": "equivalent",
+      "origin": {
+        "session": "compiler",
+        "record": 542,
+        "prefix": "{commands:"
+      },
+      "original_query": "{commands:length,last:.[-1].argv}",
+      "note": "Generated sanitized records match the inspected command-log cardinality, not its original payload bytes.",
+      "reference_invocation": {
+        "query": "{commands:length,last:.[-1].argv}",
+        "flags": [],
+        "files": [
+          "large-commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 2837,
+              "last": [
+                "bin/z_llvm",
+                "compile",
+                "unit.zig"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{commands:length(.),last:.[-1].argv}",
+        "flags": [],
+        "files": [
+          "large-commands"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "commands": 2837,
+              "last": [
+                "bin/z_llvm",
+                "compile",
+                "unit.zig"
+              ]
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 61,
+        "stdout_sha256": "e86424c037b5f9049bf08b2374e39ff4c61bc2e8fa7ae73104c99a42b79c7053",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 61,
+        "stdout_sha256": "e86424c037b5f9049bf08b2374e39ff4c61bc2e8fa7ae73104c99a42b79c7053",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    },
+    {
+      "id": "report-summary-scale",
+      "scope": "scale",
+      "classification": "equivalent",
+      "origin": {
+        "session": "backend",
+        "record": 395,
+        "prefix": ""
+      },
+      "original_query": "{passed,cleanup_passed,result,http_count:(.http|length)}",
+      "note": "Synthetic 10000-HTTP/10000-fixture scaling scenario; excluded from observed-workflow coverage.",
+      "reference_invocation": {
+        "query": "{passed,cleanup_passed,result,http_count:(.http|length)}",
+        "flags": [],
+        "files": [
+          "large-backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": true,
+              "cleanup_passed": true,
+              "result": {
+                "code": 0
+              },
+              "http_count": 10000
+            }
+          ],
+          "raw": null
+        }
+      },
+      "candidate_invocation": {
+        "query": "{passed,cleanup_passed,result,http_count:length(.http)}",
+        "flags": [],
+        "files": [
+          "large-backend"
+        ],
+        "stdin": null,
+        "expected": {
+          "exit_code": 0,
+          "values": [
+            {
+              "passed": true,
+              "cleanup_passed": true,
+              "result": {
+                "code": 0
+              },
+              "http_count": 10000
+            }
+          ],
+          "raw": null
+        }
+      },
+      "jq": {
+        "exit_code": 0,
+        "stdout_bytes": 77,
+        "stdout_sha256": "299b7d051a2a587beadb6e163e8966dda4edd0ffea18b588687bed66f5408f1f",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "jqz": {
+        "exit_code": 0,
+        "stdout_bytes": 77,
+        "stdout_sha256": "299b7d051a2a587beadb6e163e8966dda4edd0ffea18b588687bed66f5408f1f",
+        "elapsed_ns": 0,
+        "peak_rss_bytes": null
+      },
+      "measured": true
+    }
+  ],
+  "samples": [
+    {
+      "case": "report-summary",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8334139,
+      "peak_rss_bytes": 6520832,
+      "stdout_bytes": 97,
+      "stdout_sha256": "8a03aa03ca6df13fd5231156bc8fc8843de009fa02d6db89ee45ed961956a8f5",
+      "exit_code": 0
+    },
+    {
+      "case": "report-summary",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3954900,
+      "peak_rss_bytes": 3796992,
+      "stdout_bytes": 97,
+      "stdout_sha256": "8a03aa03ca6df13fd5231156bc8fc8843de009fa02d6db89ee45ed961956a8f5",
+      "exit_code": 0
+    },
+    {
+      "case": "fixture-results",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8153526,
+      "peak_rss_bytes": 6520832,
+      "stdout_bytes": 206,
+      "stdout_sha256": "339110d8c6308d8e8e6c4fa17e3ef9540bc96d2d45c0447d461e279dffe81b6a",
+      "exit_code": 0
+    },
+    {
+      "case": "fixture-results",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3885293,
+      "peak_rss_bytes": 3624960,
+      "stdout_bytes": 206,
+      "stdout_sha256": "339110d8c6308d8e8e6c4fa17e3ef9540bc96d2d45c0447d461e279dffe81b6a",
+      "exit_code": 0
+    },
+    {
+      "case": "report-provenance",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8195188,
+      "peak_rss_bytes": 6520832,
+      "stdout_bytes": 100,
+      "stdout_sha256": "400bdd5bb7c502b4f7a338dcb03d97c0942f92fd4fb784525b538389ec7d0fc3",
+      "exit_code": 0
+    },
+    {
+      "case": "report-provenance",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3804506,
+      "peak_rss_bytes": 3731456,
+      "stdout_bytes": 100,
+      "stdout_sha256": "400bdd5bb7c502b4f7a338dcb03d97c0942f92fd4fb784525b538389ec7d0fc3",
+      "exit_code": 0
+    },
+    {
+      "case": "latest-http",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8072467,
+      "peak_rss_bytes": 6258688,
+      "stdout_bytes": 150,
+      "stdout_sha256": "273deab38a1dc3be9de3406ba6c88adb6c16d72322720b33b4853cb743bcfcb9",
+      "exit_code": 0
+    },
+    {
+      "case": "latest-http",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3956955,
+      "peak_rss_bytes": 3543040,
+      "stdout_bytes": 150,
+      "stdout_sha256": "273deab38a1dc3be9de3406ba6c88adb6c16d72322720b33b4853cb743bcfcb9",
+      "exit_code": 0
+    },
+    {
+      "case": "failure-log-path",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8021809,
+      "peak_rss_bytes": 6123520,
+      "stdout_bytes": 12,
+      "stdout_sha256": "1ce9029f55c3cb8e90e2a41d804cdd63779623f4b5c474e7834b87c5707b7bb3",
+      "exit_code": 0
+    },
+    {
+      "case": "failure-log-path",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3845466,
+      "peak_rss_bytes": 3608576,
+      "stdout_bytes": 12,
+      "stdout_sha256": "1ce9029f55c3cb8e90e2a41d804cdd63779623f4b5c474e7834b87c5707b7bb3",
+      "exit_code": 0
+    },
+    {
+      "case": "recent-http",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9051049,
+      "peak_rss_bytes": 6123520,
+      "stdout_bytes": 98,
+      "stdout_sha256": "23245d94d475708bf70b9fdc9470adec6e3234e3057e9b768b323ca9ec69f393",
+      "exit_code": 0
+    },
+    {
+      "case": "recent-http",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3797042,
+      "peak_rss_bytes": 3727360,
+      "stdout_bytes": 98,
+      "stdout_sha256": "23245d94d475708bf70b9fdc9470adec6e3234e3057e9b768b323ca9ec69f393",
+      "exit_code": 0
+    },
+    {
+      "case": "schema-keys",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8001118,
+      "peak_rss_bytes": 6127616,
+      "stdout_bytes": 167,
+      "stdout_sha256": "707b1f6208de730a3707e2e1d7a55d52868092a3cb66eb30251dcca479a67132",
+      "exit_code": 0
+    },
+    {
+      "case": "schema-keys",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3965811,
+      "peak_rss_bytes": 3809280,
+      "stdout_bytes": 167,
+      "stdout_sha256": "707b1f6208de730a3707e2e1d7a55d52868092a3cb66eb30251dcca479a67132",
+      "exit_code": 0
+    },
+    {
+      "case": "screenshot-provenance",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8988458,
+      "peak_rss_bytes": 6123520,
+      "stdout_bytes": 47,
+      "stdout_sha256": "1f7d97e1f2bb95df0933fd8e3256fe70cf4c8f6ac699e9f73d0d770c618024a8",
+      "exit_code": 0
+    },
+    {
+      "case": "screenshot-provenance",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 2749544,
+      "peak_rss_bytes": 3743744,
+      "stdout_bytes": 47,
+      "stdout_sha256": "1f7d97e1f2bb95df0933fd8e3256fe70cf4c8f6ac699e9f73d0d770c618024a8",
+      "exit_code": 0
+    },
+    {
+      "case": "batch-provenance",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9119203,
+      "peak_rss_bytes": 6258688,
+      "stdout_bytes": 178,
+      "stdout_sha256": "1f07d451f191c798c66e5a8df8748cde7e69a335ec3220cb5cea344555addcd3",
+      "exit_code": 0
+    },
+    {
+      "case": "batch-provenance",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3996391,
+      "peak_rss_bytes": 3629056,
+      "stdout_bytes": 178,
+      "stdout_sha256": "1f07d451f191c798c66e5a8df8748cde7e69a335ec3220cb5cea344555addcd3",
+      "exit_code": 0
+    },
+    {
+      "case": "qualification-gate",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9300978,
+      "peak_rss_bytes": 6254592,
+      "stdout_bytes": 5,
+      "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+      "exit_code": 0
+    },
+    {
+      "case": "qualification-gate",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 4005168,
+      "peak_rss_bytes": 3686400,
+      "stdout_bytes": 5,
+      "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+      "exit_code": 0
+    },
+    {
+      "case": "external-hash-gate",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8123037,
+      "peak_rss_bytes": 6258688,
+      "stdout_bytes": 5,
+      "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+      "exit_code": 0
+    },
+    {
+      "case": "external-hash-gate",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3893440,
+      "peak_rss_bytes": 3731456,
+      "stdout_bytes": 5,
+      "stdout_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+      "exit_code": 0
+    },
+    {
+      "case": "command-progress",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 10263771,
+      "peak_rss_bytes": 6258688,
+      "stdout_bytes": 56,
+      "stdout_sha256": "34fd80c9fbe96234504ed125bf28dadcdfc1d534a21983a05496d66acb00aeb1",
+      "exit_code": 0
+    },
+    {
+      "case": "command-progress",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 4015729,
+      "peak_rss_bytes": 3784704,
+      "stdout_bytes": 56,
+      "stdout_sha256": "34fd80c9fbe96234504ed125bf28dadcdfc1d534a21983a05496d66acb00aeb1",
+      "exit_code": 0
+    },
+    {
+      "case": "compiler-call-count",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 11401575,
+      "peak_rss_bytes": 6651904,
+      "stdout_bytes": 75,
+      "stdout_sha256": "3f56d3927b0a570b8b9c3d9d9194296ce15e0a4b62ab2a88d056f45670c06119",
+      "exit_code": 0
+    },
+    {
+      "case": "compiler-call-count",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 4124762,
+      "peak_rss_bytes": 3702784,
+      "stdout_bytes": 75,
+      "stdout_sha256": "3f56d3927b0a570b8b9c3d9d9194296ce15e0a4b62ab2a88d056f45670c06119",
+      "exit_code": 0
+    },
+    {
+      "case": "recent-commands",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9177507,
+      "peak_rss_bytes": 6127616,
+      "stdout_bytes": 152,
+      "stdout_sha256": "fc4aa4509b079e0924d8978e09c9eebc3ad34180ba16bacbaaab4c5dbf48129d",
+      "exit_code": 0
+    },
+    {
+      "case": "recent-commands",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3870174,
+      "peak_rss_bytes": 3629056,
+      "stdout_bytes": 152,
+      "stdout_sha256": "fc4aa4509b079e0924d8978e09c9eebc3ad34180ba16bacbaaab4c5dbf48129d",
+      "exit_code": 0
+    },
+    {
+      "case": "argument-window",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9222085,
+      "peak_rss_bytes": 6389760,
+      "stdout_bytes": 43,
+      "stdout_sha256": "eb726e868a6c8997245cd2740774373a1b30719af35a647cea437f56f72780ca",
+      "exit_code": 0
+    },
+    {
+      "case": "argument-window",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3855335,
+      "peak_rss_bytes": 3665920,
+      "stdout_bytes": 43,
+      "stdout_sha256": "eb726e868a6c8997245cd2740774373a1b30719af35a647cea437f56f72780ca",
+      "exit_code": 0
+    },
+    {
+      "case": "compiler-status",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9165945,
+      "peak_rss_bytes": 5996544,
+      "stdout_bytes": 74,
+      "stdout_sha256": "85fc002fdb11efd0391c28af7522f0639ce0de87ca8ab6993001f6e2a03e32da",
+      "exit_code": 0
+    },
+    {
+      "case": "compiler-status",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3904181,
+      "peak_rss_bytes": 3743744,
+      "stdout_bytes": 74,
+      "stdout_sha256": "85fc002fdb11efd0391c28af7522f0639ce0de87ca8ab6993001f6e2a03e32da",
+      "exit_code": 0
+    },
+    {
+      "case": "toolchain-status",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8130791,
+      "peak_rss_bytes": 6389760,
+      "stdout_bytes": 133,
+      "stdout_sha256": "5f7e4098314f850c2689e2b63dc86c3692dace00700e9709e55880c5f8b964e1",
+      "exit_code": 0
+    },
+    {
+      "case": "toolchain-status",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3929330,
+      "peak_rss_bytes": 3563520,
+      "stdout_bytes": 133,
+      "stdout_sha256": "5f7e4098314f850c2689e2b63dc86c3692dace00700e9709e55880c5f8b964e1",
+      "exit_code": 0
+    },
+    {
+      "case": "sample-count",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 7959497,
+      "peak_rss_bytes": 6127616,
+      "stdout_bytes": 53,
+      "stdout_sha256": "600555237eceea1bf6723edb4b3abc7d68d7ba34565ba040f8315ed4d334c461",
+      "exit_code": 0
+    },
+    {
+      "case": "sample-count",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3829935,
+      "peak_rss_bytes": 3796992,
+      "stdout_bytes": 53,
+      "stdout_sha256": "600555237eceea1bf6723edb4b3abc7d68d7ba34565ba040f8315ed4d334c461",
+      "exit_code": 0
+    },
+    {
+      "case": "artifact-comparison",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9178329,
+      "peak_rss_bytes": 6389760,
+      "stdout_bytes": 279,
+      "stdout_sha256": "83dda7ad20ecedd77ddcee4a07dd647075ace1ca6959fc1305bc92d5b5c25687",
+      "exit_code": 0
+    },
+    {
+      "case": "artifact-comparison",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3951403,
+      "peak_rss_bytes": 3563520,
+      "stdout_bytes": 279,
+      "stdout_sha256": "83dda7ad20ecedd77ddcee4a07dd647075ace1ca6959fc1305bc92d5b5c25687",
+      "exit_code": 0
+    },
+    {
+      "case": "measurement-tail",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9378590,
+      "peak_rss_bytes": 5996544,
+      "stdout_bytes": 11,
+      "stdout_sha256": "285ca2545feed6acf601dceae6c2c23b9065be3b07b8ea40bb88ab88dcd174e0",
+      "exit_code": 0
+    },
+    {
+      "case": "measurement-tail",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3921564,
+      "peak_rss_bytes": 3665920,
+      "stdout_bytes": 11,
+      "stdout_sha256": "285ca2545feed6acf601dceae6c2c23b9065be3b07b8ea40bb88ab88dcd174e0",
+      "exit_code": 0
+    },
+    {
+      "case": "timing-fallback",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8073019,
+      "peak_rss_bytes": 6127616,
+      "stdout_bytes": 34,
+      "stdout_sha256": "8681f7b265fb2dfc57d4d6286a5e5fb42625f35ee0bd58b3a87c19dfb48d63cc",
+      "exit_code": 0
+    },
+    {
+      "case": "timing-fallback",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3839264,
+      "peak_rss_bytes": 3506176,
+      "stdout_bytes": 34,
+      "stdout_sha256": "8681f7b265fb2dfc57d4d6286a5e5fb42625f35ee0bd58b3a87c19dfb48d63cc",
+      "exit_code": 0
+    },
+    {
+      "case": "mean-timing",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9110255,
+      "peak_rss_bytes": 6582272,
+      "stdout_bytes": 33,
+      "stdout_sha256": "d6ba350b42de53e07fe659ec31fb56cfd9269981dd2883a9eba6a13a8866c8af",
+      "exit_code": 0
+    },
+    {
+      "case": "mean-timing",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3905664,
+      "peak_rss_bytes": 3637248,
+      "stdout_bytes": 28,
+      "stdout_sha256": "25805c7fdc73ead84d82a3bc70b82df4d95cae3aca0a0e2422062d3421785912",
+      "exit_code": 0
+    },
+    {
+      "case": "negative-toolchain-gate",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8111093,
+      "peak_rss_bytes": 6127616,
+      "stdout_bytes": 6,
+      "stdout_sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+      "exit_code": 1
+    },
+    {
+      "case": "negative-toolchain-gate",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3780408,
+      "peak_rss_bytes": 3702784,
+      "stdout_bytes": 6,
+      "stdout_sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+      "exit_code": 1
+    },
+    {
+      "case": "schema-key-union",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9083043,
+      "peak_rss_bytes": 5996544,
+      "stdout_bytes": 73,
+      "stdout_sha256": "892919db4c6d0ddc0ddd4c4089c318e10c0cbfb78400b42bce186c4d21a9ad67",
+      "exit_code": 0
+    },
+    {
+      "case": "schema-key-union",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3818403,
+      "peak_rss_bytes": 3760128,
+      "stdout_bytes": 73,
+      "stdout_sha256": "892919db4c6d0ddc0ddd4c4089c318e10c0cbfb78400b42bce186c4d21a9ad67",
+      "exit_code": 0
+    },
+    {
+      "case": "embedded-group-summary",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9102240,
+      "peak_rss_bytes": 6389760,
+      "stdout_bytes": 105,
+      "stdout_sha256": "0235f065a4b4d6b2600ee15da41db1448ea1facd046d145a3bf04a7da7b1c164",
+      "exit_code": 0
+    },
+    {
+      "case": "embedded-group-summary",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3896235,
+      "peak_rss_bytes": 3801088,
+      "stdout_bytes": 105,
+      "stdout_sha256": "0235f065a4b4d6b2600ee15da41db1448ea1facd046d145a3bf04a7da7b1c164",
+      "exit_code": 0
+    },
+    {
+      "case": "embedded-total-summary",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 7929017,
+      "peak_rss_bytes": 6520832,
+      "stdout_bytes": 100,
+      "stdout_sha256": "ff7389c867d4893f30404034ce1d496b19cb1b3af689f9b54b147467b0ad2606",
+      "exit_code": 0
+    },
+    {
+      "case": "embedded-total-summary",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3875544,
+      "peak_rss_bytes": 3809280,
+      "stdout_bytes": 100,
+      "stdout_sha256": "ff7389c867d4893f30404034ce1d496b19cb1b3af689f9b54b147467b0ad2606",
+      "exit_code": 0
+    },
+    {
+      "case": "serialized-sample-size",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8114730,
+      "peak_rss_bytes": 6520832,
+      "stdout_bytes": 35,
+      "stdout_sha256": "819fe118f7d147b29069624d13148066f8688304dd4fc31a829b5800f760d3bf",
+      "exit_code": 0
+    },
+    {
+      "case": "serialized-sample-size",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3908259,
+      "peak_rss_bytes": 3702784,
+      "stdout_bytes": 35,
+      "stdout_sha256": "819fe118f7d147b29069624d13148066f8688304dd4fc31a829b5800f760d3bf",
+      "exit_code": 0
+    },
+    {
+      "case": "normalize-config",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 8283790,
+      "peak_rss_bytes": 6123520,
+      "stdout_bytes": 66,
+      "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+      "exit_code": 0
+    },
+    {
+      "case": "normalize-config",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3853352,
+      "peak_rss_bytes": 3665920,
+      "stdout_bytes": 66,
+      "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+      "exit_code": 0
+    },
+    {
+      "case": "distinct-schema-shapes",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9160314,
+      "peak_rss_bytes": 6127616,
+      "stdout_bytes": 142,
+      "stdout_sha256": "7fbb36009f179ca6c9d3e96265e82b0774fb8390935a1757fff564ddd196a936",
+      "exit_code": 0
+    },
+    {
+      "case": "distinct-schema-shapes",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3797502,
+      "peak_rss_bytes": 3796992,
+      "stdout_bytes": 142,
+      "stdout_sha256": "7fbb36009f179ca6c9d3e96265e82b0774fb8390935a1757fff564ddd196a936",
+      "exit_code": 0
+    },
+    {
+      "case": "sorted-config-bytes",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9140705,
+      "peak_rss_bytes": 6385664,
+      "stdout_bytes": 66,
+      "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+      "exit_code": 0
+    },
+    {
+      "case": "sorted-config-bytes",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3952616,
+      "peak_rss_bytes": 3796992,
+      "stdout_bytes": 66,
+      "stdout_sha256": "6600dac3584d6632491a06436e33397980e83979f7a6c467db107e79b46a957d",
+      "exit_code": 0
+    },
+    {
+      "case": "http-status-component",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 9115245,
+      "peak_rss_bytes": 6258688,
+      "stdout_bytes": 77,
+      "stdout_sha256": "012af42f3fecb7ac8727fa2a1d8715ab0f6d387056b41959836ba75df98c26da",
+      "exit_code": 0
+    },
+    {
+      "case": "http-status-component",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3848813,
+      "peak_rss_bytes": 3796992,
+      "stdout_bytes": 77,
+      "stdout_sha256": "012af42f3fecb7ac8727fa2a1d8715ab0f6d387056b41959836ba75df98c26da",
+      "exit_code": 0
+    },
+    {
+      "case": "source-command-failure-component",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 7980337,
+      "peak_rss_bytes": 6520832,
+      "stdout_bytes": 2,
+      "stdout_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "exit_code": 0
+    },
+    {
+      "case": "source-command-failure-component",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 3873501,
+      "peak_rss_bytes": 3731456,
+      "stdout_bytes": 2,
+      "stdout_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "exit_code": 0
+    },
+    {
+      "case": "command-progress-scale",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 29252333,
+      "peak_rss_bytes": 9797632,
+      "stdout_bytes": 61,
+      "stdout_sha256": "e86424c037b5f9049bf08b2374e39ff4c61bc2e8fa7ae73104c99a42b79c7053",
+      "exit_code": 0
+    },
+    {
+      "case": "command-progress-scale",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 11461802,
+      "peak_rss_bytes": 8290304,
+      "stdout_bytes": 61,
+      "stdout_sha256": "e86424c037b5f9049bf08b2374e39ff4c61bc2e8fa7ae73104c99a42b79c7053",
+      "exit_code": 0
+    },
+    {
+      "case": "report-summary-scale",
+      "tool": "jqz",
+      "iteration": 0,
+      "elapsed_ns": 54869702,
+      "peak_rss_bytes": 13168640,
+      "stdout_bytes": 77,
+      "stdout_sha256": "299b7d051a2a587beadb6e163e8966dda4edd0ffea18b588687bed66f5408f1f",
+      "exit_code": 0
+    },
+    {
+      "case": "report-summary-scale",
+      "tool": "jq",
+      "iteration": 0,
+      "elapsed_ns": 21836960,
+      "peak_rss_bytes": 19263488,
+      "stdout_bytes": 77,
+      "stdout_sha256": "299b7d051a2a587beadb6e163e8966dda4edd0ffea18b588687bed66f5408f1f",
+      "exit_code": 0
+    }
+  ],
+  "summaries": [
+    {
+      "case": "report-summary",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8334139,
+        "median": 8334139,
+        "max": 8334139
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6520832,
+        "median": 6520832,
+        "max": 6520832
+      }
+    },
+    {
+      "case": "report-summary",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3954900,
+        "median": 3954900,
+        "max": 3954900
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3796992,
+        "median": 3796992,
+        "max": 3796992
+      }
+    },
+    {
+      "case": "fixture-results",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8153526,
+        "median": 8153526,
+        "max": 8153526
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6520832,
+        "median": 6520832,
+        "max": 6520832
+      }
+    },
+    {
+      "case": "fixture-results",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3885293,
+        "median": 3885293,
+        "max": 3885293
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3624960,
+        "median": 3624960,
+        "max": 3624960
+      }
+    },
+    {
+      "case": "report-provenance",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8195188,
+        "median": 8195188,
+        "max": 8195188
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6520832,
+        "median": 6520832,
+        "max": 6520832
+      }
+    },
+    {
+      "case": "report-provenance",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3804506,
+        "median": 3804506,
+        "max": 3804506
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3731456,
+        "median": 3731456,
+        "max": 3731456
+      }
+    },
+    {
+      "case": "latest-http",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8072467,
+        "median": 8072467,
+        "max": 8072467
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6258688,
+        "median": 6258688,
+        "max": 6258688
+      }
+    },
+    {
+      "case": "latest-http",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3956955,
+        "median": 3956955,
+        "max": 3956955
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3543040,
+        "median": 3543040,
+        "max": 3543040
+      }
+    },
+    {
+      "case": "failure-log-path",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8021809,
+        "median": 8021809,
+        "max": 8021809
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6123520,
+        "median": 6123520,
+        "max": 6123520
+      }
+    },
+    {
+      "case": "failure-log-path",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3845466,
+        "median": 3845466,
+        "max": 3845466
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3608576,
+        "median": 3608576,
+        "max": 3608576
+      }
+    },
+    {
+      "case": "recent-http",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9051049,
+        "median": 9051049,
+        "max": 9051049
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6123520,
+        "median": 6123520,
+        "max": 6123520
+      }
+    },
+    {
+      "case": "recent-http",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3797042,
+        "median": 3797042,
+        "max": 3797042
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3727360,
+        "median": 3727360,
+        "max": 3727360
+      }
+    },
+    {
+      "case": "schema-keys",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8001118,
+        "median": 8001118,
+        "max": 8001118
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6127616,
+        "median": 6127616,
+        "max": 6127616
+      }
+    },
+    {
+      "case": "schema-keys",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3965811,
+        "median": 3965811,
+        "max": 3965811
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3809280,
+        "median": 3809280,
+        "max": 3809280
+      }
+    },
+    {
+      "case": "screenshot-provenance",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8988458,
+        "median": 8988458,
+        "max": 8988458
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6123520,
+        "median": 6123520,
+        "max": 6123520
+      }
+    },
+    {
+      "case": "screenshot-provenance",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 2749544,
+        "median": 2749544,
+        "max": 2749544
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3743744,
+        "median": 3743744,
+        "max": 3743744
+      }
+    },
+    {
+      "case": "batch-provenance",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9119203,
+        "median": 9119203,
+        "max": 9119203
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6258688,
+        "median": 6258688,
+        "max": 6258688
+      }
+    },
+    {
+      "case": "batch-provenance",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3996391,
+        "median": 3996391,
+        "max": 3996391
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3629056,
+        "median": 3629056,
+        "max": 3629056
+      }
+    },
+    {
+      "case": "qualification-gate",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9300978,
+        "median": 9300978,
+        "max": 9300978
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6254592,
+        "median": 6254592,
+        "max": 6254592
+      }
+    },
+    {
+      "case": "qualification-gate",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 4005168,
+        "median": 4005168,
+        "max": 4005168
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3686400,
+        "median": 3686400,
+        "max": 3686400
+      }
+    },
+    {
+      "case": "external-hash-gate",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8123037,
+        "median": 8123037,
+        "max": 8123037
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6258688,
+        "median": 6258688,
+        "max": 6258688
+      }
+    },
+    {
+      "case": "external-hash-gate",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3893440,
+        "median": 3893440,
+        "max": 3893440
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3731456,
+        "median": 3731456,
+        "max": 3731456
+      }
+    },
+    {
+      "case": "command-progress",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 10263771,
+        "median": 10263771,
+        "max": 10263771
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6258688,
+        "median": 6258688,
+        "max": 6258688
+      }
+    },
+    {
+      "case": "command-progress",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 4015729,
+        "median": 4015729,
+        "max": 4015729
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3784704,
+        "median": 3784704,
+        "max": 3784704
+      }
+    },
+    {
+      "case": "compiler-call-count",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 11401575,
+        "median": 11401575,
+        "max": 11401575
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6651904,
+        "median": 6651904,
+        "max": 6651904
+      }
+    },
+    {
+      "case": "compiler-call-count",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 4124762,
+        "median": 4124762,
+        "max": 4124762
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3702784,
+        "median": 3702784,
+        "max": 3702784
+      }
+    },
+    {
+      "case": "recent-commands",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9177507,
+        "median": 9177507,
+        "max": 9177507
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6127616,
+        "median": 6127616,
+        "max": 6127616
+      }
+    },
+    {
+      "case": "recent-commands",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3870174,
+        "median": 3870174,
+        "max": 3870174
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3629056,
+        "median": 3629056,
+        "max": 3629056
+      }
+    },
+    {
+      "case": "argument-window",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9222085,
+        "median": 9222085,
+        "max": 9222085
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6389760,
+        "median": 6389760,
+        "max": 6389760
+      }
+    },
+    {
+      "case": "argument-window",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3855335,
+        "median": 3855335,
+        "max": 3855335
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3665920,
+        "median": 3665920,
+        "max": 3665920
+      }
+    },
+    {
+      "case": "compiler-status",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9165945,
+        "median": 9165945,
+        "max": 9165945
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 5996544,
+        "median": 5996544,
+        "max": 5996544
+      }
+    },
+    {
+      "case": "compiler-status",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3904181,
+        "median": 3904181,
+        "max": 3904181
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3743744,
+        "median": 3743744,
+        "max": 3743744
+      }
+    },
+    {
+      "case": "toolchain-status",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8130791,
+        "median": 8130791,
+        "max": 8130791
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6389760,
+        "median": 6389760,
+        "max": 6389760
+      }
+    },
+    {
+      "case": "toolchain-status",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3929330,
+        "median": 3929330,
+        "max": 3929330
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3563520,
+        "median": 3563520,
+        "max": 3563520
+      }
+    },
+    {
+      "case": "sample-count",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 7959497,
+        "median": 7959497,
+        "max": 7959497
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6127616,
+        "median": 6127616,
+        "max": 6127616
+      }
+    },
+    {
+      "case": "sample-count",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3829935,
+        "median": 3829935,
+        "max": 3829935
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3796992,
+        "median": 3796992,
+        "max": 3796992
+      }
+    },
+    {
+      "case": "artifact-comparison",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9178329,
+        "median": 9178329,
+        "max": 9178329
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6389760,
+        "median": 6389760,
+        "max": 6389760
+      }
+    },
+    {
+      "case": "artifact-comparison",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3951403,
+        "median": 3951403,
+        "max": 3951403
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3563520,
+        "median": 3563520,
+        "max": 3563520
+      }
+    },
+    {
+      "case": "measurement-tail",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9378590,
+        "median": 9378590,
+        "max": 9378590
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 5996544,
+        "median": 5996544,
+        "max": 5996544
+      }
+    },
+    {
+      "case": "measurement-tail",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3921564,
+        "median": 3921564,
+        "max": 3921564
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3665920,
+        "median": 3665920,
+        "max": 3665920
+      }
+    },
+    {
+      "case": "timing-fallback",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8073019,
+        "median": 8073019,
+        "max": 8073019
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6127616,
+        "median": 6127616,
+        "max": 6127616
+      }
+    },
+    {
+      "case": "timing-fallback",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3839264,
+        "median": 3839264,
+        "max": 3839264
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3506176,
+        "median": 3506176,
+        "max": 3506176
+      }
+    },
+    {
+      "case": "mean-timing",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9110255,
+        "median": 9110255,
+        "max": 9110255
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6582272,
+        "median": 6582272,
+        "max": 6582272
+      }
+    },
+    {
+      "case": "mean-timing",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3905664,
+        "median": 3905664,
+        "max": 3905664
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3637248,
+        "median": 3637248,
+        "max": 3637248
+      }
+    },
+    {
+      "case": "negative-toolchain-gate",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8111093,
+        "median": 8111093,
+        "max": 8111093
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6127616,
+        "median": 6127616,
+        "max": 6127616
+      }
+    },
+    {
+      "case": "negative-toolchain-gate",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3780408,
+        "median": 3780408,
+        "max": 3780408
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3702784,
+        "median": 3702784,
+        "max": 3702784
+      }
+    },
+    {
+      "case": "schema-key-union",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9083043,
+        "median": 9083043,
+        "max": 9083043
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 5996544,
+        "median": 5996544,
+        "max": 5996544
+      }
+    },
+    {
+      "case": "schema-key-union",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3818403,
+        "median": 3818403,
+        "max": 3818403
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3760128,
+        "median": 3760128,
+        "max": 3760128
+      }
+    },
+    {
+      "case": "embedded-group-summary",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9102240,
+        "median": 9102240,
+        "max": 9102240
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6389760,
+        "median": 6389760,
+        "max": 6389760
+      }
+    },
+    {
+      "case": "embedded-group-summary",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3896235,
+        "median": 3896235,
+        "max": 3896235
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3801088,
+        "median": 3801088,
+        "max": 3801088
+      }
+    },
+    {
+      "case": "embedded-total-summary",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 7929017,
+        "median": 7929017,
+        "max": 7929017
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6520832,
+        "median": 6520832,
+        "max": 6520832
+      }
+    },
+    {
+      "case": "embedded-total-summary",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3875544,
+        "median": 3875544,
+        "max": 3875544
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3809280,
+        "median": 3809280,
+        "max": 3809280
+      }
+    },
+    {
+      "case": "serialized-sample-size",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8114730,
+        "median": 8114730,
+        "max": 8114730
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6520832,
+        "median": 6520832,
+        "max": 6520832
+      }
+    },
+    {
+      "case": "serialized-sample-size",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3908259,
+        "median": 3908259,
+        "max": 3908259
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3702784,
+        "median": 3702784,
+        "max": 3702784
+      }
+    },
+    {
+      "case": "normalize-config",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 8283790,
+        "median": 8283790,
+        "max": 8283790
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6123520,
+        "median": 6123520,
+        "max": 6123520
+      }
+    },
+    {
+      "case": "normalize-config",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3853352,
+        "median": 3853352,
+        "max": 3853352
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3665920,
+        "median": 3665920,
+        "max": 3665920
+      }
+    },
+    {
+      "case": "distinct-schema-shapes",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9160314,
+        "median": 9160314,
+        "max": 9160314
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6127616,
+        "median": 6127616,
+        "max": 6127616
+      }
+    },
+    {
+      "case": "distinct-schema-shapes",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3797502,
+        "median": 3797502,
+        "max": 3797502
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3796992,
+        "median": 3796992,
+        "max": 3796992
+      }
+    },
+    {
+      "case": "sorted-config-bytes",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9140705,
+        "median": 9140705,
+        "max": 9140705
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6385664,
+        "median": 6385664,
+        "max": 6385664
+      }
+    },
+    {
+      "case": "sorted-config-bytes",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3952616,
+        "median": 3952616,
+        "max": 3952616
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3796992,
+        "median": 3796992,
+        "max": 3796992
+      }
+    },
+    {
+      "case": "http-status-component",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 9115245,
+        "median": 9115245,
+        "max": 9115245
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6258688,
+        "median": 6258688,
+        "max": 6258688
+      }
+    },
+    {
+      "case": "http-status-component",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3848813,
+        "median": 3848813,
+        "max": 3848813
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3796992,
+        "median": 3796992,
+        "max": 3796992
+      }
+    },
+    {
+      "case": "source-command-failure-component",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 7980337,
+        "median": 7980337,
+        "max": 7980337
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 6520832,
+        "median": 6520832,
+        "max": 6520832
+      }
+    },
+    {
+      "case": "source-command-failure-component",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 3873501,
+        "median": 3873501,
+        "max": 3873501
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 3731456,
+        "median": 3731456,
+        "max": 3731456
+      }
+    },
+    {
+      "case": "command-progress-scale",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 29252333,
+        "median": 29252333,
+        "max": 29252333
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 9797632,
+        "median": 9797632,
+        "max": 9797632
+      }
+    },
+    {
+      "case": "command-progress-scale",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 11461802,
+        "median": 11461802,
+        "max": 11461802
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 8290304,
+        "median": 8290304,
+        "max": 8290304
+      }
+    },
+    {
+      "case": "report-summary-scale",
+      "tool": "jqz",
+      "wall_ns": {
+        "samples": 1,
+        "min": 54869702,
+        "median": 54869702,
+        "max": 54869702
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 13168640,
+        "median": 13168640,
+        "max": 13168640
+      }
+    },
+    {
+      "case": "report-summary-scale",
+      "tool": "jq",
+      "wall_ns": {
+        "samples": 1,
+        "min": 21836960,
+        "median": 21836960,
+        "max": 21836960
+      },
+      "peak_rss_bytes": {
+        "samples": 1,
+        "min": 19263488,
+        "median": 19263488,
+        "max": 19263488
+      }
+    }
+  ]
+}
