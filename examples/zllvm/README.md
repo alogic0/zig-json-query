@@ -1,6 +1,7 @@
 # Compiler-report queries
 
-These jqz 0.28.0 examples translate observed `z_llvm` session queries. The
+These examples translate observed `z_llvm` session queries, initially audited on
+jqz 0.28.0. Joined path output is available starting in 0.29.0. The
 [audit plan](../../docs/plans/2026-11-11-zllvm-translation.md) and translation
 manifest at `docs/experiments/zllvm_translations.json` record the reference jq
 filters. Actual retained compiler inputs were checked with independent jq
@@ -28,6 +29,7 @@ Run from the jqz checkout, after `zig build`:
 | `census-progress.query` | Completed function count and latest function name |
 | `grouped-rejections.query` | Rejection counts and two examples per boundary |
 | `grouped-selector-pairs.query` | Rejection groups by selector tag and detail |
+| `nul-paths.query` | NUL-delimited paths; run with `-j` (0.29.0+) |
 
 Use ordinary JSON mode for command-array files and `--ndjson` for census/event
 logs. Census/grouping translations consume records directly: omit jq's `-s`.
@@ -42,6 +44,8 @@ calculation loses precision while subtracting epoch nanosecond timestamps beyond
 `2^53`, producing different decimals on the checked reports. Accept
 that contract explicitly before adopting this example as a report replacement.
 
-The observed NUL-delimited path protocol (`jq -jr`) also differs: jqz raw output
-adds a newline to every result and currently has no `-j` / `--join-output` option.
-The audit keeps this counterexample outside the equivalent examples above.
+The 0.28.0 audit preserves the historical NUL path counterexample. Starting with
+0.29.0, use `jqz -j -f examples/zllvm/nul-paths.query FILE` to emit each path plus
+NUL with no added newlines. The
+[CLI follow-up plan](../../docs/plans/2026-11-11-cli-output-and-file-bindings.md)
+records its fresh live checks and file-binding work.

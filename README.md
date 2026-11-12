@@ -77,7 +77,14 @@ files. Satisfied `take` skips later records and files without opening them.
 
 `-r` / `--raw-output` writes strings without JSON quotes; non-strings remain
 compact JSON. Each value has a trailing newline, and newlines inside a raw
-string remain literal. `-f FILE` / `--from-file FILE` reads one query file;
+string remain literal. `-j` / `--join-output` implies raw strings and suppresses
+the trailing newline for every result, including JSON values. Embedded newlines
+and NUL bytes remain unchanged. `-e` still classifies emitted values, so an empty
+joined string is a successful output even though it writes zero bytes.
+No-argument short flags `n/s/r/j/S/e` can be bundled, for example `-nj`, `-jr`
+or `-nSje`; keep argument-taking options such as `-f` separate.
+
+`-f FILE` / `--from-file FILE` reads one query file;
 positional arguments then name input files. Options can precede or follow
 positional arguments until `--`. Multiple `-f` options are errors. `-f -` reads
 the query from stdin and requires explicit named input files, without `-` input,

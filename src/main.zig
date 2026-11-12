@@ -6,12 +6,13 @@ const usage =
     \\       jqz [OPTIONS] -f QUERY_FILE [FILE|- ...]
     \\
     \\Read one JSON document per file, or all NDJSON records as one stream.
-    \\Without FILE, read stdin. Output is one JSON value per line.
+    \\Without FILE, read stdin. Output is one value per line unless -j is set.
     \\
     \\  -n, --null-input          Run once with null; read no input data
     \\  --ndjson                  Parse one JSON record per nonblank line
     \\  -s, --slurp               Query one array containing all input values
     \\  -r, --raw-output          Write strings raw; other values as JSON
+    \\  -j, --join-output         Raw strings; no trailing output newlines
     \\  -S, --sort-keys           Sort object names recursively in JSON output
     \\  -e, --exit-status         Status 1 for false/null, 4 for no output
     \\  --arg NAME VALUE         Bind $NAME to a string
@@ -25,6 +26,7 @@ const usage =
     \\from stdin and requires explicit named input files unless -n is set.
     \\With -n, data filenames, --slurp and --ndjson are ignored; -f - can
     \\still read the query from stdin. input_filename() returns null.
+    \\No-argument short flags n/s/r/j/S/e may be bundled (e.g. -nj or -jr).
     \\
     \\Examples:
     \\  .users | each | where(.age >= 18) | {name: .name}
@@ -67,6 +69,7 @@ fn run(init: std.process.Init) !u8 {
     var ndjson = false;
     var null_input = false;
     var raw_output = false;
+    var join_output = false;
     var sort_keys = false;
     var exit_status = false;
     var slurp_input = false;
@@ -97,6 +100,8 @@ fn run(init: std.process.Init) !u8 {
             slurp_input = true;
         } else if (options and (std.mem.eql(u8, arg, "-r") or std.mem.eql(u8, arg, "--raw-output"))) {
             raw_output = true;
+        } else if (options and (std.mem.eql(u8, arg, "-j") or std.mem.eql(u8, arg, "--join-output"))) {
+            join_output = true;
         } else if (options and (std.mem.eql(u8, arg, "-S") or std.mem.eql(u8, arg, "--sort-keys"))) {
             sort_keys = true;
         } else if (options and (std.mem.eql(u8, arg, "-e") or std.mem.eql(u8, arg, "--exit-status"))) {
@@ -111,6 +116,25 @@ fn run(init: std.process.Init) !u8 {
             if (index == args.len) return argumentError(&errors.interface, "-f requires a query filename");
             query_file = args[index];
         } else if (options and arg.len > 1 and arg[0] == '-') {
+            if (arg.len > 2 and arg[1] != '-') {
+                var valid_bundle = true;
+                for (arg[1..]) |flag| if (std.mem.indexOfScalar(u8, "nsrjSe", flag) == null) {
+                    valid_bundle = false;
+                    break;
+                };
+                if (valid_bundle) {
+                    for (arg[1..]) |flag| switch (flag) {
+                        'n' => null_input = true,
+                        's' => slurp_input = true,
+                        'r' => raw_output = true,
+                        'j' => join_output = true,
+                        'S' => sort_keys = true,
+                        'e' => exit_status = true,
+                        else => unreachable,
+                    };
+                    continue;
+                }
+            }
             try errors.interface.print("jqz: unknown option {s}; use -- before a query beginning with -\n", .{arg});
             try errors.interface.flush();
             return 2;
@@ -151,7 +175,7 @@ fn run(init: std.process.Init) !u8 {
         return err;
     };
     defer program.deinit();
-    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .sort_keys = sort_keys });
+    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .join_output = join_output, .sort_keys = sort_keys });
     defer stream.deinit();
     const slurp = if (slurp_input and !null_input and stream.needsInput()) try query.Slurp.init(allocator, query.max_input_bytes) else null;
     defer if (slurp) |collector| collector.deinit();

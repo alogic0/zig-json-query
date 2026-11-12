@@ -1,0 +1,1 @@
+map(keys(.files),[.,"\u0000"]) | each | each

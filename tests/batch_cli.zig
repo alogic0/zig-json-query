@@ -69,6 +69,16 @@ test "CLI files stdin and query files compose without sharing stdin twice" {
     try check(&.{"input_filename(1)"}, "", 2, "", "takes no arguments");
 }
 
+test "CLI joined output composes with named queries and multiple files" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const source = try files.write("paths.query", "map(keys(.files),[.,\"\\u0000\"]) | each | each");
+    const a = try files.write("first.json", "{\"files\":{\"a.zig\":true}}");
+    const b = try files.write("second.json", "{\"files\":{\"b.zig\":true}}");
+    try check(&.{ "-jr", "-f", source, a, b }, "", 0, "a.zig\x00b.zig\x00", null);
+    try check(&.{ "-nj", "-f", "-" }, "\"from query\"", 0, "from query", null);
+}
+
 test "CLI null input skips malformed missing and repeated stdin sources in every input mode" {
     var files = try InputFiles.init();
     defer files.deinit();

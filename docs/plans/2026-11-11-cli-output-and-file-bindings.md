@@ -1,6 +1,7 @@
 # Joined output and file bindings
 
-Status: authorized implementation, starting from jqz 0.28.0.
+Status: joined output verified as 0.29.0; live framing checks and file bindings
+remain in progress.
 
 ## Objective
 
@@ -36,9 +37,9 @@ qualification evidence unchanged. Validate native x86_64 Linux Debug only.
 
 ## Verified slices
 
-1. [ ] Record/commit this plan after checking CLI, writer, binding and Scanner
+1. [x] Record/commit this plan after checking CLI, writer, binding and Scanner
    APIs and installed jq behavior. Link it from the README.
-2. [ ] Implement joined output and no-argument short bundles. Add meaningful
+2. [x] Implement joined output and no-argument short bundles. Add meaningful
    CLI/library checks for NUL/Unicode/empty strings, JSON/non-string results,
    status, query files, streaming completion and failed writes. Add a separate
    consumer check. Read `zig build version`, set minor 0.29.0 through the pinned
@@ -63,3 +64,13 @@ Write complete commit messages into temporary files, use `git commit -F`, and
 remove those files after success with plain `rm`. Each verified slice precedes
 the next. Keep major 0 unchanged; no architecture/build-mode matrix, publication,
 new interpreter or additional query-language feature is included.
+
+## Verification record
+
+Joined-output slice: native Debug build and all 240 project checks pass (160
+library, 47 CLI, four version, three qualification, eighteen profiler and eight
+distribution-verifier checks). The separate public consumer passes nine checks.
+New coverage includes exact NUL/Unicode/JSON bytes, zero-byte string status,
+bundled flags and `--`, query files, multiple inputs, completion/early stop,
+library writer failures and CLI `/dev/full` failure precedence. Version markers,
+formatting and diff checks pass at 0.29.0.

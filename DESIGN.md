@@ -179,6 +179,11 @@ excerpts. Evaluation tracks a bounded owned JSONPath through field/index access
 and array expansion. It deliberately clears source provenance for constructed
 values and buffered outputs instead of inventing input paths. The CLI accepts
 raw string output and one query file, with explicit positional/stdin precedence.
+`StreamOptions.join_output` defaults off, implies raw strings and suppresses all
+result separators. Normal mode remains newline-delimited. Classification follows
+the value only after a complete successful emission, including zero-byte empty
+strings; write failures still poison the stream. CLI `-j`/`--join-output` uses
+that session option, and no-argument `n/s/r/j/S/e` flags may be bundled.
 
 CLI input files feed one session in order. NDJSON diagnostics restart their line
 counter per file, and file opening follows upstream demand. Each named library

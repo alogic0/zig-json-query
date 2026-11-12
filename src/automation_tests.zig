@@ -64,6 +64,45 @@ fn expectBoundOutput(source: []const u8, bindings: []const query.Binding, input:
     try t.expectEqualStrings(expected, output.written());
 }
 
+test "joined stream options imply raw strings and remain session-local" {
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "each", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var joined = try program.start(t.allocator, &output.writer, &diagnostic, .{ .join_output = true, .sort_keys = true });
+    defer joined.deinit();
+    _ = try joined.feed("[\"é\\u0000\",1,false,{\"z\":1,\"a\":2},[]]");
+    try joined.finish();
+    try joined.finish();
+    try t.expectEqualStrings("é\x001false{\"a\":2,\"z\":1}[]", output.written());
+    var normal = try program.start(t.allocator, &output.writer, &diagnostic, .{});
+    defer normal.deinit();
+    _ = try normal.feed("[\"x\"]");
+    try normal.finish();
+    try t.expectEqualStrings("é\x001false{\"a\":2,\"z\":1}[]\"x\"\n", output.written());
+}
+
+test "joined output classifies empty strings but never incomplete writes" {
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, ".", &diagnostic);
+    defer program.deinit();
+    var empty: [0]u8 = .{};
+    var empty_writer = std.Io.Writer.fixed(&empty);
+    var success = try program.start(t.allocator, &empty_writer, &diagnostic, .{ .join_output = true });
+    defer success.deinit();
+    _ = try success.feed("\"\"");
+    try success.finish();
+    try t.expectEqual(@as(u8, 0), success.predicateStatus());
+    var bytes: [3]u8 = undefined;
+    var writer = std.Io.Writer.fixed(&bytes);
+    var failed = try program.start(t.allocator, &writer, &diagnostic, .{ .join_output = true });
+    defer failed.deinit();
+    try t.expectError(error.WriteFailed, failed.feed("true"));
+    try t.expectEqual(@as(u8, 4), failed.predicateStatus());
+    try t.expectError(error.StreamFailed, failed.finish());
+}
+
 test "automation external values retain types exact numbers and literal string contents" {
     try expectBoundOutput("[$text, $number, $data[0].value, $flag, $nil]", &.{
         .{ .name = "text", .value = .{ .string = "quote'\"\n$(literal)" } },

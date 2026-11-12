@@ -15,6 +15,8 @@ pub const Options = struct {
     /// Shared live retained capacity across collect, sort and group stages.
     max_collect_bytes: usize = 64 * 1024 * 1024,
     raw_output: bool = false,
+    /// Raw strings and no separator after any output value.
+    join_output: bool = false,
     sort_keys: bool = false,
 };
 pub const Error = error{ EvaluationFailed, OutOfMemory, StreamFailed, StreamFinished } || std.Io.Writer.Error;
@@ -28,6 +30,7 @@ evaluator: scalar.Evaluator,
 writer: *std.Io.Writer,
 budget: Budget,
 raw_output: bool,
+join_output: bool,
 sort_keys: bool,
 last_output: enum { none, false_or_null, other } = .none,
 lifecycle: enum { active, failed, finished } = .active,
@@ -46,7 +49,8 @@ pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.
         .evaluator = .{ .patterns = patterns, .diagnostic = diagnostic },
         .writer = writer,
         .budget = .{ .backing = allocator, .limit = options.max_collect_bytes },
-        .raw_output = options.raw_output,
+        .raw_output = options.raw_output or options.join_output,
+        .join_output = options.join_output,
         .sort_keys = options.sort_keys,
     };
     // Self and states have stable addresses before an allocator can borrow them.
@@ -211,7 +215,7 @@ fn stageInner(self: *Self, index: usize, input: Value) Error!void {
             defer arena.deinit();
             try std.json.Stringify.value(try json_order.ordered(arena.allocator(), input), .{}, self.writer);
         } else try std.json.Stringify.value(input, .{}, self.writer);
-        try self.writer.writeByte('\n');
+        if (!self.join_output) try self.writer.writeByte('\n');
         self.last_output = switch (input) {
             .null => .false_or_null,
             .bool => |value| if (value) .other else .false_or_null,

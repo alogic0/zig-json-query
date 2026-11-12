@@ -1,5 +1,6 @@
 //! Small JSON query language. Program owns query text, AST and regexes.
-//! A stream accepts JSON values and emits synchronous newline-delimited JSON.
+//! A stream accepts JSON values and emits synchronous JSON/raw output.
+//! Results are newline-delimited unless joined output is requested.
 const std = @import("std");
 const regex = @import("regex");
 const syntax = @import("parser.zig");
@@ -11,7 +12,7 @@ const input_json = @import("input.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = input_json.max_bytes;
-pub const version = "0.28.0";
+pub const version = "0.29.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.

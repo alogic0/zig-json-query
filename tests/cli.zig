@@ -25,6 +25,45 @@ test "CLI reads stdin and emits filtered records" {
     try check(&.{"each | where(false)"}, "[1,2]", 0, "", null);
 }
 
+test "CLI joined output preserves NUL Unicode and JSON bytes without separators" {
+    try check(&.{ "--join-output", "each" }, "[\"a\\u0000\",\"é😀\",\"\",1,false,null,{\"b\":2,\"a\":1},[]]", 0, "a\x00é😀1falsenull{\"b\":2,\"a\":1}[]", null);
+    try check(&.{ "-j", "each" }, "[\"line\\nnext\",\"x\"]", 0, "line\nnextx", null);
+    try check(&.{ "-r", "-j", "each" }, "[\"a\",\"b\"]", 0, "ab", null);
+    try check(&.{ "-j", "-r", "each" }, "[\"a\",\"b\"]", 0, "ab", null);
+}
+
+test "CLI bundles no-argument flags and preserves option terminators" {
+    try check(&.{ "-nj", "\"value\"" }, "", 0, "value", null);
+    try check(&.{ "-jr", "each" }, "[\"a\",\"b\"]", 0, "ab", null);
+    try check(&.{ "-rj", "each" }, "[1,2]", 0, "12", null);
+    try check(&.{ "-nSje", "{z:1,a:2}" }, "", 0, "{\"a\":2,\"z\":1}", null);
+    try check(&.{ "-js", "--ndjson", "." }, "1\n2\n", 0, "[1,2]", null);
+    try check(&.{ "-nj", "--", "-2" }, "", 0, "-2", null);
+    try check(&.{ "-jx", "." }, "", 2, "", "unknown option");
+    try check(&.{ "-jf", "query" }, "", 2, "", "unknown option");
+}
+
+test "CLI joined output keeps value-based exit status and completion" {
+    try check(&.{ "-je", "." }, "\"\"", 0, "", null);
+    try check(&.{ "-je", "each" }, "[\"x\",false]", 1, "xfalse", null);
+    try check(&.{ "-je", "." }, "null", 1, "null", null);
+    try check(&.{ "-je", "." }, "\"false\"", 0, "false", null);
+    try check(&.{ "-je", "where(false)" }, "null", 4, "", null);
+    try check(&.{ "-nje", "take(0) | collect" }, "", 0, "[]", null);
+    try check(&.{ "-j", "--ndjson", "collect" }, "1\n2\n", 0, "[1,2]", null);
+    try check(&.{ "-je", "--ndjson", "." }, "false\n{bad}\n", 2, "false", "<stdin>:2:");
+    try expectExitWithOpenInputArgs(&.{ exe, "-j", "--ndjson", "take(1)" }, "\"ready\"\n", "ready");
+}
+
+test "CLI joined output failures override predicate status" {
+    const full = try std.Io.Dir.cwd().openFile(t.io, "/dev/full", .{ .mode = .write_only });
+    defer full.close(t.io);
+    const report = try S.command.File.run(t.allocator, t.io, .{ .spawn = .{ .argv = &.{ exe, "-nje", "false" }, .stdout = .{ .file = full } }, .timeout_ms = 5000 });
+    try t.expect(report.outcome == .completed);
+    try t.expect(report.cleanup_failure == null);
+    try t.expectEqual(@as(i32, 2), S.command.code(report.term.?));
+}
+
 test "CLI null input constructs records from typed bindings with anonymous provenance" {
     try check(&.{ "-n", "--arg", "name", "artifact", "--argjson", "bytes", "9007199254740993", "{name:$name,bytes:$bytes,input:.,file:input_filename()}" }, "", 0, "{\"name\":\"artifact\",\"bytes\":9007199254740993,\"input\":null,\"file\":null}\n", null);
     try check(&.{ "--null-input", "--argjson", "value", "1.2300e-4", "$value | collect" }, "", 0, "[1.2300e-4]\n", null);
