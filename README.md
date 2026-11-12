@@ -100,6 +100,8 @@ checks translations of `z_llvm` jq usage on retained reports. The
 [compiler query examples](examples/zllvm/README.md) cover command summaries,
 census progress and grouped rejections, with explicit notes on raw-output and
 numeric differences.
+The [CLI output/file-binding plan](docs/plans/2026-11-11-cli-output-and-file-bindings.md)
+records joined output followed by named JSON/text file bindings.
 
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
 for CLI stdin. Completion aggregates, null input and slurped input have no unique
