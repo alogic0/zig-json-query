@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "version": "jqz 0.29.0",
+  "optimization": "debug",
+  "jq_sha256": "59cfd58d7e470b103aede0e7589cfea929e45ee27f5471f08aa9676ac7bfc566",
+  "jqz_sha256": "84ee0be60950519181d7aeee59311238a812c5bdd94f33907bb38bb26e8870d4",
+  "helper_sha256": "836f11bb3ea71b221c25a6486b4bab814fd8d62a85f807432e20ede29c92b56b",
+  "query_sha256": "3fccc95df1a55a53b907812b7dc4373b253d6fe497e2de32a95f1fe25ce11b4d",
+  "source_evidence_sha256": "8d43471303e691449b565d0af000bfc0b6e095a7d43f4f22df1a405ecff90e51",
+  "method": "Explicit argv, 10-second deadlines, 8 MiB capture limits; retained input files capped at 32 MiB and hashed before/after each pair. No historical command text is executed. Raw output/status compared exactly; report payloads discarded. Original 0.28.0 evidence remains unchanged.",
+  "checks": [
+    {
+      "id": "nul-path-protocol",
+      "source_record": 25240,
+      "inputs": [
+        {
+          "path": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-22/source-v9.json",
+          "bytes": 419540,
+          "sha256": "a7cc19cbf7e6c24d51fc273227dcb80b5e907a75dd380a155bc54594e8babe0c"
+        }
+      ],
+      "jq_argv": [
+        "/usr/bin/jq",
+        "-jr",
+        ".files|keys[]|.,\"\\u0000\"",
+        "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-22/source-v9.json"
+      ],
+      "jqz_argv": [
+        "/home/oleg/prog/zig-json-query/zig-out/bin/jqz",
+        "-jr",
+        "-f",
+        "/home/oleg/prog/zig-json-query/examples/zllvm/nul-paths.query",
+        "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-22/source-v9.json"
+      ],
+      "jq_exit": 0,
+      "jqz_exit": 0,
+      "jq_outcome": "completed",
+      "jqz_outcome": "completed",
+      "jq_stdout_bytes": 171036,
+      "jqz_stdout_bytes": 171036,
+      "jq_stdout_sha256": "e359308eb8f0fdd710cca50529eeb08045577b1a04d720014b64922388404e11",
+      "jqz_stdout_sha256": "e359308eb8f0fdd710cca50529eeb08045577b1a04d720014b64922388404e11",
+      "stderr_empty": true,
+      "byte_identical": true,
+      "inputs_unchanged": true,
+      "passed": true
+    },
+    {
+      "id": "nul-path-protocol",
+      "source_record": 25600,
+      "inputs": [
+        {
+          "path": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-23/half-math-worktree/local-state/half-math-probes/source-sqrt-v8.json",
+          "bytes": 420769,
+          "sha256": "2acb467fc0462626a13776dae7686aac311536104a1e273c544e05a0b541b76c"
+        }
+      ],
+      "jq_argv": [
+        "/usr/bin/jq",
+        "-jr",
+        ".files|keys[]|.,\"\\u0000\"",
+        "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-23/half-math-worktree/local-state/half-math-probes/source-sqrt-v8.json"
+      ],
+      "jqz_argv": [
+        "/home/oleg/prog/zig-json-query/zig-out/bin/jqz",
+        "-jr",
+        "-f",
+        "/home/oleg/prog/zig-json-query/examples/zllvm/nul-paths.query",
+        "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-23/half-math-worktree/local-state/half-math-probes/source-sqrt-v8.json"
+      ],
+      "jq_exit": 0,
+      "jqz_exit": 0,
+      "jq_outcome": "completed",
+      "jqz_outcome": "completed",
+      "jq_stdout_bytes": 171424,
+      "jqz_stdout_bytes": 171424,
+      "jq_stdout_sha256": "0c8598c3767085cc77fb69af1bd36ae39cb6fd9a6c97d5b280a20bfa9f5d82af",
+      "jqz_stdout_sha256": "0c8598c3767085cc77fb69af1bd36ae39cb6fd9a6c97d5b280a20bfa9f5d82af",
+      "stderr_empty": true,
+      "byte_identical": true,
+      "inputs_unchanged": true,
+      "passed": true
+    },
+    {
+      "id": "nul-path-protocol",
+      "source_record": 25899,
+      "inputs": [
+        {
+          "path": "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-24/extended-arithmetic-worktree/local-state/extended-arithmetic-probes/source-literals-v8.json",
+          "bytes": 421513,
+          "sha256": "62041352094364edf86aa094b63571d11ba864955f94229b9f83ac144dad965d"
+        }
+      ],
+      "jq_argv": [
+        "/usr/bin/jq",
+        "-jr",
+        ".files|keys[]|.,\"\\u0000\"",
+        "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-24/extended-arithmetic-worktree/local-state/extended-arithmetic-probes/source-literals-v8.json"
+      ],
+      "jqz_argv": [
+        "/home/oleg/prog/zig-json-query/zig-out/bin/jqz",
+        "-jr",
+        "-f",
+        "/home/oleg/prog/zig-json-query/examples/zllvm/nul-paths.query",
+        "/home/oleg/prog/z_llvm/local-state/validations/compiler-selection-completion-20261108/batch-24/extended-arithmetic-worktree/local-state/extended-arithmetic-probes/source-literals-v8.json"
+      ],
+      "jq_exit": 0,
+      "jqz_exit": 0,
+      "jq_outcome": "completed",
+      "jqz_outcome": "completed",
+      "jq_stdout_bytes": 171708,
+      "jqz_stdout_bytes": 171708,
+      "jq_stdout_sha256": "6d29d1f6345a82dab354910291aae02170f90fa9e5bc430b65bf634477f25d4a",
+      "jqz_stdout_sha256": "6d29d1f6345a82dab354910291aae02170f90fa9e5bc430b65bf634477f25d4a",
+      "stderr_empty": true,
+      "byte_identical": true,
+      "inputs_unchanged": true,
+      "passed": true
+    }
+  ]
+}

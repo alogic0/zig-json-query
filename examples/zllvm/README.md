@@ -47,5 +47,7 @@ that contract explicitly before adopting this example as a report replacement.
 The 0.28.0 audit preserves the historical NUL path counterexample. Starting with
 0.29.0, use `jqz -j -f examples/zllvm/nul-paths.query FILE` to emit each path plus
 NUL with no added newlines. The
+[three live path checks](../../docs/qualification/2026-11-11-join-output.json)
+match jq byte-for-byte. The
 [CLI follow-up plan](../../docs/plans/2026-11-11-cli-output-and-file-bindings.md)
 records its fresh live checks and file-binding work.

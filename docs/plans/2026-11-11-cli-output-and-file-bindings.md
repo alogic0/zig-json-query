@@ -44,7 +44,7 @@ qualification evidence unchanged. Validate native x86_64 Linux Debug only.
    status, query files, streaming completion and failed writes. Add a separate
    consumer check. Read `zig build version`, set minor 0.29.0 through the pinned
    tool, include all marker files, run native build/tests/consumer, then commit.
-3. [ ] Recheck the three real path manifests with explicit jq/jqz argv and the
+3. [x] Recheck the three real path manifests with explicit jq/jqz argv and the
    joined-output flag. Require identical output bytes, exit statuses and stable
    input/tool identities. Preserve a new versioned evidence file and ready query;
    keep the 0.28.0 counterexample unchanged. Commit this verified evidence slice.
@@ -74,3 +74,10 @@ New coverage includes exact NUL/Unicode/JSON bytes, zero-byte string status,
 bundled flags and `--`, query files, multiple inputs, completion/early stop,
 library writer failures and CLI `/dev/full` failure precedence. Version markers,
 formatting and diff checks pass at 0.29.0.
+
+The [live joined-output checks](../qualification/2026-11-11-join-output.json)
+pass for all three original compiler path manifests: 171,036 / 171,424 / 171,708
+output bytes match jq exactly with zero exits and stable input hashes. The
+[qualification note](../qualification/cli-output-and-bindings-2026-11-11.md)
+records the independent helper and result boundary. Original audit evidence is
+unchanged. The feature and live proof are committed before file-binding code.
