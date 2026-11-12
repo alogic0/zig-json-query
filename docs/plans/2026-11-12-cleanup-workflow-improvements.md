@@ -1,0 +1,143 @@
+# Cleanup workflow improvements
+
+Status: requested. Implement the slices below in order.
+
+Fix shared shell redirection, make large manifest queries easier to run within
+explicit memory budgets, and support efficient comparisons by key. These needs
+come from using `jqz` during the `z_llvm` artifact cleanup on 2026-11-12.
+
+The reviewed baseline is 0.30.0, commit `002ac006b01700481af6621a305e508058e752aa`.
+Work in `/home/oleg/prog/zig-json-query`. Follow `AGENTS.md`, use Zig and the
+existing pinned packages, and keep each verified slice in a separate commit.
+
+## 1. Fix shared stdout redirection
+
+Priority: first. This is a reproduced correctness bug.
+
+```sh
+{ ./zig-out/bin/jqz -n '111'; ./zig-out/bin/jqz -n '222'; } > output.txt
+cat output.txt
+```
+
+Expected bytes: `111\n222\n`. Observed at 0.30.0: `222\n`. The same commands
+through a pipe produce both lines. During cleanup, repeated invocations under
+one redirected shell loop also overwrote earlier JSON records.
+
+Inspect the use of `std.Io.File.stdout().writer(...)` in `src/main.zig` and the
+corresponding Zig 0.17 descriptor semantics. Preserve the inherited descriptor's
+current position. Do not seek back to the start or truncate inherited output.
+Check stderr for the same issue.
+
+Acceptance:
+
+- Sequential invocations sharing one regular-file stdout descriptor preserve
+  both outputs in order. Include a prewritten prefix and differing output lengths
+  so overwriting and stale trailing bytes are caught.
+- Pipes and append redirection still work. Verify JSON, raw and joined output,
+  help/version output, and diagnostics through inherited descriptors.
+- Flush behavior and exit-status/error precedence remain correct, including
+  failed writes. Add native CLI regression coverage using the existing helpers;
+  exercise the shell reproduction as an independent check.
+
+## 2. Improve memory controls and grouped totals
+
+Priority: second. A large manifest can pass normal input admission but fail
+under `-s` because owned parsed values exceed the separate slurp budget.
+The bare `SlurpTooLarge` diagnostic does not explain that distinction.
+
+One observed input is 29,723,599 bytes:
+
+```text
+/home/oleg/prog/z_llvm/local-state/retirements/historical-artifacts-audit-20261112/audit.json
+```
+
+This is optional, read-only qualification data. Do not modify it, commit it,
+or require it for tests. Use generated fixtures for portable regression checks.
+
+Expose separate CLI controls for retained collection bytes and slurp bytes.
+Suggested names are `--max-retained-bytes` and `--max-slurp-bytes`. Keep the
+current 64 MiB defaults. Validate values and overflow explicitly; do not add an
+implicit unlimited mode or confuse these budgets with input text size or RSS.
+Reuse the library's existing configurable retention/slurp mechanisms where
+possible. Document which allocations each budget covers and which it does not.
+
+Budget failures should identify the operation or budget, its configured limit,
+and the relevant requested/retained allocation when available. Give a useful
+remedy, such as a budget option or avoiding unnecessary slurping. Preserve the
+distinction between budget rejection and allocator exhaustion.
+
+Also add a minimal way to calculate a count and checked integer sum per key
+without retaining all records in each group. The result should retain only the
+distinct keys and their accumulator state, under an explicit budget. Choose
+names and syntax consistent with the current scalar/stage distinction and
+record the contract here before implementing it. Preserve first-seen group
+order and existing key equality/type rules. A general reducer language is not
+required for this request.
+
+Acceptance:
+
+- Existing invocations keep their default limits and result semantics.
+- Small, explicit budgets produce actionable errors. Valid overrides are
+  honored independently; invalid values and overflow fail before input work.
+- A synthetic manifest demonstrates normal input admission versus slurp
+  retention failure, then succeeds with a sufficient explicit slurp budget.
+- Grouped count/sum results match the existing materialized queries for empty
+  input, repeated keys, multiple files, negative values and exact large integers.
+  Integer overflow and invalid values fail without emitting partial totals.
+- With a fixed set of keys and growing NDJSON input, retained allocation grows
+  with the keys rather than the number or payload size of records. Measure this
+  using the existing allocation helpers and distinguish it from process RSS.
+- CLI/library ownership, early-stop behavior, completion and allocation-failure
+  cleanup remain covered.
+
+## 3. Add keyed lookup and manifest comparison
+
+Priority: third. Comparing old and new manifests by file path currently requires
+repeated filtering or a separate Zig program. Support building an index once
+and using computed keys to look up matching records.
+
+Start with string keys such as file paths. Preserve exact numeric values in
+the records. Define duplicate-key behavior explicitly; reject duplicates by
+default instead of silently losing records. Keep missing, null and false
+distinct, following existing strict/optional access rules.
+
+Provide concise examples for an inner match and a left match between two
+manifests. A separate join operator is optional if index construction, computed
+lookup and the existing pipeline express both operations clearly. Do not
+reintroduce implicit Cartesian expansion or rescan the entire right-hand
+manifest for every left-hand record. Document storage ownership and memory
+limits for the index.
+
+Acceptance:
+
+- Compare records by `.path`, report changes to `.sha256`/`.size`, and retain
+  left-input order. Demonstrate how to report added and removed paths.
+- Cover empty inputs, missing matches, present null/false values, duplicate
+  keys, Unicode/escaped keys and integers above the floating-point exact range.
+- Index construction and lookup respect declared memory limits, safely outlive
+  borrowed input buffers where required, and release allocations on failure.
+- A generated workload confirms that repeated lookups use the built index;
+  include a large-group case that would expose a nested linear scan.
+
+## Delivery and validation
+
+- [x] Commit this request before implementation starts.
+- [ ] Fix descriptor output, verify it, and commit a patch-version slice.
+- [ ] Add memory controls and diagnostics, verify them, and commit a feature slice.
+- [ ] Add grouped count/sum accumulation, verify it, and commit a feature slice.
+- [ ] Add keyed lookup/comparison, verify it, and commit a feature slice.
+- [ ] Update README, design notes and query examples for the implemented APIs.
+- [ ] Run the existing qualification corpus and focused workflow checks; record
+  actual results and mark this request complete only when every required slice
+  is delivered.
+
+Use native x86_64 Linux Debug for routine builds and tests, as `AGENTS.md`
+requires. Read the package version before each code slice and use the pinned
+version tool for the appropriate patch/minor increment. Keep major version 0.
+Write commit messages to temporary files, use `git commit -F`, and remove those
+files with plain `rm` after successful commits.
+
+Keep filesystem scanning, hashing and deletion in their existing tools.
+This request changes `jqz` query/output behavior; it does not authorize any
+cleanup or changes to compiler inputs, retained evidence, sibling libraries,
+or other agents' work. Do not publish or push changes.
