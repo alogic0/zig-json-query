@@ -1,6 +1,7 @@
 # Cleanup workflow improvements
 
-Status: implementation in progress; shared-descriptor output fixed in 0.30.1.
+Status: implementation in progress; descriptor output fixed in 0.30.1 and
+independent memory controls/diagnostics delivered in 0.31.0.
 
 Fix shared shell redirection, make large manifest queries easier to run within
 explicit memory budgets, and support efficient comparisons by key. These needs
@@ -123,7 +124,7 @@ Acceptance:
 
 - [x] Commit this request before implementation starts.
 - [x] Fix descriptor output, verify it, and commit a patch-version slice.
-- [ ] Add memory controls and diagnostics, verify them, and commit a feature slice.
+- [x] Add memory controls and diagnostics, verify them, and commit a feature slice.
 - [ ] Add grouped count/sum accumulation, verify it, and commit a feature slice.
 - [ ] Add keyed lookup/comparison, verify it, and commit a feature slice.
 - [ ] Update README, design notes and query examples for the implemented APIs.
@@ -144,6 +145,15 @@ or other agents' work. Do not publish or push changes.
 
 ## Implementation evidence
 
+Memory-control contract: `--max-retained-bytes N` maps to the existing session
+`max_collect_bytes`; `--max-slurp-bytes N` maps to the independent `Slurp`
+allocator. Both default to 67,108,864 bytes. Accept only unsigned decimal bytes
+representable by `usize`, including zero as a zero-allocation budget; there is
+no unlimited sentinel or unit suffix. Reject invalid arguments before reading
+query/data files. Diagnostics retain the budget kind, limit, live capacity at
+rejection and attempted allocation size even after cleanup, and give the
+applicable CLI remedy. Allocator exhaustion remains `OutOfMemory`.
+
 0.30.1 uses streaming writers for both inherited stdout and stderr. Zig 0.17's
 default positional writer starts at byte zero; the streaming writer preserves
 the shared descriptor offset. Native build and all 251 project checks pass,
@@ -151,3 +161,15 @@ including two new descriptor tests. Prefixes, differing lengths, JSON/raw/joined
 output, help/version, diagnostics, pipes and shell shared/append redirection
 pass. Failed writes still override predicate/informational exits. The original
 two-command shell reproduction independently produces `111\n222\n`.
+
+0.31.0 passes native build and the complete 256-check suite (162 library,
+58 CLI, three binding-input, four version, three qualification, eighteen
+profiler and eight distribution checks). Five new checks cover invalid/overflow
+arguments before IO, zero/independent budgets, generated-manifest admission,
+structured diagnostics after cleanup and allocator-exhaustion distinction.
+The optional 29,723,599-byte audit also passes ordinary input (`length(.)` = 15),
+fails default slurping with limit 67,108,864 / retained 46,981,016 / requested
+29,209,288 bytes, and succeeds with `--max-slurp-bytes 268435456`
+(`length(.[0])` = 15). Its SHA-256 stays
+`2f9f150d6c8a4a1c93474194a7c5fe0157eaa8549c9836392ed49454c183beee`.
+The private input is read only and is not required by portable tests.

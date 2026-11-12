@@ -169,7 +169,8 @@ containers, keys, strings and number tokens. A shared budget accounts for live
 retained allocation capacity, including temporary duplicate storage while one
 retaining stage forwards to another. Sorting/grouping keys and grouping scratch
 also use this allocator. The default limit is 64 MiB, configurable through
-the library. It is not a bound on total process RSS. Failure discards collectors;
+`StreamOptions.max_collect_bytes` or CLI `--max-retained-bytes`. It is not a bound
+on total process RSS. Failure discards collectors;
 finish emits each aggregate once. Query text and regex programs have their own
 owner; regex match temporaries are freed by the shared library.
 
@@ -205,10 +206,15 @@ no new library API or query syntax is introduced.
 
 Slurp uses the same validated parser as ordinary feeds, deep-copies values into
 a stable-address collector and charges array/arena capacity to a separate input
-budget. The CLI sets that budget to 64 MiB. Container depth includes the outer
+budget. CLI `--max-slurp-bytes` configures it with a 64 MiB default. Container depth includes the outer
 array; failure poisons the collector. The complete array is borrowed during one
 `feedSlurp`, and downstream retaining stages copy their own data. Parsing,
 scalar temporaries and ordinary retention still have separate lifetimes/budgets.
+Budget arguments are unsigned decimal byte counts fitting `usize`; zero forbids
+allocations and is never an unlimited sentinel. `Diagnostic.budget` preserves
+kind/limit/live/requested sizes at rejection, including after collector cleanup.
+Its writer gives the corresponding CLI remedy. Allocation failure from the
+backing allocator stays `OutOfMemory`, distinct from configured budget rejection.
 
 CLI `--slurpfile` and `--rawfile` prepare values through the existing
 `Binding.json`/`Binding.string` interface. `file_bindings.zig` frames successive

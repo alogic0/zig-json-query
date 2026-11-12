@@ -20,6 +20,8 @@ const usage =
     \\  --argjson NAME JSON      Bind $NAME to one exact JSON value
     \\  --slurpfile NAME FILE    Bind $NAME to all JSON values from FILE
     \\  --rawfile NAME FILE      Bind $NAME to exact UTF-8 file text
+    \\  --max-retained-bytes N   Shared retained capacity (default 67108864)
+    \\  --max-slurp-bytes N      Separate owned slurp capacity (default 67108864)
     \\  -f, --from-file FILE      Read the query from FILE (only once)
     \\  --                       End options (e.g. before a negative query)
     \\  -h, --help               Show this help
@@ -49,6 +51,8 @@ const usage =
     \\Limits: query 64 KiB; document 64 MiB; NDJSON line 1 MiB; nesting 128.
     \\        Retaining stages share 64 MiB; no disk spilling.
     \\        Slurp has a separate 64 MiB owned input-collection budget.
+    \\Budget options take unsigned decimal bytes; zero allows no allocation.
+    \\They exclude parsed input, scalar temporaries and process RSS.
     \\take stops upstream work; skipped records are not validated.
     \\Exit: 0 success (including no matches), 2 query/input/evaluation/IO error.
     \\With -e: last output determines 0/1/4; errors still return 2.
@@ -79,6 +83,8 @@ fn run(init: std.process.Init) !u8 {
     var sort_keys = false;
     var exit_status = false;
     var slurp_input = false;
+    var max_retained_bytes: usize = 64 * 1024 * 1024;
+    var max_slurp_bytes: usize = 64 * 1024 * 1024;
     var options = true;
     var query_file: ?[]const u8 = null;
     var bindings: std.ArrayList(query.Binding) = .empty;
@@ -128,6 +134,11 @@ fn run(init: std.process.Init) !u8 {
             try binding_files.append(allocator, .{ .index = bindings.items.len, .kind = if (std.mem.eql(u8, arg, "--slurpfile")) .json else .raw, .path = args[index + 2] });
             try bindings.append(allocator, .{ .name = args[index + 1], .value = .{ .string = "" } });
             index += 2;
+        } else if (options and (std.mem.eql(u8, arg, "--max-retained-bytes") or std.mem.eql(u8, arg, "--max-slurp-bytes"))) {
+            index += 1;
+            if (index == args.len) return argumentError(&errors.interface, "budget option requires unsigned decimal bytes");
+            const limit = parseBudget(args[index]) catch return argumentError(&errors.interface, "budget option requires unsigned decimal bytes within the platform usize range");
+            if (std.mem.eql(u8, arg, "--max-retained-bytes")) max_retained_bytes = limit else max_slurp_bytes = limit;
         } else if (options and (std.mem.eql(u8, arg, "-f") or std.mem.eql(u8, arg, "--from-file"))) {
             if (query_file != null) return argumentError(&errors.interface, "only one -f query source is allowed");
             index += 1;
@@ -231,9 +242,9 @@ fn run(init: std.process.Init) !u8 {
     // Compilation owns the values; input IO and evaluation need no file buffers.
     for (prepared.items) |bytes| allocator.free(bytes);
     prepared.clearRetainingCapacity();
-    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .join_output = join_output, .sort_keys = sort_keys });
+    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .join_output = join_output, .sort_keys = sort_keys, .max_collect_bytes = max_retained_bytes });
     defer stream.deinit();
-    const slurp = if (slurp_input and !null_input and stream.needsInput()) try query.Slurp.init(allocator, query.max_input_bytes) else null;
+    const slurp = if (slurp_input and !null_input and stream.needsInput()) try query.Slurp.init(allocator, max_slurp_bytes) else null;
     defer if (slurp) |collector| collector.deinit();
     var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = "<stdin>", .output = &output.interface, .errors = &errors.interface, .exit_status = exit_status, .slurp = slurp };
     if (null_input) {
@@ -290,6 +301,12 @@ fn readInput(io: std.Io, allocator: std.mem.Allocator, path: []const u8, ndjson:
     return 0;
 }
 
+fn parseBudget(text: []const u8) !usize {
+    if (text.len == 0) return error.InvalidBudget;
+    for (text) |byte| if (!std.ascii.isDigit(byte)) return error.InvalidBudget;
+    return std.fmt.parseInt(usize, text, 10);
+}
+
 fn argumentError(errors: *std.Io.Writer, message: []const u8) !u8 {
     try errors.print("jqz: {s}\n", .{message});
     try errors.flush();
@@ -337,6 +354,7 @@ const Runner = struct {
             } else try self.errors.print("{s}:{d}: {s}\n", .{ self.label, record_line, @errorName(err) });
         } else try self.errors.print("{s}:EOF: {s}\n", .{ self.label, @errorName(err) });
         if (err == error.EvaluationFailed) try diagnostic.writeNamed(self.source, self.query_label, self.errors);
+        if (err == error.SlurpTooLarge) try diagnostic.writeBudget(self.errors);
         try self.errors.flush();
         return 2;
     }

@@ -263,8 +263,7 @@ fn stageInner(self: *Self, index: usize, input: Value) Error!void {
             if (!scalar.withinDepth(input, 0)) return self.fail(offset, "collected value nesting exceeds 128 levels");
             self.budget.denied = false;
             self.appendCollected(index, input) catch |err| {
-                if (self.budget.denied) return self.fail(offset, "collect exceeded the session memory limit");
-                return err;
+                return self.retentionError(offset, "collect exceeded the session memory limit", err);
             };
         },
         .sort => |sort| try self.retain(index, input, sort.key, sort.offset, true),
@@ -298,6 +297,9 @@ fn retain(self: *Self, index: usize, input: Value, key_node: ?*const syntax.Node
 }
 
 fn retentionError(self: *Self, offset: usize, message: []const u8, err: Error) Error {
-    if (self.budget.denied) return self.fail(offset, message);
+    if (self.budget.denied) {
+        self.evaluator.diagnostic.setBudget(offset, message, .{ .kind = .retained, .limit = self.budget.limit, .retained = self.budget.denied_used, .requested = self.budget.denied_request });
+        return error.EvaluationFailed;
+    }
     return err;
 }

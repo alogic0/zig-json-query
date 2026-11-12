@@ -127,7 +127,7 @@ filename and return null. Capture provenance before aggregation:
 `-s` / `--slurp` collects all input values into one array and runs the query once.
 Use `--ndjson -s` to collect records across files; empty NDJSON produces `[]`.
 One-document-per-file and per-line limits still apply. Slurp owns its values and
-array capacity within a separate 64 MiB budget, and nesting includes the wrapper
+array capacity within a separate budget (64 MiB by default), and nesting includes the wrapper
 array. It validates all sources before evaluation, except queries such as
 `take(0)` that need no input. A later source error produces no slurped result.
 For example, `jqz -s 'length(.)' first.json second.json` emits `2`.
@@ -539,7 +539,7 @@ records output equivalence, elapsed time and child peak RSS; see
 [benchmark evidence](docs/benchmarks/README.md). These measurements do not
 establish a general performance advantage over jq.
 
-All retaining stages in a session share a 64 MiB limit on live retained allocator
+All retaining stages in a session share a default 64 MiB limit on live retained allocator
 requests, including arena/container capacity. Library callers can override it
 with `StreamOptions.max_collect_bytes`. This is not a process RSS limit: input
 parsing, scalar temporaries, writer buffers and allocator metadata are separate.
@@ -550,6 +550,21 @@ Retained sort/group keys and grouping scratch count too. Passing values between 
 temporarily retains both copies within that shared budget. A limit failure
 reports the responsible stage in the query.
 System allocation failures remain `OutOfMemory`. No spill-to-disk is implemented.
+
+CLI `--max-retained-bytes N` overrides the shared retained capacity, and
+`--max-slurp-bytes N` independently overrides owned slurp capacity. Both accept
+unsigned decimal bytes fitting the platform `usize`; zero permits no allocations,
+with no unlimited sentinel or suffixes. Input text, query/bindings, parsed input,
+scalar temporaries, output buffers and allocator metadata keep their separate
+limits/lifetimes. A document below the 64 MiB text limit can exceed the slurp
+budget after parsing and copying its containers. Budget errors report the
+configured limit, live retained capacity and requested allocation size; they
+suggest raising the applicable option or avoiding unnecessary `-s`.
+
+```sh
+jqz --max-retained-bytes 134217728 --ndjson 'sort_by(.path)' records.jsonl
+jqz --max-slurp-bytes 268435456 -s 'length(.)' first.json second.json
+```
 
 Admission limits: 64 KiB query text, 4096 expression nodes, 128 pipeline stages,
 128 expression nesting levels, 128 input container levels, 64 MiB per document,

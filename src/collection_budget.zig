@@ -9,6 +9,8 @@ backing: A,
 limit: usize,
 used: usize = 0,
 denied: bool = false,
+denied_used: usize = 0,
+denied_request: usize = 0,
 
 pub fn allocator(self: *Self) A {
     return .{ .ptr = self, .vtable = &.{ .alloc = alloc, .resize = resize, .remap = remap, .free = free } };
@@ -18,6 +20,8 @@ fn alloc(context: *anyopaque, len: usize, alignment: Alignment, address: usize) 
     const self: *Self = @ptrCast(@alignCast(context));
     if (len > self.limit - self.used) {
         self.denied = true;
+        self.denied_used = self.used;
+        self.denied_request = len;
         return null;
     }
     const bytes = self.backing.rawAlloc(len, alignment, address) orelse return null;

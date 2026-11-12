@@ -31,6 +31,41 @@ test "CLI reads stdin and emits filtered records" {
     try check(&.{"each | where(false)"}, "[1,2]", 0, "", null);
 }
 
+test "CLI budget arguments reject invalid values before query or input IO" {
+    for ([_][]const u8{ "--max-retained-bytes", "--max-slurp-bytes" }) |option| {
+        for ([_][]const u8{ "", "-1", "+1", "1.0", "1KiB", " 1", "18446744073709551616" }) |bad| {
+            try check(&.{ option, bad, "-f", "/nonexistent-jqz-budget-query" }, "", 2, "", "unsigned decimal bytes");
+        }
+        try check(&.{option}, "", 2, "", "requires unsigned decimal bytes");
+    }
+    try check(&.{ "--max-retained-bytes", "0", "--max-slurp-bytes", "0", "-n", "take(0) | collect" }, "", 0, "[]\n", null);
+    try check(&.{ "--max-retained-bytes", "18446744073709551615", "-n", "count" }, "", 0, "1\n", null);
+}
+
+test "CLI retention and slurp budgets are independent with actionable diagnostics" {
+    try check(&.{ "--max-retained-bytes", "1", "--max-slurp-bytes", "1048576", "collect" }, "null", 2, "", "retained allocation budget: limit=1 bytes, retained=0 bytes, requested=");
+    try check(&.{ "--max-retained-bytes", "1", "collect" }, "null", 2, "", "increase --max-retained-bytes");
+    try check(&.{ "--max-retained-bytes", "1048576", "--max-slurp-bytes", "1", "-s", "length(.)" }, "null", 2, "", "increase --max-slurp-bytes or avoid -s");
+    try check(&.{ "--max-retained-bytes", "1048576", "--max-slurp-bytes", "0", "collect" }, "null", 0, "[null]\n", null);
+    try check(&.{ "--max-retained-bytes", "0", "--max-slurp-bytes", "1048576", "-s", "length(.)" }, "null", 0, "1\n", null);
+    try check(&.{ "--max-slurp-bytes", "0", "--ndjson", "-s", "length(.)" }, "", 0, "0\n", null);
+}
+
+test "CLI admitted synthetic manifest needs a separate owned slurp budget" {
+    var input = std.Io.Writer.Allocating.init(t.allocator);
+    defer input.deinit();
+    try input.writer.writeByte('[');
+    for (0..400) |index| {
+        if (index != 0) try input.writer.writeByte(',');
+        try input.writer.print("{{\"id\":{d},\"name\":\"retained\",\"meta\":{{\"valid\":true}}}}", .{index});
+    }
+    try input.writer.writeByte(']');
+    try t.expect(input.written().len < 64 * 1024 * 1024);
+    try check(&.{"length(.)"}, input.written(), 0, "400\n", null);
+    try check(&.{ "-s", "--max-slurp-bytes", "8192", "length(.[0])" }, input.written(), 2, "", "slurp allocation budget: limit=8192 bytes");
+    try check(&.{ "-s", "--max-slurp-bytes", "1048576", "--max-retained-bytes", "0", "length(.[0])" }, input.written(), 0, "400\n", null);
+}
+
 test "CLI joined output preserves NUL Unicode and JSON bytes without separators" {
     try check(&.{ "--join-output", "each" }, "[\"a\\u0000\",\"é😀\",\"\",1,false,null,{\"b\":2,\"a\":1},[]]", 0, "a\x00é😀1falsenull{\"b\":2,\"a\":1}[]", null);
     try check(&.{ "-j", "each" }, "[\"line\\nnext\",\"x\"]", 0, "line\nnextx", null);

@@ -53,6 +53,8 @@ pub const Path = struct {
 };
 
 pub const Diagnostic = struct {
+    pub const BudgetKind = enum { retained, slurp };
+    pub const BudgetFailure = struct { kind: BudgetKind, limit: usize, retained: usize, requested: usize };
     offset: usize = 0,
     message: []const u8 = "",
     input_offset: ?usize = null,
@@ -60,9 +62,24 @@ pub const Diagnostic = struct {
     input_column: u64 = 1,
     path: Path = .{},
     path_reported: bool = false,
+    budget: ?BudgetFailure = null,
 
     pub fn set(self: *Diagnostic, offset: usize, message: []const u8) void {
         self.* = .{ .offset = offset, .message = message };
+    }
+
+    pub fn setBudget(self: *Diagnostic, offset: usize, message: []const u8, failure: BudgetFailure) void {
+        self.set(offset, message);
+        self.budget = failure;
+    }
+
+    pub fn writeBudget(self: Diagnostic, writer: *std.Io.Writer) !void {
+        const failure = self.budget orelse return;
+        try writer.print("{s} allocation budget: limit={d} bytes, retained={d} bytes, requested={d} bytes\n", .{ @tagName(failure.kind), failure.limit, failure.retained, failure.requested });
+        try writer.writeAll(switch (failure.kind) {
+            .retained => "increase --max-retained-bytes or reduce retained data\n",
+            .slurp => "increase --max-slurp-bytes or avoid -s when stream stages suffice\n",
+        });
     }
 
     pub fn write(self: Diagnostic, source: []const u8, writer: *std.Io.Writer) !void {
@@ -87,6 +104,7 @@ pub const Diagnostic = struct {
             try self.path.write(writer);
             try writer.writeByte('\n');
         }
+        try self.writeBudget(writer);
     }
 
     pub fn writeInput(self: Diagnostic, input: []const u8, writer: *std.Io.Writer) !void {
