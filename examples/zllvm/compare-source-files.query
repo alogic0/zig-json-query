@@ -1,0 +1,1 @@
+{documents:[length($before),length($after)],file_counts:[length($before[0].files),length($after[0].files)],same_files:$before[0].files == $after[0].files}

@@ -155,6 +155,25 @@ jqz --arg suite 'compiler-acceptance' --argjson expected false \
 ```
 
 Arguments are values, so quotes/newlines/query text inside them stay literal.
+`--slurpfile NAME FILE` binds an array of every JSON value in a named file;
+empty/whitespace-only files produce `[]`. It accepts NDJSON, multiline documents
+and adjacent containers/strings while preserving exact number text.
+`--rawfile NAME FILE` binds exact UTF-8 text, including newlines and NUL; an empty
+file produces `""`, and invalid UTF-8 is rejected. For example:
+
+```sh
+jqz -n --slurpfile before old-manifest.json --slurpfile after new-manifest.json \
+  -f examples/zllvm/compare-source-files.query
+jqz -nj --rawfile text notes.txt '$text'
+```
+
+Binding filenames are literal named paths: `-` opens a file named `-`, while
+`-f -` can independently read query text from stdin. Query sources are resolved
+first; file bindings are then loaded and validated before primary input, even
+when unused or combined with `-n` / `take(0)`. All binding kinds share 128 names;
+bound source text and prepared value text each have a total 64 MiB limit. JSON
+file bindings add an outer array, which counts toward the 128-level depth limit.
+
 Names match `[A-Za-z_][A-Za-z0-9_]*`; duplicate names and unbound variables error.
 Variables work inside array-function bodies and query files, and support normal
 field/index access. All bindings are validated before input, even when unused.
@@ -605,6 +624,7 @@ concurrent use.
 zig build test-unit
 zig build test-unit -Dtest-filter=stream
 zig build test-cli
+zig build test-file-bindings
 zig build test-package-version
 zig build check
 zig build fuzz -Dfuzz-target='fuzz parser' --fuzz=10000

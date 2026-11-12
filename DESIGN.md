@@ -208,6 +208,16 @@ array; failure poisons the collector. The complete array is borrowed during one
 `feedSlurp`, and downstream retaining stages copy their own data. Parsing,
 scalar temporaries and ordinary retention still have separate lifetimes/budgets.
 
+CLI `--slurpfile` and `--rawfile` prepare values through the existing
+`Binding.json`/`Binding.string` interface. `file_bindings.zig` frames successive
+JSON values with the standard Scanner and assembles one bounded array without
+normalizing token spellings. Ordinary compilation then enforces duplicate keys,
+UTF-8, depth, name uniqueness and typed values, including unused bindings. Named
+reads stream to a finite limit rather than trusting stat size; `-` is literal.
+Raw source text and prepared binding text each share the 64 MiB binding cap.
+The CLI closes files promptly and releases preparation buffers after compilation
+owns copies, before primary input/evaluation. This adds no library file IO API.
+
 Dependencies are source archives pinned by content hashes and shipped with the
 project. Existing provider APIs remain unchanged. Separate consumer, cold-cache
 distribution tests, bounded parser/evaluator fuzz targets and generated semantic

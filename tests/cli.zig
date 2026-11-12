@@ -4,12 +4,18 @@ const exe = @import("test_options").exe;
 const t = std.testing;
 
 pub fn check(args: []const []const u8, input: []const u8, code: i32, output: []const u8, diagnostic: ?[]const u8) !void {
+    return checkIn(null, args, input, code, output, diagnostic);
+}
+
+pub fn checkIn(cwd: ?[]const u8, args: []const []const u8, input: []const u8, code: i32, output: []const u8, diagnostic: ?[]const u8) !void {
+    const absolute_exe = if (cwd != null) try std.Io.Dir.cwd().realPathFileAlloc(t.io, exe, t.allocator) else null;
+    defer if (absolute_exe) |path| t.allocator.free(path);
     var argv: std.ArrayList([]const u8) = .empty;
     defer argv.deinit(t.allocator);
-    try argv.append(t.allocator, exe);
+    try argv.append(t.allocator, absolute_exe orelse exe);
     try argv.appendSlice(t.allocator, args);
     const report = try S.command.runReport(t.allocator, t.io, .{
-        .run = .{ .spawn = .{ .argv = argv.items }, .timeout_ms = 5000, .stdout_limit = 64 * 1024, .stderr_limit = 16 * 1024 },
+        .run = .{ .spawn = .{ .argv = argv.items, .cwd = if (cwd) |path| .{ .path = path } else .inherit }, .timeout_ms = 5000, .stdout_limit = 64 * 1024, .stderr_limit = 16 * 1024 },
         .stdin = input,
     });
     defer report.deinit(t.allocator);
@@ -144,7 +150,7 @@ test "CLI external arguments preserve strings JSON types and exact values" {
 
 test "CLI external argument errors precede input and reject ambiguity" {
     try check(&.{ "--arg", "a" }, "", 2, "", "requires a NAME and VALUE");
-    try check(&.{ "--argjson", "a", "{bad}", "take(0)" }, "", 2, "", "--argjson requires one valid JSON value");
+    try check(&.{ "--argjson", "a", "{bad}", "take(0)" }, "", 2, "", "JSON bindings require one valid JSON value");
     try check(&.{ "--argjson", "a", "0 1", "." }, "", 2, "", "one valid JSON value");
     try check(&.{ "--arg", "a-b", "x", "." }, "", 2, "", "binding names must match");
     try check(&.{ "--arg", "a", "x", "--argjson", "a", "0", "." }, "", 2, "", "duplicate external binding");

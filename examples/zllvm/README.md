@@ -30,6 +30,7 @@ Run from the jqz checkout, after `zig build`:
 | `grouped-rejections.query` | Rejection counts and two examples per boundary |
 | `grouped-selector-pairs.query` | Rejection groups by selector tag and detail |
 | `nul-paths.query` | NUL-delimited paths; run with `-j` (0.29.0+) |
+| `compare-source-files.query` | Compare single-document `.files` manifests through `--slurpfile before/after` (0.30.0+) |
 
 Use ordinary JSON mode for command-array files and `--ndjson` for census/event
 logs. Census/grouping translations consume records directly: omit jq's `-s`.
@@ -51,3 +52,14 @@ NUL with no added newlines. The
 match jq byte-for-byte. The
 [CLI follow-up plan](../../docs/plans/2026-11-11-cli-output-and-file-bindings.md)
 records its fresh live checks and file-binding work.
+
+For two source manifests, each containing one object with a `.files` map:
+
+```sh
+./zig-out/bin/jqz -n --slurpfile before old-source.json --slurpfile after new-source.json \
+  -f examples/zllvm/compare-source-files.query
+```
+
+Use `--rawfile NAME FILE` to bind a retained UTF-8 text log; `jqz -nj --rawfile
+text LOG '$text'` writes its exact bytes. These file-binding components do not
+add local `as`/`def`/`reduce` syntax or dynamic indexes needed by larger scripts.

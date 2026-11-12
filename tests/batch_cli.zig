@@ -3,6 +3,7 @@ const S = @import("test_support");
 const exe = @import("test_options").exe;
 const t = std.testing;
 const check = @import("cli.zig").check;
+const checkIn = @import("cli.zig").checkIn;
 const expectExitWithOpenInputArgs = @import("cli.zig").expectExitWithOpenInputArgs;
 
 const InputFiles = struct {
@@ -77,6 +78,94 @@ test "CLI joined output composes with named queries and multiple files" {
     const b = try files.write("second.json", "{\"files\":{\"b.zig\":true}}");
     try check(&.{ "-jr", "-f", source, a, b }, "", 0, "a.zig\x00b.zig\x00", null);
     try check(&.{ "-nj", "-f", "-" }, "\"from query\"", 0, "from query", null);
+}
+
+test "CLI file bindings preserve exact JSON values and raw UTF-8 bytes" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const json = try files.write("values.json", "{\n\"n\":9007199254740993\n}\n[1.2300e-4]\nfalse null");
+    const raw = try files.write("text.txt", "line\né😀\x00$(literal)");
+    try check(&.{ "-n", "--slurpfile", "values", json, "--rawfile", "text", raw, "--arg", "label", "record", "--argjson", "limit", "2", "{values:$values,text:$text,label:$label,limit:$limit,file:input_filename()}" }, "", 0, "{\"values\":[{\"n\":9007199254740993},[1.2300e-4],false,null],\"text\":\"line\\né😀\\u0000$(literal)\",\"label\":\"record\",\"limit\":2,\"file\":null}\n", null);
+    try check(&.{ "-nj", "--rawfile", "text", raw, "$text" }, "", 0, "line\né😀\x00$(literal)", null);
+}
+
+test "CLI file bindings handle empty and adjacent JSON documents" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const empty = try files.write("empty", "");
+    const spaces = try files.write("spaces", " \n\t\r");
+    const adjacent = try files.write("adjacent", "{}[]\"a\"\"b\"true{}null[]1[]");
+    try check(&.{ "-n", "--slurpfile", "a", empty, "--slurpfile", "b", spaces, "--rawfile", "text", empty, "[$a,$b,$text]" }, "", 0, "[[],[],\"\"]\n", null);
+    try check(&.{ "-n", "--slurpfile", "values", adjacent, "$values" }, "", 0, "[{},[],\"a\",\"b\",true,{},null,[],1,[]]\n", null);
+}
+
+test "CLI file bindings compose with query files ordinary input and early stop" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const config = try files.write("config.json", "{\"minimum\":2}");
+    const label = try files.write("label.txt", "run-1");
+    const source = try files.write("bound.query", "{minimum:$cfg[0].minimum,label:$label,values:filter(.,. >= $cfg[0].minimum)}");
+    const input = try files.write("input.json", "[3,1,2]");
+    try check(&.{ "--slurpfile", "cfg", config, "--rawfile", "label", label, "-f", source, input }, "", 0, "{\"minimum\":2,\"label\":\"run-1\",\"values\":[3,2]}\n", null);
+    try check(&.{ "--slurpfile", "cfg", config, ". + $cfg[0].minimum" }, "3", 0, "5\n", null);
+    try check(&.{ "-nj", "--rawfile", "label", label, "-f", "-" }, "$label", 0, "run-1", null);
+    try check(&.{ "--ndjson", "-s", "--slurpfile", "cfg", config, "length(.) + $cfg[0].minimum" }, "1\n2\n", 0, "4\n", null);
+    try expectExitWithOpenInputArgs(&.{ exe, "--slurpfile", "cfg", config, "take(0) | count" }, "", "0\n");
+}
+
+test "CLI unused file bindings reject invalid input names and missing files" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const invalid = try files.write("bad.json", "truefalse");
+    const truncated = try files.write("truncated.json", "{\"x\":[");
+    const duplicate = try files.write("duplicate.json", "{\"a\":1,\"\\u0061\":2}");
+    const bytes = try files.write("bad-utf8", &.{0xff});
+    const valid = try files.write("valid.json", "{}");
+    const absent = try files.path("missing");
+    try check(&.{ "-n", "--slurpfile", "unused", invalid, "take(0)" }, "", 2, "", "parse JSON binding sequence");
+    try check(&.{ "-n", "--slurpfile", "unused", truncated, "take(0)" }, "", 2, "", "UnexpectedEndOfInput");
+    try check(&.{ "-n", "--slurpfile", "unused", duplicate, "take(0)" }, "", 2, "", "without duplicate keys");
+    try check(&.{ "-n", "--rawfile", "unused", bytes, "take(0)" }, "", 2, "", "valid UTF-8");
+    try check(&.{ "-n", "--slurpfile", "unused", bytes, "take(0)" }, "", 2, "", "SyntaxError");
+    try check(&.{ "--rawfile", "unused", absent, "take(0)" }, "", 2, "", "read binding file");
+    try check(&.{ "-n", "--rawfile", "bad-name", valid, "." }, "", 2, "", "binding names must match");
+    try check(&.{ "-n", "--arg", "x", "text", "--slurpfile", "x", valid, "." }, "", 2, "", "duplicate external binding");
+    try check(&.{ "-n", "--slurpfile", "x", valid, "--rawfile", "x", valid, "." }, "", 2, "", "duplicate external binding");
+    try check(&.{ "--rawfile", "name" }, "", 2, "", "requires a NAME and FILE");
+    try check(&.{ "--slurpfile", "name" }, "", 2, "", "requires a NAME and FILE");
+}
+
+test "CLI file binding depth count and input-byte admission are bounded" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    var deep: [257]u8 = undefined;
+    @memset(deep[0..128], '[');
+    deep[128] = '0';
+    @memset(deep[129..], ']');
+    const allowed = try files.write("allowed.json", deep[1..256]);
+    const denied = try files.write("denied.json", &deep);
+    const empty = try files.write("empty", "");
+    try check(&.{ "-n", "--slurpfile", "values", allowed, "length($values)" }, "", 0, "1\n", null);
+    try check(&.{ "-n", "--slurpfile", "values", denied, "take(0)" }, "", 2, "", "nesting exceeds 128 levels");
+    try check(&.{ "-n", "--rawfile", "unused", "/dev/zero", "take(0)" }, "", 2, "", "shared limit 64 MiB");
+    var arena = std.heap.ArenaAllocator.init(t.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    var args: std.ArrayList([]const u8) = .empty;
+    try args.append(a, "-n");
+    for (0..129) |index| try args.appendSlice(a, &.{ "--rawfile", try a.print("value{d}", .{index}), empty });
+    try args.append(a, "take(0)");
+    try check(args.items, "", 2, "", "at most 128 external bindings");
+}
+
+test "CLI binding filename dash is literal and independent of query stdin" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    try checkIn(files.root, &.{ "-n", "--rawfile", "text", "-", "$text" }, "", 2, "", "read binding file");
+    _ = try files.write("-", "1\n2");
+    try checkIn(files.root, &.{ "-nj", "--rawfile", "text", "-", "$text" }, "", 0, "1\n2", null);
+    try checkIn(files.root, &.{ "-n", "--slurpfile", "values", "-", "$values" }, "", 0, "[1,2]\n", null);
+    try checkIn(files.root, &.{ "-nj", "--rawfile", "text", "-", "-f", "-" }, "$text", 0, "1\n2", null);
 }
 
 test "CLI null input skips malformed missing and repeated stdin sources in every input mode" {

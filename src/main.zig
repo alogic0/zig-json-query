@@ -1,5 +1,6 @@
 const std = @import("std");
 const query = @import("query");
+const file_bindings = @import("file_bindings.zig");
 
 const usage =
     \\Usage: jqz [OPTIONS] QUERY [FILE|- ...]
@@ -17,6 +18,8 @@ const usage =
     \\  -e, --exit-status         Status 1 for false/null, 4 for no output
     \\  --arg NAME VALUE         Bind $NAME to a string
     \\  --argjson NAME JSON      Bind $NAME to one exact JSON value
+    \\  --slurpfile NAME FILE    Bind $NAME to all JSON values from FILE
+    \\  --rawfile NAME FILE      Bind $NAME to exact UTF-8 file text
     \\  -f, --from-file FILE      Read the query from FILE (only once)
     \\  --                       End options (e.g. before a negative query)
     \\  -h, --help               Show this help
@@ -27,6 +30,8 @@ const usage =
     \\With -n, data filenames, --slurp and --ndjson are ignored; -f - can
     \\still read the query from stdin. input_filename() returns null.
     \\No-argument short flags n/s/r/j/S/e may be bundled (e.g. -nj or -jr).
+    \\Binding files are named paths; - is a literal filename. Bound source
+    \\text and prepared values each share a 64 MiB cap across all bindings.
     \\
     \\Examples:
     \\  .users | each | where(.age >= 18) | {name: .name}
@@ -77,6 +82,13 @@ fn run(init: std.process.Init) !u8 {
     var query_file: ?[]const u8 = null;
     var bindings: std.ArrayList(query.Binding) = .empty;
     defer bindings.deinit(allocator);
+    var binding_files: std.ArrayList(file_bindings.Spec) = .empty;
+    defer binding_files.deinit(allocator);
+    var prepared: std.ArrayList([]u8) = .empty;
+    defer {
+        for (prepared.items) |bytes| allocator.free(bytes);
+        prepared.deinit(allocator);
+    }
     var positional: std.ArrayList([]const u8) = .empty;
     defer positional.deinit(allocator);
     var index: usize = 1;
@@ -109,6 +121,11 @@ fn run(init: std.process.Init) !u8 {
         } else if (options and (std.mem.eql(u8, arg, "--arg") or std.mem.eql(u8, arg, "--argjson"))) {
             if (index + 2 >= args.len) return argumentError(&errors.interface, "--arg/--argjson requires a NAME and VALUE");
             try bindings.append(allocator, .{ .name = args[index + 1], .value = if (std.mem.eql(u8, arg, "--arg")) .{ .string = args[index + 2] } else .{ .json = args[index + 2] } });
+            index += 2;
+        } else if (options and (std.mem.eql(u8, arg, "--slurpfile") or std.mem.eql(u8, arg, "--rawfile"))) {
+            if (index + 2 >= args.len) return argumentError(&errors.interface, "--slurpfile/--rawfile requires a NAME and FILE");
+            try binding_files.append(allocator, .{ .index = bindings.items.len, .kind = if (std.mem.eql(u8, arg, "--slurpfile")) .json else .raw, .path = args[index + 2] });
+            try bindings.append(allocator, .{ .name = args[index + 1], .value = .{ .string = "" } });
             index += 2;
         } else if (options and (std.mem.eql(u8, arg, "-f") or std.mem.eql(u8, arg, "--from-file"))) {
             if (query_file != null) return argumentError(&errors.interface, "only one -f query source is allowed");
@@ -164,6 +181,41 @@ fn run(init: std.process.Init) !u8 {
         query_bytes = reader.interface.allocRemaining(allocator, .limited(64 * 1024)) catch |err| return fileError(&errors.interface, query_path, "read query (limit 64 KiB)", err);
         break :blk query_bytes.?;
     } else positional.items[0];
+    var source_bytes: usize = 0;
+    for (bindings.items) |binding| {
+        const bytes = switch (binding.value) {
+            inline else => |text| text,
+        };
+        if (bytes.len > query.max_input_bytes - source_bytes) return argumentError(&errors.interface, "external binding value text exceeds 64 MiB");
+        source_bytes += bytes.len;
+    }
+    var prepared_bytes = source_bytes;
+    for (binding_files.items) |spec| {
+        const bytes = file_bindings.readNamed(allocator, io, spec.path, query.max_input_bytes - source_bytes) catch |err| return fileError(&errors.interface, spec.path, "read binding file (shared limit 64 MiB)", err);
+        source_bytes += bytes.len;
+        const value = switch (spec.kind) {
+            .raw => blk: {
+                if (bytes.len > query.max_input_bytes - prepared_bytes) {
+                    allocator.free(bytes);
+                    return fileError(&errors.interface, spec.path, "prepare binding value (shared limit 64 MiB)", error.FileBindingTooLarge);
+                }
+                break :blk bytes;
+            },
+            .json => blk: {
+                defer allocator.free(bytes);
+                break :blk file_bindings.jsonArray(allocator, bytes, query.max_input_bytes - prepared_bytes) catch |err| return fileError(&errors.interface, spec.path, "parse JSON binding sequence", err);
+            },
+        };
+        prepared.append(allocator, value) catch |err| {
+            allocator.free(value);
+            return err;
+        };
+        prepared_bytes += value.len;
+        bindings.items[spec.index].value = switch (spec.kind) {
+            .raw => .{ .string = value },
+            .json => .{ .json = value },
+        };
+    }
     var diagnostic: query.Diagnostic = .{};
     var program = query.Program.compileWithBindings(allocator, source, bindings.items, &diagnostic) catch |err| {
         if (err == error.InvalidBinding) return argumentError(&errors.interface, diagnostic.message);
@@ -175,6 +227,9 @@ fn run(init: std.process.Init) !u8 {
         return err;
     };
     defer program.deinit();
+    // Compilation owns the values; input IO and evaluation need no file buffers.
+    for (prepared.items) |bytes| allocator.free(bytes);
+    prepared.clearRetainingCapacity();
     var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .join_output = join_output, .sort_keys = sort_keys });
     defer stream.deinit();
     const slurp = if (slurp_input and !null_input and stream.needsInput()) try query.Slurp.init(allocator, query.max_input_bytes) else null;

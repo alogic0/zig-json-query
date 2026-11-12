@@ -50,6 +50,14 @@ pub fn build(b: *std.Build) void {
     const run_cli = b.addRunArtifact(cli);
     tests.dependOn(&run_cli.step);
     b.step("test-cli", "Run native CLI acceptance tests").dependOn(&run_cli.step);
+    const binding_input_tests = b.addTest(.{ .root_module = b.createModule(.{
+        .root_source_file = b.path("src/file_bindings.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+    }) });
+    const run_binding_input_tests = b.addRunArtifact(binding_input_tests);
+    tests.dependOn(&run_binding_input_tests.step);
+    b.step("test-file-bindings", "Check bounded file reads and exact JSON sequence framing").dependOn(&run_binding_input_tests.step);
     b.step("check", "Compile the CLI").dependOn(&exe.step);
 
     const version_package = b.dependency("package_version", .{ .target = b.graph.host, .optimize = optimize });
@@ -184,8 +192,8 @@ pub fn build(b: *std.Build) void {
     archive.addArg("-czf");
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.29.0.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.30.0.tar.gz");
     archive.addArgs(dist_layout.roots);
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.29.0.tar.gz");
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.30.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

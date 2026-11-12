@@ -12,7 +12,7 @@ const input_json = @import("input.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = input_json.max_bytes;
-pub const version = "0.29.0";
+pub const version = "0.30.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.
@@ -73,7 +73,7 @@ pub const Program = struct {
                     checkInputDepth(owned, diagnostic) catch return invalidBinding(diagnostic, "JSON binding nesting exceeds 128 levels");
                     break :blk std.json.parseFromSliceLeaky(std.json.Value, arena.allocator(), owned, .{ .parse_numbers = false }) catch |err| switch (err) {
                         error.OutOfMemory => return error.OutOfMemory,
-                        else => return invalidBinding(diagnostic, "--argjson requires one valid JSON value without duplicate keys"),
+                        else => return invalidBinding(diagnostic, "JSON bindings require one valid JSON value without duplicate keys"),
                     };
                 },
             };

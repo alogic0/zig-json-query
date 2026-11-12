@@ -1,7 +1,7 @@
 # Joined output and file bindings
 
-Status: joined output verified as 0.29.0; live framing checks and file bindings
-remain in progress.
+Status: joined output verified as 0.29.0 and file bindings verified as 0.30.0;
+final corpus and live component qualification remain in progress.
 
 ## Objective
 
@@ -48,7 +48,7 @@ qualification evidence unchanged. Validate native x86_64 Linux Debug only.
    joined-output flag. Require identical output bytes, exit statuses and stable
    input/tool identities. Preserve a new versioned evidence file and ready query;
    keep the 0.28.0 counterexample unchanged. Commit this verified evidence slice.
-4. [ ] Implement file bindings with bounded reads, JSON-sequence framing and
+4. [x] Implement file bindings with bounded reads, JSON-sequence framing and
    owned prepared values. Test multiline/empty/adjacent values, exact numbers,
    escaped keys/duplicates, invalid/truncated input, UTF-8/NUL, limits, depth,
    duplicate names, unused bindings, query/stdin composition and failure cleanup.
@@ -81,3 +81,14 @@ output bytes match jq exactly with zero exits and stable input hashes. The
 [qualification note](../qualification/cli-output-and-bindings-2026-11-11.md)
 records the independent helper and result boundary. Original audit evidence is
 unchanged. The feature and live proof are committed before file-binding code.
+
+File-binding slice: native Debug build and the full project suite pass at
+0.30.0, with 249 checks (160 library, 53 CLI, three binding-input, four version,
+three qualification, eighteen profiler and eight distribution-verifier checks).
+New checks cover exact JSON/raw/NUL bytes, empty/multiline/adjacent documents,
+decoded duplicate keys, invalid/truncated/UTF-8 input, shared admission, wrapper
+depth, name limits, literal dash paths, unused bindings and query/stdin/early-stop
+composition. Framing passes allocation-failure injection, and a bounded
+non-positional read rejects `/dev/zero`. Prepared buffers are released after
+compilation owns copies; no library file-IO interface was added. The pinned
+version tool synchronized every 0.30.0 marker; formatting and diff checks pass.
