@@ -56,6 +56,16 @@ variables are located query errors; invalid names/duplicates/JSON are argument
 errors before any input is read. Body scopes do not shadow program constants,
 and bound/computed values have no invented input source path.
 
+`root()` borrows the current expression stage's input. The evaluator captures
+its value and owned path at the outermost scalar call, preserves them through
+array-body scope changes, and clears the borrowed value when evaluation returns.
+Each new stage/feed gets its own root. Computed object access evaluates the base
+once and its string key once in the caller's item scope, then uses ObjectMap.get.
+Optional access permits absence only; null/false remain present values, and
+wrong base/key types error. Literal array indexes/slices keep their parser path.
+Computed edit paths remain rejected. Missing-key errors append the actual key
+to a known base path; constructed values have no invented source provenance.
+
 Array indexes and slice bounds use a sign plus a `usize` magnitude, preserving
 the existing positive-index range and avoiding signed negation overflow.
 Negative indexes resolve from the end; slices clamp bounds and return borrowed
@@ -134,6 +144,18 @@ validated before retention, keeping the sort comparator infallible. Results
 are individual records. `group_by` uses structural equality, preserves first-seen
 group order and input order within groups, and emits one array per group. The
 initial grouping scan is quadratic; sorting/grouping empty streams emit nothing.
+
+Stream `index_by(key)` evaluates a string key per record, rejects duplicates,
+and deep-copies each key/record into a session-owned ObjectMap. The map maintains
+one reusable hash index (small objects use the standard library's bounded inline
+scan). All arena, entry and hash-table capacity shares the retained budget;
+record depth includes the output object's wrapper. Completion emits one borrowed
+object, including `{}` on empty input, then releases it after synchronous
+downstream consumers return. Failure releases all index storage. Combining this
+stage with computed lookup, root() and existing array functions provides ordered
+inner/left comparisons without a new expanding scalar or a per-left-record
+right-hand scan. Lookup itself allocates no storage; materialized map results
+remain separate scalar temporaries, copied if subsequently retained.
 
 Stream `count_by(key)` and `sum_by(key,value)` keep one owned key plus checked
 u64 count/i128 sum per group. They emit `{key,count}` / `{key,count,sum}` at

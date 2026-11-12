@@ -6,6 +6,7 @@ const json_order = @import("json_order.zig");
 const Budget = @import("collection_budget.zig");
 const Buffered = @import("buffered.zig");
 const GroupTotals = @import("group_totals.zig");
+const KeyIndex = @import("key_index.zig");
 const number = @import("number.zig");
 const Diagnostic = @import("diagnostic.zig").Diagnostic;
 const A = std.mem.Allocator;
@@ -13,7 +14,7 @@ const Value = std.json.Value;
 const Self = @This();
 
 pub const Options = struct {
-    /// Shared live retained capacity across collect, sort and group stages.
+    /// Shared live retained capacity across collection, grouping and index stages.
     max_collect_bytes: usize = 64 * 1024 * 1024,
     raw_output: bool = false,
     /// Raw strings and no separator after any output value.
@@ -22,7 +23,7 @@ pub const Options = struct {
 };
 pub const Error = error{ EvaluationFailed, OutOfMemory, StreamFailed, StreamFinished } || std.Io.Writer.Error;
 const Collector = struct { arena: std.heap.ArenaAllocator, items: std.ArrayList(Value) = .empty };
-const State = union(enum) { none, count: u64, sum: i128, take: u64, collect: Collector, buffered: Buffered, totals: GroupTotals };
+const State = union(enum) { none, count: u64, sum: i128, take: u64, collect: Collector, buffered: Buffered, totals: GroupTotals, index: KeyIndex };
 
 allocator: A,
 stages: []const syntax.Stage,
@@ -62,6 +63,7 @@ pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.
             .collect => .{ .collect = .{ .arena = .init(self.budget.allocator()) } },
             .sort, .group => .{ .buffered = .init(self.budget.allocator()) },
             .totals => .{ .totals = .init(self.budget.allocator()) },
+            .index => .{ .index = .init(self.budget.allocator()) },
             .take => |take| blk: {
                 if (take.limit == 0) self.closeThrough(index);
                 break :blk .{ .take = 0 };
@@ -167,6 +169,10 @@ pub fn finish(self: *Self) Error!void {
                 }
                 self.releaseCollector(index);
             },
+            .index => {
+                try self.stage(index + 1, .{ .object = self.states[index].index.entries });
+                self.releaseCollector(index);
+            },
             .totals => |totals| {
                 for (self.states[index].totals.rows.items) |row| {
                     if (self.blocked(index)) break;
@@ -190,6 +196,9 @@ fn releaseCollector(self: *Self, index: usize) void {
         self.states[index] = .none;
     } else if (self.states[index] == .totals) {
         self.states[index].totals.deinit();
+        self.states[index] = .none;
+    } else if (self.states[index] == .index) {
+        self.states[index].index.deinit();
         self.states[index] = .none;
     }
 }
@@ -281,6 +290,25 @@ fn stageInner(self: *Self, index: usize, input: Value) Error!void {
         },
         .sort => |sort| try self.retain(index, input, sort.key, sort.offset, true),
         .group => |group| try self.retain(index, input, group.key, group.offset, false),
+        .index => |spec| {
+            var temporary = std.heap.ArenaAllocator.init(self.allocator);
+            defer temporary.deinit();
+            const key = try self.evaluator.evalRequired(temporary.allocator(), spec.key, input);
+            if (key != .string) {
+                const err = self.fail(spec.key.offset, "index_by key must be a string");
+                self.evaluator.locate(spec.key);
+                return err;
+            }
+            if (!scalar.withinDepth(input, 1)) return self.fail(spec.offset, "indexed record and output wrapper exceed 128 levels");
+            const state = &self.states[index].index;
+            if (state.entries.contains(key.string)) {
+                const err = self.fail(spec.key.offset, "index_by duplicate key; keys must be unique");
+                self.evaluator.locate(spec.key);
+                return err;
+            }
+            self.budget.denied = false;
+            state.append(key.string, input) catch |err| return self.retentionError(spec.offset, "index_by exceeded the session memory limit", err);
+        },
         .totals => |totals| {
             var temporary = std.heap.ArenaAllocator.init(self.allocator);
             defer temporary.deinit();

@@ -6,6 +6,39 @@ const check = @import("cli.zig").check;
 const checkIn = @import("cli.zig").checkIn;
 const expectExitWithOpenInputArgs = @import("cli.zig").expectExitWithOpenInputArgs;
 
+test "CLI manifest examples match by path preserve exact sizes and report additions removals" {
+    const before_b = "{\"path\":\"b\",\"sha256\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"size\":2}";
+    const after_b = "{\"path\":\"b\",\"sha256\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"size\":2}";
+    const before_a = "{\"path\":\"a\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":9007199254740993}";
+    const after_a = "{\"path\":\"a\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":9007199254740994}";
+    const removed = "{\"path\":\"removed\",\"sha256\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"size\":1}";
+    const inner = "{\"before\":" ++ before_b ++ ",\"matched\":true,\"after\":" ++ after_b ++ "}\n{\"before\":" ++ before_a ++ ",\"matched\":true,\"after\":" ++ after_a ++ "}\n";
+    const cases = [_]struct { file: []const u8, expected: []const u8 }{
+        .{ .file = "left-match.query", .expected = inner ++ "{\"before\":" ++ removed ++ ",\"matched\":false,\"after\":null}\n" },
+        .{ .file = "inner-match.query", .expected = inner },
+        .{ .file = "changes.query", .expected = "{\"path\":\"b\",\"sha256_changed\":true,\"size_changed\":false,\"before_size\":2,\"after_size\":2}\n{\"path\":\"a\",\"sha256_changed\":false,\"size_changed\":true,\"before_size\":9007199254740993,\"after_size\":9007199254740994}\n" },
+        .{ .file = "removed.query", .expected = "\"removed\"\n" },
+        .{ .file = "added.query", .expected = "\"added\"\n" },
+    };
+    for (cases) |case| {
+        const source = try std.fs.path.join(t.allocator, &.{ "examples/cleanup", case.file });
+        defer t.allocator.free(source);
+        try check(&.{ "-n", "--slurpfile", "before", "examples/cleanup/before.json", "--slurpfile", "after", "examples/cleanup/after.json", "-f", source }, "", 0, case.expected, null);
+    }
+}
+
+test "CLI key index spans files supports empty matches and stops before later inputs" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const first = try files.write("first.json", "{\"path\":\"é\",\"size\":9007199254740993}");
+    const second = try files.write("second.json", "{\"path\":\"other\",\"size\":2}");
+    try check(&.{ "index_by(.path) | map([\"other\",\"é\"],root()[.].size)", first, second }, "", 0, "[2,9007199254740993]\n", null);
+    try check(&.{ "index_by(.path)", first, first }, "", 2, "", "duplicate key");
+    try check(&.{ "--ndjson", "index_by(.path) | map([\"missing\"],exists(root()[.]?))" }, "", 0, "[false]\n", null);
+    try check(&.{ "--max-retained-bytes", "1", "index_by(.path)", first }, "", 2, "", "increase --max-retained-bytes");
+    try expectExitWithOpenInputArgs(&.{ exe, "--ndjson", "take(1) | index_by(.)" }, "\"x\"\n", "{\"x\":\"x\"}\n");
+}
+
 test "CLI grouped totals span files retain order and accept bounded streaming" {
     var files = try InputFiles.init();
     defer files.deinit();

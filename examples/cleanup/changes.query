@@ -1,0 +1,5 @@
+$after[0] | each | index_by(.path) |
+map($before[0], {before:., matched:exists(root()[.path]?), after:root()[.path]? ?? null}) |
+each | where(.matched and (.before.sha256 != .after.sha256 or .before.size != .after.size)) |
+{path:.before.path, sha256_changed:.before.sha256 != .after.sha256,
+ size_changed:.before.size != .after.size, before_size:.before.size, after_size:.after.size}

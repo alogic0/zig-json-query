@@ -1,0 +1,5 @@
+[
+  {"path":"b","sha256":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","size":2},
+  {"path":"a","sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","size":9007199254740993},
+  {"path":"removed","sha256":"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","size":1}
+]

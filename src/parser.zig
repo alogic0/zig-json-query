@@ -39,9 +39,11 @@ pub const Node = struct {
     height: usize,
     data: union(enum) {
         current,
+        scope_root,
         input_filename,
         literal: std.json.Value,
         access: struct { base: *const Node, key: Key, optional: bool },
+        lookup: struct { base: *const Node, key: *const Node, optional: bool },
         binary: struct { op: Op, lhs: *const Node, rhs: *const Node },
         logical_not: *const Node,
         negate: *const Node,
@@ -72,6 +74,7 @@ pub const Stage = union(enum) {
     sort: struct { offset: usize, key: ?*const Node },
     group: struct { offset: usize, key: *const Node },
     totals: struct { offset: usize, key: *const Node, value: ?*const Node },
+    index: struct { offset: usize, key: *const Node },
     take: struct { offset: usize, limit: u64 },
 };
 
@@ -263,6 +266,13 @@ pub const Parser = struct {
                     try self.expect(.rparen, "expected ) after key expression");
                     try stages.append(self.allocator, if (sorting) .{ .sort = .{ .offset = offset, .key = key } } else .{ .group = .{ .offset = offset, .key = key } });
                 }
+            } else if (self.word("index_by")) {
+                const offset = self.token.start;
+                try self.advance();
+                try self.expect(.lparen, "expected ( before index key");
+                const key = try self.expression(0);
+                try self.expect(.rparen, "index_by expects one per-record string key");
+                try stages.append(self.allocator, .{ .index = .{ .offset = offset, .key = key } });
             } else if (self.word("count_by") or self.word("sum_by")) {
                 const offset = self.token.start;
                 const summing = self.word("sum_by");
@@ -411,6 +421,12 @@ pub const Parser = struct {
             .lbrace => return self.object(),
             .lbracket => return self.array(),
             .identifier => {
+                if (self.word("root")) {
+                    try self.advance();
+                    try self.expect(.lparen, "expected ( after root");
+                    try self.expect(.rparen, "root takes no arguments");
+                    return self.make(offset, .scope_root, 1);
+                }
                 if (self.word("update") or self.word("del")) {
                     const updating = self.word("update");
                     try self.advance();
@@ -556,6 +572,21 @@ pub const Parser = struct {
             } else if (self.token.tag == .lbracket) {
                 const offset = self.token.start;
                 try self.advance();
+                const literal_key = switch (self.token.tag) {
+                    .number, .minus, .colon => true,
+                    .string => blk: {
+                        var lookahead = self.*;
+                        try lookahead.advance();
+                        break :blk lookahead.token.tag == .rbracket;
+                    },
+                    else => false,
+                };
+                if (!literal_key) {
+                    const key = try self.expression(0);
+                    try self.expect(.rbracket, "expected ] after computed string key");
+                    value = try self.make(offset, .{ .lookup = .{ .base = value, .key = key, .optional = try self.optional() } }, @max(value.height, key.height) + 1);
+                    continue;
+                }
                 const key: Key = if (self.token.tag == .string) blk: {
                     const field = (try self.jsonLiteral()).string;
                     try self.advance();

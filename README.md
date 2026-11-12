@@ -114,6 +114,9 @@ records joined output followed by named JSON/text file bindings.
 Its [qualification report](docs/qualification/cli-output-and-bindings-2026-11-11.md)
 records five byte-identical live checks and the unchanged 45-case corpus at
 0.30.0.
+The [cleanup workflow plan](docs/plans/2026-11-12-cleanup-workflow-improvements.md)
+adds shared-descriptor output, explicit memory controls, bounded grouped totals
+and [indexed manifest comparisons](examples/cleanup/README.md).
 
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
 for CLI stdin. Completion aggregates, null input and slurped input have no unique
@@ -466,6 +469,36 @@ supplied through `--argjson`.
 
 ## Sorting and grouping
 
+`index_by(key)` is a stream stage that owns records in a string-keyed object,
+then emits that object once at completion (`{}` for empty input). Keys must be
+strings and decoded duplicate keys fail; numeric tokens in records stay exact.
+Index keys, cloned records and map capacity share `--max-retained-bytes`; the
+object wrapper counts toward the 128-level depth limit. Downstream retention
+owns copies before the index is released. Lookups reuse the object's hash index
+(very small objects may use the standard library's short inline scan).
+
+Computed object access `object[expression]` evaluates a string key in the
+current item's scope. `object[expression]?` permits missing keys, while wrong
+base/key types remain errors. `exists(...)` distinguishes missing from present
+null/false; `??` still preserves false. Literal array indexes/slices retain their
+existing rules; computed array indexes are not accepted by this API.
+
+`root()` returns the current expression stage's input, including inside nested
+`map`, `filter`, `all` and `any` bodies. It changes at the next pipeline stage,
+and borrows values for synchronous evaluation. This builds an index once and
+performs a left match in left-input order:
+
+```text
+$after[0] | each | index_by(.path) |
+map($before[0], {before:., matched:exists(root()[.path]?), after:root()[.path]? ?? null}) |
+each
+```
+
+Append `where(.matched)` for an inner match or `where(not .matched)` for removed
+records. Reverse before/after to find additions. The
+[ready examples](examples/cleanup/README.md) also compare `.sha256` and exact
+`.size` values and demonstrate both matches, changes, additions and removals.
+
 `sort` uses each record as its key. `sort_by(expr)` evaluates one key per record
 and retains owned copies of keys and records. All sort keys must be numbers or
 all must be strings. Exact decimal comparison and UTF-8 byte ordering apply;
@@ -499,9 +532,10 @@ Only distinct keys and accumulator capacity remain retained, under
 payloads are discarded after each feed. Key/value evaluation uses scalar
 temporaries, and the output object counts toward the depth limit. Key searches
 are linear in the number of distinct groups. The
-[portable allocation study](docs/qualification/2026-11-12-grouped-totals.json)
+[portable allocation study](docs/qualification/2026-11-12-cleanup-workflows.json)
 checks record/payload growth with fixed keys using requested capacity, not RSS;
-reproduce with `zig build study-cleanup`.
+it controls in-place growth for reproducible comparisons. Reproduce with
+`zig build study-cleanup`.
 
 `sort_by(array, key)` and `group_by(array, key)` provide the same key rules and
 ordering inside scalar expressions. They evaluate the array once, then evaluate

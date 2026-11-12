@@ -126,7 +126,7 @@ test "summary indexes and slices handle full usize magnitudes without overflow" 
 }
 
 test "summary slices and indexes reject dynamic fractional and malformed bounds" {
-    for ([_][]const u8{ ".[.index]", ".[1+1]", ".[1e0]", ".[-0.5]", ".[0:1.0]", ".[::]", ".[1::2]", ".[1:2:3]", ".[+1]", ".[--1]", ".[1:--1]", ".[\"x\":1]", ".[", ".[:" }) |source| try expectInvalid(source);
+    for ([_][]const u8{ ".[1+1]", ".[1e0]", ".[-0.5]", ".[0:1.0]", ".[::]", ".[1::2]", ".[1:2:3]", ".[+1]", ".[--1]", ".[1:--1]", ".[\"x\":1]", ".[", ".[:" }) |source| try expectInvalid(source);
 }
 
 test "summary generated slices match selecting positions in a small-array model" {

@@ -1,6 +1,25 @@
 const std = @import("std");
 const query = @import("query");
 
+test "external consumer owns indexed records and looks up outer scope with typed absence" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var left = "[\"b\",\"a\",\"missing\"]".*;
+    var program = try query.Program.compileWithBindings(t.allocator, "index_by(.path) | map($left,{path:.,matched:exists(root()[.]?),size:root()[.]?.size ?? null}) | collect", &.{.{ .name = "left", .value = .{ .json = &left } }}, &diagnostic);
+    defer program.deinit();
+    @memset(&left, 'x');
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var stream = try program.start(t.allocator, &output.writer, &diagnostic, .{ .max_collect_bytes = 8192 });
+    defer stream.deinit();
+    var input = "{\"path\":\"a\",\"size\":9007199254740993}".*;
+    _ = try stream.feed(&input);
+    @memset(&input, 'x');
+    _ = try stream.feed("{\"path\":\"b\",\"size\":false}");
+    try stream.finish();
+    try t.expectEqualStrings("[[{\"path\":\"b\",\"matched\":true,\"size\":false},{\"path\":\"a\",\"matched\":true,\"size\":9007199254740993},{\"path\":\"missing\",\"matched\":false,\"size\":null}]]\n", output.written());
+}
+
 test "external consumer owns sessions and composes new stages" {
     const allocator = std.testing.allocator;
     var diagnostic: query.Diagnostic = .{};

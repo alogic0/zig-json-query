@@ -1,8 +1,7 @@
 # Cleanup workflow improvements
 
-Status: implementation in progress; descriptor output fixed in 0.30.1 and
-independent memory controls/diagnostics delivered in 0.31.0.
-Bounded grouped totals are delivered in 0.32.0; keyed comparison remains.
+Status: required code slices delivered through 0.33.0; final corpus replay and
+qualification report remain in progress.
 
 Fix shared shell redirection, make large manifest queries easier to run within
 explicit memory budgets, and support efficient comparisons by key. These needs
@@ -127,8 +126,8 @@ Acceptance:
 - [x] Fix descriptor output, verify it, and commit a patch-version slice.
 - [x] Add memory controls and diagnostics, verify them, and commit a feature slice.
 - [x] Add grouped count/sum accumulation, verify it, and commit a feature slice.
-- [ ] Add keyed lookup/comparison, verify it, and commit a feature slice.
-- [ ] Update README, design notes and query examples for the implemented APIs.
+- [x] Add keyed lookup/comparison, verify it, and commit a feature slice.
+- [x] Update README, design notes and query examples for the implemented APIs.
 - [ ] Run the existing qualification corpus and focused workflow checks; record
   actual results and mark this request complete only when every required slice
   is delivered.
@@ -145,6 +144,28 @@ cleanup or changes to compiler inputs, retained evidence, sibling libraries,
 or other agents' work. Do not publish or push changes.
 
 ## Implementation evidence
+
+Keyed-comparison contract (recorded before implementation): stream stage
+`index_by(key)` builds one string-keyed object and emits it at completion (`{}`
+for empty input). Values are owned copies of entire records, with exact numeric
+tokens; duplicate decoded keys are errors. Its key/record/map capacity shares
+`--max-retained-bytes`, and the object wrapper counts toward depth. Computed
+object access `object[expression]` requires a string key; append `?` to allow
+absence only. Missing, present null and present false remain distinct through
+`exists(...)`; wrong base/key types still error. Literal array indexes/slices
+keep their existing rules; computed array indexes are outside this slice.
+
+Scalar `root()` returns the input to the current expression stage, unchanged
+inside nested map/filter/all/any bodies. This supplies the outer built index
+without new variable bindings: `$after[0] | each | index_by(.path) |
+map($before[0],{before:.,matched:exists(root()[.path]?),after:root()[.path]? ?? null})`.
+That left match preserves left order; `each | where(.matched)` selects inner
+matches, `where(not .matched)` selects removed paths, and reversing before/after
+selects added paths. Index construction happens once per stream, and lookup uses
+the object's existing hash index rather than scanning or rebuilding records.
+Scalar lookup/root values borrow until synchronous consumers finish; downstream
+retaining stages own copies under the same budget. The index is released after
+completion or failure. No implicit expansion or general reducer is introduced.
 
 Grouped-total contract (recorded before implementation): stream-only
 `count_by(key)` emits `{key,count}`; `sum_by(key,value)` emits
@@ -208,3 +229,28 @@ zero live bytes. These are NDJSON-style synchronous record feeds, with source
 text/program/output buffer excluded and transient parsing reported separately;
 the numbers are allocation capacity, not RSS. Evidence SHA-256:
 `dca43d6018a334246d659de3b58fe83f3189af56b7695983284dffd637983c93`.
+
+0.33.0 adds owned `index_by` objects, strict/optional computed string lookup and
+`root()` scope. Native build and all 273 project checks pass (176 library,
+61 CLI, three binding-input, four version, three qualification, eighteen
+profiler, eight distribution), plus ten independent consumer checks. Seven new
+library checks and two CLI checks cover empty indexes, Unicode/escaped
+duplicates, null/false/missing, exact large values, source reuse, nested root
+scope, depth/budgets, failed writes, allocation-failure cleanup, and all five
+[manifest query examples](../../examples/cleanup/README.md).
+
+The [0.33.0 workflow study](../qualification/2026-11-12-cleanup-workflows.json)
+confirms a built hash index over 4,096 records handles 65,536 repeated left keys
+(131,072 successful lookups), with zero allocation during lookup/completion and
+zero live bytes after cleanup. This repeated last-key case would require a
+nested scan without the index. Index retention is 2,175,024 bytes in this run.
+
+The grouped comparison now disables in-place resize/remap using the existing
+failing-allocator helper, allowing allocations to succeed. This removes
+backing-allocator placement variance: in the new process layout, ordinary
+growth used 908 or 1,672 bytes for four keys depending on layout/payload, while
+each individual run still stayed flat after the keys were seen. Under controlled
+growth all four fixed-key cases retain 1,672 bytes; 64 keys retain 33,050 bytes.
+This is a measurement-method change, with the original 0.32.0 evidence retained.
+All owner deltas match and cleanup is zero. New evidence SHA-256:
+`a48502bf49da97b90df11e93db0ee997315a3daa7351dd9011d0f7a6b10afb19`.

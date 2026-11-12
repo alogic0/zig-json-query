@@ -1,0 +1,5 @@
+[
+  {"path":"a","sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","size":9007199254740994},
+  {"path":"b","sha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","size":2},
+  {"path":"added","sha256":"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","size":3}
+]

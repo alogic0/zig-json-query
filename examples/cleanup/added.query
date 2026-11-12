@@ -1,0 +1,3 @@
+$before[0] | each | index_by(.path) |
+map($after[0], {path, matched:exists(root()[.path]?)}) |
+each | where(not .matched) | .path

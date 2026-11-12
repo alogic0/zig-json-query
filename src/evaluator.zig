@@ -18,6 +18,9 @@ pub const Evaluator = struct {
     diagnostic: *Diagnostic,
     path: Path = .{},
     input_filename: ?[]const u8 = null,
+    scope_depth: usize = 0,
+    scope_root: ?Value = null,
+    scope_path: Path = .{},
 
     fn fail(self: *Evaluator, offset: usize, message: []const u8) Error {
         self.diagnostic.set(offset, message);
@@ -35,6 +38,15 @@ pub const Evaluator = struct {
     }
 
     pub fn eval(self: *Evaluator, allocator: A, node: *const Node, input: Value) Error!?Value {
+        if (self.scope_depth == 0) {
+            self.scope_root = input;
+            self.scope_path = self.path;
+        }
+        self.scope_depth += 1;
+        defer {
+            self.scope_depth -= 1;
+            if (self.scope_depth == 0) self.scope_root = null;
+        }
         return self.evalInner(allocator, node, input) catch |err| {
             if (err == error.EvaluationFailed and !self.diagnostic.path_reported) self.locate(node);
             return err;
@@ -74,6 +86,7 @@ pub const Evaluator = struct {
     pub fn pathFor(self: *const Evaluator, node: *const Node) Path {
         return switch (node.data) {
             .current => self.path,
+            .scope_root => self.scope_path,
             .access => |access| blk: {
                 var path = self.pathFor(access.base);
                 if (path.len == 0) break :blk path;
@@ -91,6 +104,7 @@ pub const Evaluator = struct {
     fn evalInner(self: *Evaluator, allocator: A, node: *const Node, input: Value) Error!?Value {
         return switch (node.data) {
             .current => input,
+            .scope_root => self.scope_root.?,
             .input_filename => if (self.input_filename) |name| Value{ .string = name } else Value.null,
             .literal => |value| value,
             .access => |access| blk: {
@@ -114,6 +128,19 @@ pub const Evaluator = struct {
                     },
                 };
                 if (found == null and !access.optional) return self.fail(node.offset, "field or index is absent; append ? for optional access");
+                break :blk found;
+            },
+            .lookup => |lookup| blk: {
+                const base = (try self.eval(allocator, lookup.base, input)) orelse break :blk null;
+                if (base != .object) return self.typeFailure(node, lookup.base, "computed key access expects an object (including optional access)");
+                const key = try self.evalRequired(allocator, lookup.key, input);
+                if (key != .string) return self.typeFailure(node, lookup.key, "computed object key must be a string");
+                const found = base.object.get(key.string);
+                if (found == null and !lookup.optional) {
+                    var path = self.pathFor(lookup.base);
+                    if (path.len != 0) path.field(key.string);
+                    return self.failPath(node.offset, "field or index is absent; append ? for optional access", path);
+                }
                 break :blk found;
             },
             .binary => |binary| blk: {

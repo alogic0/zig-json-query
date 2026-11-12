@@ -2,11 +2,12 @@
 
 This is an independent Zig build/package graph. In the checkout, run
 `zig build test --summary all` from `tests/package`; its dependency points at
-`../..`. Nine tests cover the earlier stream/sort/group interface and the
+`../..`. Ten tests cover the earlier stream/sort/group interface and the
 expanded binding, named-feed, slurp, quantifier, decimal-statistics, scalar-array
 aggregate, JSON serialization, Unicode byte-sizing, immutable path edits,
 sorted-key output, joined raw output, structural sorting/distinctness and
-predicate-status APIs.
+predicate-status APIs, plus owned keyed indexes, computed lookup and outer
+expression scope with missing/null/false distinctions.
 They overwrite caller buffers and destroy the input collector
 before finishing downstream retention to check ownership through the public API.
 

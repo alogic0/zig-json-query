@@ -62,7 +62,9 @@ For two source manifests, each containing one object with a `.files` map:
 
 Use `--rawfile NAME FILE` to bind a retained UTF-8 text log; `jqz -nj --rawfile
 text LOG '$text'` writes its exact bytes. These file-binding components do not
-add local `as`/`def`/`reduce` syntax or dynamic indexes needed by larger scripts.
+add local `as`/`def`/`reduce` syntax needed by larger scripts. The subsequent
+[cleanup examples](../cleanup/README.md) add indexed comparisons with computed
+string keys and explicit outer expression scope.
 The [0.30.0 live evidence](../../docs/qualification/2026-11-11-file-bindings.json)
 rechecks all three NUL-path invocations and both file-binding components with
 exact output bytes and stable retained inputs.
