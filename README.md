@@ -109,6 +109,9 @@ census progress and grouped rejections, with explicit notes on raw-output and
 numeric differences.
 The [CLI output/file-binding plan](docs/plans/2026-11-11-cli-output-and-file-bindings.md)
 records joined output followed by named JSON/text file bindings.
+Its [qualification report](docs/qualification/cli-output-and-bindings-2026-11-11.md)
+records five byte-identical live checks and the unchanged 45-case corpus at
+0.30.0.
 
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
 for CLI stdin. Completion aggregates, null input and slurped input have no unique

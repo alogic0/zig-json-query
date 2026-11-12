@@ -3,10 +3,12 @@
 The [initial implementation plan](../plans/2026-11-10-workload-qualification.md),
 [scalar-aggregate follow-up](../plans/2026-11-10-scalar-aggregates.md) and
 [remaining-workflow plan](../plans/2026-11-10-remaining-workflows.md) track these
-checkpoints. [The latest functional evidence](2026-11-11-null-input.json) records
-jqz 0.28.0 versus installed jq 1.7 after the
-[null-input plan](../plans/2026-11-11-null-input.md): one repetition, all 45 cases
-and no invocation adaptations. The earlier repeated-performance
+checkpoints. [The latest functional evidence](2026-11-11-file-bindings-corpus.json)
+records jqz 0.30.0 versus installed jq 1.7 after the
+[CLI output/file-binding plan](../plans/2026-11-11-cli-output-and-file-bindings.md):
+one repetition, all 45 cases and no invocation adaptations. The earlier
+[0.28.0 null-input evidence](2026-11-11-null-input.json) remains unchanged.
+The earlier repeated-performance
 [0.26.2 evidence](2026-11-11-container-construction.json) follows the
 [container-construction plan](../plans/2026-11-11-container-construction.md), including
 queries/flags, source/fixture/binary hashes and raw measurements. The historical
@@ -22,6 +24,10 @@ specified compiler session beyond the selected corpus. It provides reusable
 translations, 56 byte-identical live checks across 25 filter forms and six
 counterexamples for two reviewed differences. Its query inventory and script
 capability observations are separate from the 30-case observed coverage below.
+The [CLI follow-up report](cli-output-and-bindings-2026-11-11.md) records five
+fresh byte-identical checks at 0.30.0: the three original NUL-path invocations
+with joined output, plus separate manifest/raw-text binding components. Those
+components add no observed-query coverage.
 
 ## Reproduce
 
@@ -53,7 +59,7 @@ Every reference and candidate was preflighted against frozen expectations before
 timing. The argument-only case now uses identical `-n` invocations without input
 files; its query, expected output and observed-case identity are unchanged. Both
 tools produce the same 71-byte output and exit zero. The current replay comes
-from clean feature snapshot `301a0f5c7aa8f84ea272c5b7d8c40c9a7e074e35`, and its
+from committed feature snapshot `7ff39ed`, and its
 source/CLI hashes match the implementation. The previous null-file adaptation
 was excluded from the historical 34-case timing runs. This new one-repetition
 replay establishes functional equivalence; the earlier repeated measurements
@@ -72,11 +78,13 @@ The three remaining gaps now pass their unchanged frozen jq expectations:
 sorted-output component checks compact bytes, including nested object-key order.
 The earlier embedded grouping/totals translations still pass.
 
-Native Debug build/tests pass on 0.28.0: 233 project checks (158 language/library,
-42 CLI, four version-workflow, three qualification-runner, eighteen profiler and
-eight distribution-verifier checks). Five new CLI tests cover null-input
-bindings/provenance, open stdin, skipped data files, query files, output options,
-completion and predicate/error status. The artifact-record query example passes.
+Native Debug build/tests pass on 0.30.0: 249 project checks (160 language/library,
+53 CLI, three binding-input, four version-workflow, three qualification-runner,
+eighteen profiler and eight distribution-verifier checks). Joined-output and
+file-binding checks cover exact NUL/Unicode bytes, zero-byte output status,
+flag bundles, named files, bounded framing/allocation failure, invalid unused
+bindings, depth, query/stdin composition and output-error precedence. The
+separate public consumer passed nine checks with joined output at 0.29.0.
 These checks include retention ownership, Unicode sizing, immutable edits and
 structural sets. The standalone checkpoints below verify extraction and an
 independent consumer with fresh caches. The frozen automated 0.27.1 checkpoint

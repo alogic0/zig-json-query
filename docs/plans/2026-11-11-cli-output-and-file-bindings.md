@@ -1,7 +1,7 @@
 # Joined output and file bindings
 
-Status: joined output verified as 0.29.0 and file bindings verified as 0.30.0;
-final corpus and live component qualification remain in progress.
+Status: complete. Joined output shipped in 0.29.0; named file bindings and final
+corpus/live qualification pass at 0.30.0.
 
 ## Objective
 
@@ -54,7 +54,7 @@ qualification evidence unchanged. Validate native x86_64 Linux Debug only.
    duplicate names, unused bindings, query/stdin composition and failure cleanup.
    Read/set minor 0.30.0 with the pinned version tool, run focused/full native
    checks, document contracts/examples, and commit before final qualification.
-5. [ ] Run the unchanged 45-case corpus and focused live CLI checks. Recheck
+5. [x] Run the unchanged 45-case corpus and focused live CLI checks. Recheck
    joined path framing after CLI changes; compare multi-file JSON bindings and
    raw-file bytes on retained compiler data as separate component scenarios,
    without inflating observed coverage. Preserve new evidence, verify hashes,
@@ -92,3 +92,15 @@ composition. Framing passes allocation-failure injection, and a bounded
 non-positional read rejects `/dev/zero`. Prepared buffers are released after
 compilation owns copies; no library file-IO interface was added. The pinned
 version tool synchronized every 0.30.0 marker; formatting and diff checks pass.
+
+Final qualification runs against feature snapshot `7ff39ed` at 0.30.0. The
+[unchanged corpus replay](../qualification/2026-11-11-file-bindings-corpus.json)
+passes all 45 cases: 30/30 selected observed translations, no unsupported cases
+or invocation adaptations, ten semantic probes and 70 one-repetition samples.
+The [fresh live evidence](../qualification/2026-11-11-file-bindings.json) passes
+the three original NUL-path invocations plus two separate components: paired
+manifest bindings (65 identical bytes) and exact raw text (27,205 identical
+bytes, also matching the source file hash). All tools/inputs stay stable and
+the original manifest hashes still match the audit. These components add no
+observed-query coverage or performance claim. Generated reports are preserved
+byte-for-byte and the compiler checkout remains clean.
