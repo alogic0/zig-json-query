@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "version": "0.32.0",
+  "optimization": "debug",
+  "method": "Existing allocation meter wraps session allocation requests. Program/input text and fixed output buffer excluded. Retained capacity is sampled after every feed, after parsed input and scalar temporaries are freed. Peak/requested bytes also include transient parsing. Completion results checked independently. Counts describe requested capacity, not RSS; no timing claim.",
+  "source_hashes": [
+    {
+      "path": "src/root.zig",
+      "sha256": "eec67c11a9bd190c208769aababbca964e723d006ce6ad3ecb3e96970f8b8940"
+    },
+    {
+      "path": "src/execution.zig",
+      "sha256": "c46abae5d4884dbd7c4929a02fd676cbb0dd5b6f196bab03aa29ff694dacb418"
+    },
+    {
+      "path": "src/group_totals.zig",
+      "sha256": "7cd32e3aa102a8ed078b738167b1bd3038e3dd7072a754403c5ee79d244ebd57"
+    },
+    {
+      "path": "src/parser.zig",
+      "sha256": "cb8549d4db8ad0cfb9e66fc1bbfbfca1ff7320f6a2467c5aa1d8390b1b60c704"
+    },
+    {
+      "path": "tools/cleanup_study.zig",
+      "sha256": "f25021dfcfa73ba5309b44e27be960836c77d8beba01da7337e4627a1be69bb4"
+    },
+    {
+      "path": "tools/allocation_meter.zig",
+      "sha256": "bee434bb88d3d121d7b6c66175283aa929a15b979fe36f6769fc4767cb246fb4"
+    }
+  ],
+  "grouped_totals": [
+    {
+      "records": 32,
+      "keys": 4,
+      "payload_bytes": 16,
+      "retained_bytes": 908,
+      "owner_delta_bytes": 908,
+      "peak_including_transient_bytes": 2779,
+      "requested_bytes": 19308,
+      "cleanup_live_bytes": 0
+    },
+    {
+      "records": 4096,
+      "keys": 4,
+      "payload_bytes": 16,
+      "retained_bytes": 908,
+      "owner_delta_bytes": 908,
+      "peak_including_transient_bytes": 2779,
+      "requested_bytes": 2356108,
+      "cleanup_live_bytes": 0
+    },
+    {
+      "records": 32,
+      "keys": 4,
+      "payload_bytes": 4096,
+      "retained_bytes": 908,
+      "owner_delta_bytes": 908,
+      "peak_including_transient_bytes": 2779,
+      "requested_bytes": 19308,
+      "cleanup_live_bytes": 0
+    },
+    {
+      "records": 4096,
+      "keys": 4,
+      "payload_bytes": 4096,
+      "retained_bytes": 908,
+      "owner_delta_bytes": 908,
+      "peak_including_transient_bytes": 2779,
+      "requested_bytes": 2356108,
+      "cleanup_live_bytes": 0
+    },
+    {
+      "records": 4096,
+      "keys": 64,
+      "payload_bytes": 16,
+      "retained_bytes": 21348,
+      "owner_delta_bytes": 21348,
+      "peak_including_transient_bytes": 23219,
+      "requested_bytes": 2376548,
+      "cleanup_live_bytes": 0
+    }
+  ]
+}

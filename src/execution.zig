@@ -5,6 +5,7 @@ const scalar = @import("evaluator.zig");
 const json_order = @import("json_order.zig");
 const Budget = @import("collection_budget.zig");
 const Buffered = @import("buffered.zig");
+const GroupTotals = @import("group_totals.zig");
 const number = @import("number.zig");
 const Diagnostic = @import("diagnostic.zig").Diagnostic;
 const A = std.mem.Allocator;
@@ -21,7 +22,7 @@ pub const Options = struct {
 };
 pub const Error = error{ EvaluationFailed, OutOfMemory, StreamFailed, StreamFinished } || std.Io.Writer.Error;
 const Collector = struct { arena: std.heap.ArenaAllocator, items: std.ArrayList(Value) = .empty };
-const State = union(enum) { none, count: u64, sum: i128, take: u64, collect: Collector, buffered: Buffered };
+const State = union(enum) { none, count: u64, sum: i128, take: u64, collect: Collector, buffered: Buffered, totals: GroupTotals };
 
 allocator: A,
 stages: []const syntax.Stage,
@@ -60,6 +61,7 @@ pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.
             .sum => .{ .sum = 0 },
             .collect => .{ .collect = .{ .arena = .init(self.budget.allocator()) } },
             .sort, .group => .{ .buffered = .init(self.budget.allocator()) },
+            .totals => .{ .totals = .init(self.budget.allocator()) },
             .take => |take| blk: {
                 if (take.limit == 0) self.closeThrough(index);
                 break :blk .{ .take = 0 };
@@ -165,6 +167,14 @@ pub fn finish(self: *Self) Error!void {
                 }
                 self.releaseCollector(index);
             },
+            .totals => |totals| {
+                for (self.states[index].totals.rows.items) |row| {
+                    if (self.blocked(index)) break;
+                    self.budget.denied = false;
+                    self.emitTotal(index, row, totals.value != null) catch |err| return self.retentionError(totals.offset, "grouped totals exceeded the session memory limit", err);
+                }
+                self.releaseCollector(index);
+            },
             else => {},
         }
     }
@@ -177,6 +187,9 @@ fn releaseCollector(self: *Self, index: usize) void {
         self.states[index] = .none;
     } else if (self.states[index] == .buffered) {
         self.states[index].buffered.deinit();
+        self.states[index] = .none;
+    } else if (self.states[index] == .totals) {
+        self.states[index].totals.deinit();
         self.states[index] = .none;
     }
 }
@@ -268,6 +281,20 @@ fn stageInner(self: *Self, index: usize, input: Value) Error!void {
         },
         .sort => |sort| try self.retain(index, input, sort.key, sort.offset, true),
         .group => |group| try self.retain(index, input, group.key, group.offset, false),
+        .totals => |totals| {
+            var temporary = std.heap.ArenaAllocator.init(self.allocator);
+            defer temporary.deinit();
+            const a = temporary.allocator();
+            const key = try self.evaluator.evalRequired(a, totals.key, input);
+            if (!scalar.withinDepth(key, 1)) return self.fail(totals.offset, "grouped-total key and output wrapper exceed 128 levels");
+            try self.evaluator.validateKey(key, null, totals.key.offset, false);
+            const amount = if (totals.value) |node| self.evaluator.integer(try self.evaluator.evalRequired(a, node, input), node.offset) catch |err| {
+                self.evaluator.locate(node);
+                return err;
+            } else null;
+            self.budget.denied = false;
+            self.states[index].totals.add(&self.evaluator, key, amount, totals.offset) catch |err| return self.retentionError(totals.offset, "grouped totals exceeded the session memory limit", err);
+        },
         .take => |take| {
             const received = &self.states[index].take;
             // A zero/exhausted limit was already handled by blocked().
@@ -284,6 +311,20 @@ fn appendCollected(self: *Self, index: usize, input: Value) error{OutOfMemory}!v
     try collector.items.append(allocator, try Buffered.clone(allocator, input));
 }
 
+fn emitTotal(self: *Self, index: usize, row: GroupTotals.Row, summing: bool) Error!void {
+    const a = self.budget.allocator();
+    var object: std.json.ObjectMap = .empty;
+    defer object.deinit(a);
+    var count_buffer: [20]u8 = undefined;
+    var sum_buffer: [40]u8 = undefined;
+    const count = std.fmt.bufPrint(&count_buffer, "{d}", .{row.count}) catch unreachable;
+    const sum = std.fmt.bufPrint(&sum_buffer, "{d}", .{row.sum}) catch unreachable;
+    try object.put(a, "key", row.key);
+    try object.put(a, "count", .{ .number_string = count });
+    if (summing) try object.put(a, "sum", .{ .number_string = sum });
+    try self.stage(index + 1, .{ .object = object });
+}
+
 fn retain(self: *Self, index: usize, input: Value, key_node: ?*const syntax.Node, offset: usize, sorting: bool) Error!void {
     if (!scalar.withinDepth(input, 0)) return self.fail(offset, "retained value nesting exceeds 128 levels");
     var temporary = std.heap.ArenaAllocator.init(self.allocator);
@@ -297,7 +338,7 @@ fn retain(self: *Self, index: usize, input: Value, key_node: ?*const syntax.Node
 }
 
 fn retentionError(self: *Self, offset: usize, message: []const u8, err: Error) Error {
-    if (self.budget.denied) {
+    if (self.budget.denied and err == error.OutOfMemory) {
         self.evaluator.diagnostic.setBudget(offset, message, .{ .kind = .retained, .limit = self.budget.limit, .retained = self.budget.denied_used, .requested = self.budget.denied_request });
         return error.EvaluationFailed;
     }

@@ -2,6 +2,7 @@
 
 Status: implementation in progress; descriptor output fixed in 0.30.1 and
 independent memory controls/diagnostics delivered in 0.31.0.
+Bounded grouped totals are delivered in 0.32.0; keyed comparison remains.
 
 Fix shared shell redirection, make large manifest queries easier to run within
 explicit memory budgets, and support efficient comparisons by key. These needs
@@ -125,7 +126,7 @@ Acceptance:
 - [x] Commit this request before implementation starts.
 - [x] Fix descriptor output, verify it, and commit a patch-version slice.
 - [x] Add memory controls and diagnostics, verify them, and commit a feature slice.
-- [ ] Add grouped count/sum accumulation, verify it, and commit a feature slice.
+- [x] Add grouped count/sum accumulation, verify it, and commit a feature slice.
 - [ ] Add keyed lookup/comparison, verify it, and commit a feature slice.
 - [ ] Update README, design notes and query examples for the implemented APIs.
 - [ ] Run the existing qualification corpus and focused workflow checks; record
@@ -144,6 +145,21 @@ cleanup or changes to compiler inputs, retained evidence, sibling libraries,
 or other agents' work. Do not publish or push changes.
 
 ## Implementation evidence
+
+Grouped-total contract (recorded before implementation): stream-only
+`count_by(key)` emits `{key,count}`; `sum_by(key,value)` emits
+`{key,count,sum}` with the number of contributing records and a checked i128
+sum. Key/value expressions run once per accepted record in that record's scope.
+Empty input emits no groups; append `collect` for `[]`. Preserve first-seen
+group order and the first key's representation, using the same structural
+equality/type/numeric rules as `group_by`. Own only distinct keys and fixed-size
+accumulators; charge arena/row capacity and completion object scratch to the
+shared retained budget. Transient key/value evaluation stays scalar storage.
+The output object's wrapper counts toward depth admission. Validate/accumulate
+before completion so invalid values and integer overflow emit no partial totals.
+Search distinct keys linearly (O(records × distinct keys)); retained capacity is
+O(distinct keys and their size), independent of other record payloads. Normal
+take/completion, synchronous borrowing and downstream-copy rules apply.
 
 Memory-control contract: `--max-retained-bytes N` maps to the existing session
 `max_collect_bytes`; `--max-slurp-bytes N` maps to the independent `Slurp`
@@ -173,3 +189,22 @@ fails default slurping with limit 67,108,864 / retained 46,981,016 / requested
 (`length(.[0])` = 15). Its SHA-256 stays
 `2f9f150d6c8a4a1c93474194a7c5fe0157eaa8549c9836392ed49454c183beee`.
 The private input is read only and is not required by portable tests.
+
+0.32.0 passes native build and the complete 264-check suite (169 library,
+59 CLI, three binding-input, four version, three qualification, eighteen
+profiler, eight distribution), plus the focused wrapper-depth regression.
+Seven library tests and one CLI test cover materialized-query equivalence,
+empty/mixed/structural keys, exact/negative integers, source reuse, multiple
+files, invalid/overflow values, count overflow, budget/writer failures,
+take/completion and allocation-failure injection through aggregate handoffs.
+
+`zig build study-cleanup` uses the existing allocation meter. The
+[generated evidence](../qualification/2026-11-12-grouped-totals.json) records
+908 live retained bytes for four keys across 32 versus 4,096 records and
+16 versus 4,096-byte payloads. With 64 distinct keys, retention is 21,348 bytes.
+The meter's live owner delta exactly matches the retained allocator after every
+feed; all totals match independently constructed expectations and cleanup leaves
+zero live bytes. These are NDJSON-style synchronous record feeds, with source
+text/program/output buffer excluded and transient parsing reported separately;
+the numbers are allocation capacity, not RSS. Evidence SHA-256:
+`dca43d6018a334246d659de3b58fe83f3189af56b7695983284dffd637983c93`.

@@ -135,6 +135,17 @@ are individual records. `group_by` uses structural equality, preserves first-see
 group order and input order within groups, and emits one array per group. The
 initial grouping scan is quadratic; sorting/grouping empty streams emit nothing.
 
+Stream `count_by(key)` and `sum_by(key,value)` keep one owned key plus checked
+u64 count/i128 sum per group. They emit `{key,count}` / `{key,count,sum}` at
+completion in first-seen order, with no groups for empty input. Key validation
+and equality reuse the existing grouping rules, including exact numeric equality
+and structural objects/arrays. Distinct-key search is linear; original records
+are never retained. Arena/row capacity and synchronous completion object scratch
+use the shared retained allocator; scalar key/value work uses a transient arena.
+The output wrapper is depth-validated before retention. Feed-time validation and
+overflow abort all pending totals, while ordinary take/finish/output-failure
+rules still apply. Downstream retaining stages copy borrowed keys/results.
+
 The two-argument scalar forms `sort_by(array,key)` and `group_by(array,key)`
 return one array, with `[]` for empty input. They cache each key once per item in
 a scalar arena, borrow the original values, and restore the caller's item/path

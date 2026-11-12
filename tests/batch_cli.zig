@@ -6,6 +6,17 @@ const check = @import("cli.zig").check;
 const checkIn = @import("cli.zig").checkIn;
 const expectExitWithOpenInputArgs = @import("cli.zig").expectExitWithOpenInputArgs;
 
+test "CLI grouped totals span files retain order and accept bounded streaming" {
+    var files = try InputFiles.init();
+    defer files.deinit();
+    const first = try files.write("first.jsonl", "{\"kind\":\"b\",\"size\":9007199254740993}\n{\"kind\":\"a\",\"size\":-2}\n");
+    const second = try files.write("second.jsonl", "{\"kind\":\"b\",\"size\":-3}\n");
+    try check(&.{ "--ndjson", "--max-retained-bytes", "8192", "sum_by(.kind,.size)", first, second }, "", 0, "{\"key\":\"b\",\"count\":2,\"sum\":9007199254740990}\n{\"key\":\"a\",\"count\":1,\"sum\":-2}\n", null);
+    try check(&.{ "--ndjson", "count_by(.kind)", first, second }, "", 0, "{\"key\":\"b\",\"count\":2}\n{\"key\":\"a\",\"count\":1}\n", null);
+    try check(&.{ "--ndjson", "--max-retained-bytes", "1", "count_by(.)" }, "null\n", 2, "", "increase --max-retained-bytes");
+    try expectExitWithOpenInputArgs(&.{ exe, "--ndjson", "take(1) | sum_by(.kind,.size)" }, "{\"kind\":\"x\",\"size\":3}\n", "{\"key\":\"x\",\"count\":1,\"sum\":3}\n");
+}
+
 const InputFiles = struct {
     temporary: t.TmpDir,
     root: [:0]u8,

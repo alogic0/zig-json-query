@@ -60,6 +60,17 @@ pub fn build(b: *std.Build) void {
     b.step("test-file-bindings", "Check bounded file reads and exact JSON sequence framing").dependOn(&run_binding_input_tests.step);
     b.step("check", "Compile the CLI").dependOn(&exe.step);
 
+    const cleanup_study = b.addExecutable(.{ .name = "query-cleanup-study", .root_module = b.createModule(.{
+        .root_source_file = b.path("tools/cleanup_study.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+        .imports = &.{.{ .name = "query", .module = query }},
+    }) });
+    const run_cleanup_study = b.addRunArtifact(cleanup_study);
+    run_cleanup_study.setCwd(b.path("."));
+    run_cleanup_study.has_side_effects = true;
+    b.step("study-cleanup", "Check portable cleanup workloads and retained allocation growth").dependOn(&run_cleanup_study.step);
+
     const version_package = b.dependency("package_version", .{ .target = b.graph.host, .optimize = optimize });
     const version_cli = version_package.artifact("zig-package-version");
     const run_version = b.addRunArtifact(version_cli);
@@ -192,8 +203,8 @@ pub fn build(b: *std.Build) void {
     archive.addArg("-czf");
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.31.0.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.32.0.tar.gz");
     archive.addArgs(dist_layout.roots);
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.31.0.tar.gz");
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.32.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

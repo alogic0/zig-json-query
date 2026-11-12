@@ -479,6 +479,30 @@ records with equal keys. Groups appear in first-seen key order; records within
 a group retain input order. Missing keys error. Empty input emits nothing.
 Unlike jq's `group_by`, this stage does not sort groups by their keys.
 
+For totals without retaining group members, stream stages `count_by(key)` and
+`sum_by(key, value)` emit `{key,count}` and `{key,count,sum}`, respectively.
+They evaluate each expression once per accepted record, preserve first-seen
+group order and the first key's representation, and share `group_by`'s structural
+equality/type rules. Sums use checked i128 integer arithmetic; counts use checked
+u64. Invalid values and overflow fail before any totals are emitted. Empty input
+emits no groups; append `collect` for an empty array. These are stream stages,
+so use `each` first for an input array:
+
+```sh
+jqz --ndjson 'count_by(.category)' records.jsonl
+jqz --ndjson -f examples/cleanup-totals.query records.jsonl
+jqz 'each | sum_by(.category,.size) | collect' records.json
+```
+
+Only distinct keys and accumulator capacity remain retained, under
+`--max-retained-bytes`; completion object scratch shares that budget. Other record
+payloads are discarded after each feed. Key/value evaluation uses scalar
+temporaries, and the output object counts toward the depth limit. Key searches
+are linear in the number of distinct groups. The
+[portable allocation study](docs/qualification/2026-11-12-grouped-totals.json)
+checks record/payload growth with fixed keys using requested capacity, not RSS;
+reproduce with `zig build study-cleanup`.
+
 `sort_by(array, key)` and `group_by(array, key)` provide the same key rules and
 ordering inside scalar expressions. They evaluate the array once, then evaluate
 each key once with `.` bound to that item, restoring the caller's scope afterward.

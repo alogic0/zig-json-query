@@ -71,6 +71,7 @@ pub const Stage = union(enum) {
     collect: usize,
     sort: struct { offset: usize, key: ?*const Node },
     group: struct { offset: usize, key: *const Node },
+    totals: struct { offset: usize, key: *const Node, value: ?*const Node },
     take: struct { offset: usize, limit: u64 },
 };
 
@@ -262,6 +263,18 @@ pub const Parser = struct {
                     try self.expect(.rparen, "expected ) after key expression");
                     try stages.append(self.allocator, if (sorting) .{ .sort = .{ .offset = offset, .key = key } } else .{ .group = .{ .offset = offset, .key = key } });
                 }
+            } else if (self.word("count_by") or self.word("sum_by")) {
+                const offset = self.token.start;
+                const summing = self.word("sum_by");
+                try self.advance();
+                try self.expect(.lparen, "expected ( before grouped-total key");
+                const key = try self.expression(0);
+                const value = if (summing) blk: {
+                    try self.expect(.comma, "sum_by expects a key and an integer value expression");
+                    break :blk try self.expression(0);
+                } else null;
+                try self.expect(.rparen, "expected ) after grouped-total arguments");
+                try stages.append(self.allocator, .{ .totals = .{ .offset = offset, .key = key, .value = value } });
             } else if (self.word("take")) {
                 const offset = self.token.start;
                 try self.advance();
