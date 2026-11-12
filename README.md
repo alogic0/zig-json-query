@@ -83,6 +83,8 @@ and NUL bytes remain unchanged. `-e` still classifies emitted values, so an empt
 joined string is a successful output even though it writes zero bytes.
 No-argument short flags `n/s/r/j/S/e` can be bundled, for example `-nj`, `-jr`
 or `-nSje`; keep argument-taking options such as `-f` separate.
+Stdout and stderr preserve the current position of inherited descriptors, so
+sequential invocations inside one redirected shell group append in order.
 
 `-f FILE` / `--from-file FILE` reads one query file;
 positional arguments then name input files. Options can precede or follow

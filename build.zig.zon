@@ -1,6 +1,6 @@
 .{
     .name = .zig_json_query,
-    .version = "0.30.0",
+    .version = "0.30.1",
     .fingerprint = 0x15e77a18fed0ac0c,
     .minimum_zig_version = "0.17.0",
     .dependencies = .{

@@ -61,13 +61,15 @@ test "CLI joined output keeps value-based exit status and completion" {
     try expectExitWithOpenInputArgs(&.{ exe, "-j", "--ndjson", "take(1)" }, "\"ready\"\n", "ready");
 }
 
-test "CLI joined output failures override predicate status" {
+test "CLI output failures override predicate status and informational exits" {
     const full = try std.Io.Dir.cwd().openFile(t.io, "/dev/full", .{ .mode = .write_only });
     defer full.close(t.io);
-    const report = try S.command.File.run(t.allocator, t.io, .{ .spawn = .{ .argv = &.{ exe, "-nje", "false" }, .stdout = .{ .file = full } }, .timeout_ms = 5000 });
-    try t.expect(report.outcome == .completed);
-    try t.expect(report.cleanup_failure == null);
-    try t.expectEqual(@as(i32, 2), S.command.code(report.term.?));
+    for ([_][]const []const u8{ &.{ exe, "-nje", "false" }, &.{ exe, "-ne", "false" }, &.{ exe, "-nre", "false" }, &.{ exe, "--help" }, &.{ exe, "--version" } }) |argv| {
+        const report = try S.command.File.run(t.allocator, t.io, .{ .spawn = .{ .argv = argv, .stdout = .{ .file = full } }, .timeout_ms = 5000 });
+        try t.expect(report.outcome == .completed);
+        try t.expect(report.cleanup_failure == null);
+        try t.expectEqual(@as(i32, 2), S.command.code(report.term.?));
+    }
 }
 
 test "CLI null input constructs records from typed bindings with anonymous provenance" {
@@ -358,4 +360,5 @@ test "CLI arithmetic sorting and grouping share one NDJSON stream" {
 
 test {
     _ = @import("batch_cli.zig");
+    _ = @import("descriptor_cli.zig");
 }

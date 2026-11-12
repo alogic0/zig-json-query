@@ -68,9 +68,10 @@ fn run(init: std.process.Init) !u8 {
     const io = init.io;
     const args = try init.minimal.args.toSlice(init.arena.allocator());
     var output_buffer: [16 * 1024]u8 = undefined;
-    var output = std.Io.File.stdout().writer(io, &output_buffer);
+    // Inherited descriptors share their current offset with the invoking shell.
+    var output = std.Io.File.stdout().writerStreaming(io, &output_buffer);
     var error_buffer: [4096]u8 = undefined;
-    var errors = std.Io.File.stderr().writer(io, &error_buffer);
+    var errors = std.Io.File.stderr().writerStreaming(io, &error_buffer);
     var ndjson = false;
     var null_input = false;
     var raw_output = false;

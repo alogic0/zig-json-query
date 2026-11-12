@@ -182,7 +182,9 @@ raw string output and one query file, with explicit positional/stdin precedence.
 `StreamOptions.join_output` defaults off, implies raw strings and suppresses all
 result separators. Normal mode remains newline-delimited. Classification follows
 the value only after a complete successful emission, including zero-byte empty
-strings; write failures still poison the stream. CLI `-j`/`--join-output` uses
+strings; write failures still poison the stream. Both inherited CLI output
+descriptors use streaming writers, preserving shell-shared file offsets rather
+than starting positional writes at zero. CLI `-j`/`--join-output` uses
 that session option, and no-argument `n/s/r/j/S/e` flags may be bundled.
 
 CLI input files feed one session in order. NDJSON diagnostics restart their line

@@ -1,6 +1,6 @@
 # Cleanup workflow improvements
 
-Status: requested. Implement the slices below in order.
+Status: implementation in progress; shared-descriptor output fixed in 0.30.1.
 
 Fix shared shell redirection, make large manifest queries easier to run within
 explicit memory budgets, and support efficient comparisons by key. These needs
@@ -122,7 +122,7 @@ Acceptance:
 ## Delivery and validation
 
 - [x] Commit this request before implementation starts.
-- [ ] Fix descriptor output, verify it, and commit a patch-version slice.
+- [x] Fix descriptor output, verify it, and commit a patch-version slice.
 - [ ] Add memory controls and diagnostics, verify them, and commit a feature slice.
 - [ ] Add grouped count/sum accumulation, verify it, and commit a feature slice.
 - [ ] Add keyed lookup/comparison, verify it, and commit a feature slice.
@@ -141,3 +141,13 @@ Keep filesystem scanning, hashing and deletion in their existing tools.
 This request changes `jqz` query/output behavior; it does not authorize any
 cleanup or changes to compiler inputs, retained evidence, sibling libraries,
 or other agents' work. Do not publish or push changes.
+
+## Implementation evidence
+
+0.30.1 uses streaming writers for both inherited stdout and stderr. Zig 0.17's
+default positional writer starts at byte zero; the streaming writer preserves
+the shared descriptor offset. Native build and all 251 project checks pass,
+including two new descriptor tests. Prefixes, differing lengths, JSON/raw/joined
+output, help/version, diagnostics, pipes and shell shared/append redirection
+pass. Failed writes still override predicate/informational exits. The original
+two-command shell reproduction independently produces `111\n222\n`.
