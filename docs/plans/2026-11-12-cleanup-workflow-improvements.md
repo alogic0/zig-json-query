@@ -1,7 +1,9 @@
 # Cleanup workflow improvements
 
-Status: required code slices delivered through 0.33.0; final corpus replay and
-qualification report remain in progress.
+Status: complete at 0.33.0. All four code slices, focused workflow checks and
+the unchanged qualification corpus pass in native x86_64 Linux Debug. The
+[completion report](../qualification/cleanup-workflows-2026-11-12.md) records
+the commits, measured evidence and remaining limits.
 
 Fix shared shell redirection, make large manifest queries easier to run within
 explicit memory budgets, and support efficient comparisons by key. These needs
@@ -128,7 +130,7 @@ Acceptance:
 - [x] Add grouped count/sum accumulation, verify it, and commit a feature slice.
 - [x] Add keyed lookup/comparison, verify it, and commit a feature slice.
 - [x] Update README, design notes and query examples for the implemented APIs.
-- [ ] Run the existing qualification corpus and focused workflow checks; record
+- [x] Run the existing qualification corpus and focused workflow checks; record
   actual results and mark this request complete only when every required slice
   is delivered.
 
@@ -254,3 +256,21 @@ growth all four fixed-key cases retain 1,672 bytes; 64 keys retain 33,050 bytes.
 This is a measurement-method change, with the original 0.32.0 evidence retained.
 All owner deltas match and cleanup is zero. New evidence SHA-256:
 `a48502bf49da97b90df11e93db0ee997315a3daa7351dd9011d0f7a6b10afb19`.
+
+The final [corpus replay](../qualification/2026-11-12-cleanup-corpus.json) uses
+committed implementation `5ad37c84411da5f67f61e481e2a6c6fcb7edd564`, jqz 0.33.0
+and installed jq 1.7. All 45 cases pass: 30 observed translations, three
+components, ten intentional probes and two generated scale cases. There are
+no unsupported observed cases or invocation adaptations. One repetition of
+35 equivalent cases produces 70 samples; this is a functional checkpoint,
+not a new performance claim. The case manifest and provenance are unchanged
+from request commit `e7d2fbf`, and the recorded source hashes match the checkout.
+Corpus evidence SHA-256:
+`e56fc6d736d80617a1097fa15fd12c0a2094f46ec44d919a64eaf6fc73817348`.
+
+Delivered slices: `18afa4c` (0.30.1 descriptor fix), `28246a6` (0.31.0 memory
+controls), `f742990` (0.32.0 grouped totals), and `5ad37c8` (0.33.0 keyed
+comparisons). No required implementation step remains open. Documented limits
+remain: grouped key search is linear in distinct keys, computed lookup accepts
+object string keys only, and retention budgets do not bound total process RSS
+or scalar temporaries. The work does not add a general reducer or disk spill.

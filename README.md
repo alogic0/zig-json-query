@@ -116,7 +116,9 @@ records five byte-identical live checks and the unchanged 45-case corpus at
 0.30.0.
 The [cleanup workflow plan](docs/plans/2026-11-12-cleanup-workflow-improvements.md)
 adds shared-descriptor output, explicit memory controls, bounded grouped totals
-and [indexed manifest comparisons](examples/cleanup/README.md).
+and [indexed manifest comparisons](examples/cleanup/README.md). Its
+[completion report](docs/qualification/cleanup-workflows-2026-11-12.md) records
+the 0.33.0 workflow checks, allocation study and unchanged 45-case corpus.
 
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
 for CLI stdin. Completion aggregates, null input and slurped input have no unique
