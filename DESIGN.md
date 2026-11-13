@@ -104,19 +104,26 @@ to 4 and all other values to 0. CLI `-e` applies this after successful completio
 and flushing, while all execution/IO errors retain status 2. Raw output does not
 affect classification or strict boolean expression semantics.
 
-`tojson` uses the ordinary compact JSON writer with the same container-depth
-bound as output. It allocates encoded text in the scalar arena, preserving
-numeric tokens and insertion order. `byte_length` counts UTF-8 bytes separately
-from `length`'s Unicode scalar count; neither includes a CLI output newline.
+`tojson` (both unary `tojson(expr)` and bare `tojson`) uses the ordinary compact
+JSON writer with the same container-depth bound as output. It allocates encoded
+text in the scalar arena, preserving numeric tokens and insertion order.
+`fromjson` and `try_fromjson` (both unary and bare forms) reuse `input.zig`'s
+`Scanner`/`ValueBuilder` parser into the scalar arena, enforcing the 64 MiB byte
+cap, 128-level container limit, duplicate-key rejection and exact number tokens;
+`try_fromjson` maps missing optional operands, JSON `null` and invalid JSON text
+to `null` while keeping wrong non-string types and resource-limit violations as
+errors. `byte_length` counts UTF-8 bytes separately from `length`'s Unicode
+scalar count; neither includes a CLI output newline.
 
 `update` and `del` compile literal paths into field/index steps. Only existing
 targets are edited; optional/sliced/computed paths are rejected. Replacement
 bodies use the selected value's scope and path. Ancestor containers are copied
 into the scalar arena while untouched children are borrowed. Input is immutable.
 `StreamOptions.sort_keys` (`-S`) uses `json_order.zig` to copy containers with
-recursively sorted object keys before compact output. Raw/encoded string contents
-and numeric spellings are unchanged. Output copies use a temporary arena, and
-the serializer enforces depth before copying.
+recursively sorted object keys before compact or 2-space pretty
+(`StreamOptions.pretty` / `-p`) output, where empty `{}` and `[]` remain compact.
+Raw/encoded string contents and numeric spellings are unchanged. Output copies
+use a temporary arena, and the serializer enforces depth before copying.
 
 `sum` and scalar arithmetic operate on checked signed 128-bit integers. Decimal
 tokens are converted by digit/exponent normalization only if their mathematical
@@ -218,8 +225,9 @@ result separators. Normal mode remains newline-delimited. Classification follows
 the value only after a complete successful emission, including zero-byte empty
 strings; write failures still poison the stream. Both inherited CLI output
 descriptors use streaming writers, preserving shell-shared file offsets rather
-than starting positional writes at zero. CLI `-j`/`--join-output` uses
-that session option, and no-argument `n/s/r/j/S/e` flags may be bundled.
+than starting positional writes at zero. CLI `-j`/`--join-output` and
+`-p`/`--pretty` use session options, no-argument `n/s/r/j/S/e/p` flags may be
+bundled, and conflicting `pretty` + `join_output` is rejected before input IO.
 
 CLI input files feed one session in order. NDJSON diagnostics restart their line
 counter per file, and file opening follows upstream demand. Each named library

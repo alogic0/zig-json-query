@@ -80,13 +80,17 @@ files. Satisfied `take` skips later records and files without opening them.
 `--` ends option parsing, for example `jqz -- '-2' input.json`.
 
 `-r` / `--raw-output` writes strings without JSON quotes; non-strings remain
-compact JSON. Each value has a trailing newline, and newlines inside a raw
-string remain literal. `-j` / `--join-output` implies raw strings and suppresses
-the trailing newline for every result, including JSON values. Embedded newlines
+JSON. Each value has a trailing newline, and newlines inside a raw string remain
+literal. `-p` / `--pretty` formats emitted JSON objects and arrays with 2-space
+indentation and newlines while rendering empty `{}` and `[]` compactly and
+preserving exact number tokens; with `-r`, top-level strings stay raw and
+non-strings are pretty-printed. `-j` / `--join-output` implies raw strings and
+suppresses the trailing newline for every result, including JSON values; `-p`
+and `-j` conflict and are rejected with exit status 2. Embedded newlines
 and NUL bytes remain unchanged. `-e` still classifies emitted values, so an empty
 joined string is a successful output even though it writes zero bytes.
-No-argument short flags `n/s/r/j/S/e` can be bundled, for example `-nj`, `-jr`
-or `-nSje`; keep argument-taking options such as `-f` separate.
+No-argument short flags `n/s/r/j/S/e/p` can be bundled, for example `-np`, `-nSpe`,
+`-nj` or `-jr`; keep argument-taking options such as `-f` separate.
 Stdout and stderr preserve the current position of inherited descriptors, so
 sequential invocations inside one redirected shell group append in order.
 
@@ -213,7 +217,9 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `{name, age, count: length(.items)}` | Shorthand strict fields mixed with computed values |
 | `[.name, .age]` | Construct one array; does not collect a stream |
 | `length(.items)` | Array element count, object field count, or string Unicode scalar-value count |
-| `tojson(.value)` | Compact JSON text as a string, preserving exact number tokens |
+| `tojson`, `tojson(.value)` | Compact JSON text as a string, preserving exact number tokens |
+| `fromjson`, `fromjson(.body)` | Parse one JSON string into its structured value |
+| `try_fromjson`, `try_fromjson(.body?)` | Parse a JSON string, or return null for missing, null, or invalid JSON |
 | `byte_length(.text)` | UTF-8 byte count of a string |
 | `update(., .groups, filter(., .keep))` | Replace an existing path with a body evaluated on its selected value |
 | `del(., .debug)` | Remove an existing field or array item, preserving other values |
@@ -371,11 +377,28 @@ before evaluating it; `take` does not make document parsing incremental.
 
 ## JSON text and sizing
 
-`tojson(value)` encodes one JSON value as a compact string, without a trailing
+`tojson` (or `tojson(value)`) encodes one JSON value as a compact string, without a trailing
 newline. Object insertion order and exact number tokens are preserved. Unicode
 text remains UTF-8; quotes, backslashes and control characters are escaped.
 Encoding is subject to the existing 128-container limit, even when its final
 result is a shallow string. Missing values require an explicit default.
+
+`fromjson` (or `fromjson(value)`) parses a JSON string into its structured value
+within the current expression-stage arena, preserving exact number tokens and
+object key order while rejecting duplicate keys, non-string inputs and malformed
+JSON. `try_fromjson` (or `try_fromjson(value)`) returns the parsed value when
+given a valid JSON string, or `null` when the operand is missing (`.body?`),
+JSON `null`, or invalid JSON, while still rejecting wrong non-string types
+(such as numbers, booleans or containers):
+
+```sh
+jqz -p '.body | fromjson' webhook.json
+jqz --ndjson 'try_fromjson(.body?) ?? {}' events.ndjson
+```
+
+Both `fromjson` and `try_fromjson` enforce the 64 MiB byte cap and 128-level
+container limit, and downstream retaining stages charge cloned results to
+`--max-retained-bytes`.
 
 `byte_length(string)` counts UTF-8 bytes; `length(string)` counts Unicode scalar
 values. For `"é😀"`, those lengths are 6 and 2; its JSON text includes two quotes
@@ -410,9 +433,10 @@ access, slices and computed selectors are not edit paths. `del` of an absent
 field is an error; use an explicit presence check before choosing to edit.
 
 `-S` / `--sort-keys` recursively sort output object names by UTF-8 bytes, keeping
-array order and number spelling. JSON remains compact; raw strings are unchanged,
+array order and number spelling. JSON remains compact unless `-p` / `--pretty`
+is also set; raw strings are unchanged,
 and keys inside already encoded `tojson` strings are not reordered. Library
-callers select this using `StreamOptions.sort_keys`. Sorting uses temporary
+callers select these using `StreamOptions.sort_keys` and `StreamOptions.pretty`. Sorting uses temporary
 storage outside the retention budget; retained edit results use the ordinary
 shared budget and ownership rules.
 
