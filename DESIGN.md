@@ -259,12 +259,14 @@ Raw source text and prepared binding text each share the 64 MiB binding cap.
 The CLI closes files promptly and releases preparation buffers after compilation
 owns copies, before primary input/evaluation. This adds no library file IO API.
 
-Dependencies are source archives pinned by content hashes and shipped with the
-project. Existing provider APIs remain unchanged. Separate consumer, cold-cache
-distribution tests, bounded parser/evaluator fuzz targets and generated semantic
-models check the implementation. A Zig harness reuses process/test helpers for
-comparisons with pinned jq/jaq binaries, output equivalence, elapsed time and
-child peak RSS. Local source archives exclude caches and normalize tar metadata.
+Dependencies use GitHub Git URLs pinned by full commits and Zig content hashes in
+`build.zig.zon`. Fresh builds download the sources; subsequent builds reuse the
+package cache. Existing provider APIs remain unchanged. Separate consumer and
+cold-cache distribution tests, bounded parser/evaluator fuzz targets and
+generated semantic models check the implementation. A Zig harness reuses
+process/test helpers for comparisons with pinned jq/jaq binaries, output
+equivalence, elapsed time and child peak RSS. Local source archives exclude
+caches and normalize tar metadata.
 
 This is an AST interpreter, not a compiler to LLVM. It establishes semantics
 before selecting optimizations. Zig fits the ownership and allocation boundaries

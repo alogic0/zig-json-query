@@ -27,7 +27,7 @@ const cases = [_]Case{
     .{ .id = "report-encode-scale", .query = "byte_length(tojson(.))", .fixture = .backend },
 };
 const source_paths = [_][]const u8{
-    "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/input.zig", "src/value_builder.zig", "src/parser.zig", "src/evaluator.zig", "src/array_storage.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/diagnostic.zig", "src/collection_budget.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/fixtures.zig", "vendor/SHA256SUMS",
+    "build.zig", "build.zig.zon", "src/main.zig", "src/root.zig", "src/input.zig", "src/value_builder.zig", "src/parser.zig", "src/evaluator.zig", "src/array_storage.zig", "src/execution.zig", "src/number.zig", "src/statistics.zig", "src/rows.zig", "src/buffered.zig", "src/json_order.zig", "src/diagnostic.zig", "src/collection_budget.zig", "src/profile_engine.zig", "tools/profile.zig", "tools/allocation_meter.zig", "tools/fixtures.zig", "docs/dependencies.md",
 };
 
 pub fn main(init: std.process.Init) !void {

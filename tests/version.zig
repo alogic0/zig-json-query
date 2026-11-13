@@ -115,6 +115,8 @@ test "release version configuration synchronizes every actual project marker" {
 test "release version CLI gets sets and preserves dependency pins and historical evidence" {
     var fixture = try Fixture.init();
     defer fixture.deinit();
+    const original_zon = try fixture.read("build.zig.zon");
+    defer t.allocator.free(original_zon);
     const get = try fixture.command(&.{});
     defer get.deinit(t.allocator);
     try S.Diagnostic.expectExit(get, .{ .assertion = "version get", .code = 0 });
@@ -131,7 +133,9 @@ test "release version CLI gets sets and preserves dependency pins and historical
     }
     const zon = try fixture.read("build.zig.zon");
     defer t.allocator.free(zon);
-    try t.expect(std.mem.indexOf(u8, zon, "file:vendor/zig-package-version-0.1.0.tar.gz") != null);
+    const expected_zon = try V.replaceVersion(t.allocator, .{ .contents = original_zon, .pattern = fixture.config.value.files[0].patterns[0], .expected = options.version, .replacement = "0.8.9" });
+    defer t.allocator.free(expected_zon);
+    try t.expectEqualStrings(expected_zon, zon);
     const history = try fixture.read("historical-version.txt");
     defer t.allocator.free(history);
     try t.expectEqualStrings("json-query 0.1.0\n", history);

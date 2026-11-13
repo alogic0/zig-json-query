@@ -12,7 +12,7 @@ const input_json = @import("input.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = input_json.max_bytes;
-pub const version = "0.33.1";
+pub const version = "0.33.2";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.

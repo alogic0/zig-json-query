@@ -1,12 +1,12 @@
 .{
     .name = .zig_json_query,
-    .version = "0.33.1",
+    .version = "0.33.2",
     .fingerprint = 0x15e77a18fed0ac0c,
     .minimum_zig_version = "0.17.0",
     .dependencies = .{
-        .regex = .{ .url = "file:vendor/zig-regex-0.2.0.tar.gz", .hash = "regex-0.2.0-ez7ct8y7DgDqflioZeuO-GIXrcWzCcZaEHg4toprit2r" },
-        .test_support = .{ .url = "file:vendor/zig-test-support-0.2.0.tar.gz", .hash = "test_support-0.2.0-WfGxyjo5BAB0686gSkz5ucgtYJWyK1q9Idd0xXji0hue" },
-        .package_version = .{ .url = "file:vendor/zig-package-version-0.1.0.tar.gz", .hash = "package_version-0.1.0-18r-wXuWAACFwT-44Citt9hUNuohRTwJpPwWgrIfjOUg" },
+        .regex = .{ .url = "git+https://github.com/alogic0/zig-regex.git#65e304effed8e58e5ca09a39104f8c24e28fc312", .hash = "regex-0.2.0-ez7ct8y7DgDqflioZeuO-GIXrcWzCcZaEHg4toprit2r" },
+        .test_support = .{ .url = "git+https://github.com/alogic0/zig-test-support.git#5bb89e9cc406a1e2a0232520abec71a9ed4f91d7", .hash = "test_support-0.2.0-WfGxyqg_AQBnOS-xq3mjLS5VrG7qrNgA6JPBkTxoD6Sp" },
+        .package_version = .{ .url = "git+https://github.com/alogic0/zig-package-version.git#3b35ef146e0308b9aa0f61f27e95ae8c7f143a15", .hash = "package_version-0.1.0-18r-wXuWAACFwT-44Citt9hUNuohRTwJpPwWgrIfjOUg" },
     },
-    .paths = .{ "build.zig", "build.zig.zon", ".zigversion", "AGENTS.md", "LICENSE", "src", "tests", "examples", "docs", "tools", "vendor", "README.md", "DESIGN.md" },
+    .paths = .{ "build.zig", "build.zig.zon", ".zigversion", "AGENTS.md", "LICENSE", "src", "tests", "examples", "docs", "tools", "README.md", "DESIGN.md" },
 }

@@ -36,6 +36,43 @@ pub fn join(a: A, parent: []const u8, child: []const u8) ![]const u8 {
     return std.fs.path.join(a, &.{ parent, child });
 }
 
+/// Preflight immutable download URLs and explicit hashes. Zig validates each
+/// dependency's complete manifest entry and content hash during the fresh build.
+pub fn checkDependencyPins(a: A, zon: [:0]const u8) !void {
+    var tokens = std.zig.Tokenizer.init(zon);
+    var urls: usize = 0;
+    var hashes: usize = 0;
+    while (true) {
+        const token = tokens.next();
+        if (token.tag == .eof) break;
+        if (token.tag != .identifier) continue;
+        const name = zon[token.loc.start..token.loc.end];
+        const url = std.mem.eql(u8, name, "url");
+        if (!url and !std.mem.eql(u8, name, "hash")) continue;
+        if (tokens.next().tag != .equal) return error.InvalidDependencyManifest;
+        const value = tokens.next();
+        if (value.tag != .string_literal) return error.InvalidDependencyManifest;
+        const text = try std.zig.string_literal.parseAlloc(a, zon[value.loc.start..value.loc.end]);
+        defer a.free(text);
+        if (url) {
+            const path = std.mem.cutPrefix(u8, text, "git+https://github.com/") orelse return error.UnpinnedDependency;
+            var parts = std.mem.splitScalar(u8, path, '/');
+            const owner = parts.next() orelse return error.UnpinnedDependency;
+            const repository = parts.next() orelse return error.UnpinnedDependency;
+            var pinned = std.mem.splitScalar(u8, repository, '#');
+            const project = pinned.next() orelse return error.UnpinnedDependency;
+            const revision = pinned.next() orelse return error.UnpinnedDependency;
+            if (owner.len == 0 or project.len <= 4 or !std.mem.endsWith(u8, project, ".git") or revision.len != 40 or pinned.next() != null or parts.next() != null) return error.UnpinnedDependency;
+            for (revision) |byte| if (!std.ascii.isHex(byte)) return error.UnpinnedDependency;
+            urls += 1;
+        } else {
+            if (text.len == 0) return error.UnpinnedDependency;
+            hashes += 1;
+        }
+    }
+    if (urls == 0 or urls != hashes) return error.InvalidDependencyManifest;
+}
+
 pub fn collect(a: A, io: Io, root: []const u8) !Snapshot {
     var files: std.ArrayList(File) = .empty;
     var directories: std.ArrayList([]const u8) = .empty;
@@ -296,6 +333,23 @@ test "distribution workflow cannot advance past a failed isolation check" {
     try std.testing.expectEqual(@as(usize, @backingInt(Stage.isolation) + 1), fake.calls);
 }
 
+test "distribution requires immutable remote dependencies with explicit hashes" {
+    const t = std.testing;
+    const pinned = "git+https://github.com/owner/project.git#0123456789abcdef0123456789abcdef01234567";
+    for ([_][]const u8{ pinned, "git+https://github.com/owner/project.git#main", "git+https://github.com/owner/project.git#v1.0.0", "git+http://github.com/owner/project.git#0123456789abcdef0123456789abcdef01234567", "file:vendor/project.tar.gz", "git+https://github.com/owner/project.git#0123456789abcdef0123456789abcdef0123456g", "git+https://github.com/owner/project.git" }, 0..) |url, i| {
+        const zon = try t.allocator.printSentinel(".{{ .dependencies = .{{ .project = .{{ .url = \"{s}\", .hash = \"pinned-content-hash\" }} }} }}", .{url}, 0);
+        defer t.allocator.free(zon);
+        if (i == 0) try checkDependencyPins(t.allocator, zon) else try t.expectError(error.UnpinnedDependency, checkDependencyPins(t.allocator, zon));
+    }
+    const missing = try t.allocator.printSentinel(".{{ .dependencies = .{{ .project = .{{ .url = \"{s}\" }} }} }}", .{pinned}, 0);
+    defer t.allocator.free(missing);
+    try t.expectError(error.InvalidDependencyManifest, checkDependencyPins(t.allocator, missing));
+    const empty = try t.allocator.printSentinel(".{{ .dependencies = .{{ .project = .{{ .hash = \"\", .url = \"{s}\" }} }} }}", .{pinned}, 0);
+    defer t.allocator.free(empty);
+    try t.expectError(error.UnpinnedDependency, checkDependencyPins(t.allocator, empty));
+    try t.expectError(error.InvalidDependencyManifest, checkDependencyPins(t.allocator, ".{ .dependencies = .{} }"));
+}
+
 test "distribution rejects escaping names and incomplete test summaries" {
     for ([_][]const u8{ "", "/tmp/a", "../a", "a/../b", "a//b", "a/./b", "a\\b", "a\nb" }) |path| try std.testing.expect(!safeRelative(path));
     try std.testing.expect(safeRelative("src/root.zig"));
@@ -352,7 +406,7 @@ test "distribution replay requires every case, exit, sample and source digest" {
     const invocation = .{ .query = ".", .expected = .{ .exit_code = 0 } };
     const manifest = try std.json.Stringify.valueAlloc(a, .{ .cases = .{.{ .id = "one", .jq = invocation, .jqz = invocation }} }, .{});
     const hashes = [_]struct { path: []const u8, sha256: []const u8 }{
-        .{ .path = "build.zig", .sha256 = "a" }, .{ .path = "src/root.zig", .sha256 = "b" }, .{ .path = "tests/qualification/cases.json", .sha256 = "c" }, .{ .path = "vendor/SHA256SUMS", .sha256 = "d" },
+        .{ .path = "build.zig", .sha256 = "a" }, .{ .path = "src/root.zig", .sha256 = "b" }, .{ .path = "tests/qualification/cases.json", .sha256 = "c" }, .{ .path = "docs/dependencies.md", .sha256 = "d" },
     };
     var files: [4]File = undefined;
     for (hashes, &files) |item, *file| file.* = .{ .path = item.path, .sha256 = item.sha256, .bytes = 0 };

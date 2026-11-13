@@ -307,39 +307,8 @@ const Runner = struct {
     }
 
     fn checkDependencies(self: *Runner) !void {
-        const sums = try self.read(try C.join(self.a, self.source, "vendor/SHA256SUMS"), 16384);
-        var paths: std.ArrayList([]const u8) = .empty;
-        var lines = std.mem.tokenizeScalar(u8, sums, '\n');
-        while (lines.next()) |line| {
-            if (line.len < 67 or !std.mem.eql(u8, line[64..66], "  ")) return error.InvalidDependencyManifest;
-            for (line[0..64]) |byte| if (!std.ascii.isHex(byte)) return error.InvalidDependencyManifest;
-            const relative = try C.join(self.a, "vendor", line[66..]);
-            if (!C.safeRelative(relative)) return error.InvalidDependencyManifest;
-            for (paths.items) |previous| if (std.mem.eql(u8, previous, relative)) return error.InvalidDependencyManifest;
-            if (!std.mem.eql(u8, line[0..64], try C.hashFile(self.a, self.io, try C.join(self.a, self.source, relative)))) return error.DependencyChecksumMismatch;
-            try paths.append(self.a, relative);
-        }
         const zon = try self.a.dupeSentinel(u8, try self.read(try C.join(self.a, self.source, "build.zig.zon"), 65536), 0);
-        var tokens = std.zig.Tokenizer.init(zon);
-        var urls: usize = 0;
-        while (true) {
-            const token = tokens.next();
-            if (token.tag == .eof) break;
-            if (token.tag != .identifier or !std.mem.eql(u8, zon[token.loc.start..token.loc.end], "url")) continue;
-            if (tokens.next().tag != .equal) return error.InvalidDependencyManifest;
-            const value = tokens.next();
-            if (value.tag != .string_literal) return error.InvalidDependencyManifest;
-            const url = try std.zig.string_literal.parseAlloc(self.a, zon[value.loc.start..value.loc.end]);
-            if (!std.mem.startsWith(u8, url, "file:vendor/")) return error.NonLocalDependency;
-            var found = false;
-            for (paths.items) |path| if (std.mem.eql(u8, path, url[5..])) {
-                found = true;
-                break;
-            };
-            if (!found) return error.UnverifiedDependency;
-            urls += 1;
-        }
-        if (urls != paths.items.len or urls == 0) return error.InvalidDependencyManifest;
+        try C.checkDependencyPins(self.a, zon);
     }
 
     fn command(self: *Runner, label: []const u8, cwd: []const u8, argv: []const []const u8, env: *const Env) !S.process.Report {

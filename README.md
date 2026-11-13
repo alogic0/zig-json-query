@@ -3,8 +3,8 @@
 A standalone Zig 0.17.0 prototype of a JSON query language inspired by jq.
 The executable is called `jqz`.
 
-Project code is licensed under [MIT](LICENSE). Bundled dependencies retain their
-own licenses and copyright notices; see [vendor/README.md](vendor/README.md).
+Project code is licensed under [MIT](LICENSE). Dependencies retain their
+own licenses and copyright notices; see [dependency provenance](docs/dependencies.md).
 
 The language keeps field paths and pipelines and makes stream expansion
 explicit. Expressions produce one value, `each` expands an array, and
@@ -21,8 +21,9 @@ Use the default Debug mode for routine builds and tests. Check one mode per
 change; other optimization modes are reserved for explicit requests or a
 specific issue that requires them.
 
-Dependencies are immutable source archives in `vendor/`, pinned by Zig hashes.
-No sibling checkout or network download is required. The regex package supplies
+Dependencies use GitHub commit URLs and Zig content hashes in `build.zig.zon`.
+The first build needs network access; later builds reuse cached packages.
+No sibling checkout is required. The regex package supplies
 matching; test-support supplies native CLI acceptance and benchmark helpers.
 The shared package-version CLI supplies developer version synchronization.
 
@@ -654,15 +655,15 @@ Current source and APIs were inspected before adoption.
 
 | Provider | Used for | Inspected revision |
 | --- | --- | --- |
-| `../zig-regex` 0.2.0 | Compiled `matches` expressions | `65e304effed8e58e5ca09a39104f8c24e28fc312` |
-| `../zig-test-support` 0.2.0 | CLI stdin, output capture, exit/error assertions, temporary-file helpers | `f0f54d4e8cb649af7673ca498f259b6b2f9aa25e` |
-| `../zig-package-version` 0.1.0 | Release version validation and synchronization | `3b35ef146e0308b9aa0f61f27e95ae8c7f143a15` |
+| `zig-regex` 0.2.0 | Compiled `matches` expressions | `65e304effed8e58e5ca09a39104f8c24e28fc312` |
+| `zig-test-support` 0.2.0 | CLI stdin, output capture, exit/error assertions, temporary-file helpers | `5bb89e9cc406a1e2a0232520abec71a9ed4f91d7` |
+| `zig-package-version` 0.1.0 | Release version validation and synchronization | `3b35ef146e0308b9aa0f61f27e95ae8c7f143a15` |
 
-These revisions are pinned source archives with hashes, licenses and provenance
-in [vendor/README.md](vendor/README.md). Test support uses its existing vendored
-`zig-process`. Provider source was not modified. Scripty was considered, but its
-host-defined field/call grammar does
-not supply this language's pipeline and operator grammar. The parser here is
+These revisions use pinned GitHub URLs and content hashes, with licenses and
+provenance in [docs/dependencies.md](docs/dependencies.md). Test support downloads
+its pinned `zig-process` dependency separately. Provider source was not modified.
+Scripty was considered, but its host-defined field/call grammar does not supply this
+language's pipeline and operator grammar. The parser here is
 small and language-specific. JSON tokenization and syntax validation use the
 installed standard-library Scanner. A complete-input value builder borrows plain
 token text, owns decoded escapes/containers in the parsed arena, and checks
@@ -781,7 +782,8 @@ measures source/key materialization, comparison preparation, sorting, reservatio
 and deduplication on repeated, distinct, mixed and nested inputs. Full-query
 controls check the component model against the actual evaluator.
 `zig build dist` creates a deterministic source archive in `zig-out/dist`, with
-dependencies included and build caches excluded; it requires GNU tar.
+pinned dependency URLs/hashes included and build caches excluded; it requires
+GNU tar. A fresh extracted build downloads the pinned dependencies from GitHub.
 The completed [standalone-package plan](docs/plans/2026-11-11-standalone-package.md)
 and [earlier package checkpoint](docs/qualification/2026-11-11-package-evidence.json) record
 byte-identical archive rebuilds, fresh extracted-source checks and an independent
