@@ -6,6 +6,7 @@ const number = @import("number.zig");
 const statistics = @import("statistics.zig");
 const row_ops = @import("rows.zig");
 const json_order = @import("json_order.zig");
+const input_json = @import("input.zig");
 const Diagnostic = @import("diagnostic.zig").Diagnostic;
 const Path = @import("diagnostic.zig").Path;
 const Value = std.json.Value;
@@ -215,6 +216,30 @@ pub const Evaluator = struct {
                 const value = try self.evalRequired(allocator, child, input);
                 if (!withinDepth(value, 0)) return self.typeFailure(node, child, "serialization nesting exceeds 128 levels");
                 break :blk Value{ .string = try std.json.Stringify.valueAlloc(allocator, value, .{}) };
+            },
+            .fromjson => |spec| blk: {
+                if (spec.fallible) {
+                    const maybe_value = try self.eval(allocator, spec.value, input);
+                    const value = maybe_value orelse break :blk Value.null;
+                    if (value == .null) break :blk Value.null;
+                    if (value != .string) return self.typeFailure(node, spec.value, "try_fromjson expects a string or null");
+                    const parsed = input_json.parseEmbedded(allocator, value.string) catch |err| switch (err) {
+                        error.OutOfMemory => return error.OutOfMemory,
+                        error.InputTooLarge => return self.typeFailure(node, spec.value, "embedded JSON exceeds 64 MiB"),
+                        error.InputTooDeep => return self.typeFailure(node, spec.value, "embedded JSON nesting exceeds 128 levels"),
+                        else => break :blk Value.null,
+                    };
+                    break :blk parsed;
+                }
+                const value = try self.evalRequired(allocator, spec.value, input);
+                if (value != .string) return self.typeFailure(node, spec.value, "fromjson expects a string");
+                const parsed = input_json.parseEmbedded(allocator, value.string) catch |err| switch (err) {
+                    error.OutOfMemory => return error.OutOfMemory,
+                    error.InputTooLarge => return self.typeFailure(node, spec.value, "embedded JSON exceeds 64 MiB"),
+                    error.InputTooDeep => return self.typeFailure(node, spec.value, "embedded JSON nesting exceeds 128 levels"),
+                    else => return self.typeFailure(node, spec.value, "fromjson requires one valid JSON value without duplicate keys"),
+                };
+                break :blk parsed;
             },
             .keys => |child| blk: {
                 const value = try self.evalRequired(allocator, child, input);

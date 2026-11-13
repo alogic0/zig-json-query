@@ -91,6 +91,29 @@ test "external consumer serializes exact values with explicit Unicode byte sizin
     try t.expectEqualStrings("[{\"text\":\"\\\"é😀\\\"\",\"bytes\":8,\"characters\":4}]\n", output.written());
 }
 
+test "external consumer parses embedded JSON strings and retains cloned values" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "{parsed:fromjson(.payload),safe:try_fromjson(.optional?) ?? {},encoded:tojson(fromjson(.payload))} | collect", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    var session = try program.start(t.allocator, &output.writer, &diagnostic, .{ .max_collect_bytes = 8192 });
+    defer session.deinit();
+    var first = "{\"payload\":\"{\\\"id\\\":9007199254740993}\",\"optional\":\"{bad}\"}".*;
+    _ = try session.feed(&first);
+    @memset(&first, 'x');
+    _ = try session.feed("{\"payload\":\"[false,0]\"}");
+    try session.finish();
+    try t.expectEqualStrings("[{\"parsed\":{\"id\":9007199254740993},\"safe\":{},\"encoded\":\"{\\\"id\\\":9007199254740993}\"},{\"parsed\":[false,0],\"safe\":{},\"encoded\":\"[false,0]\"}]\n", output.written());
+
+    var piped = try query.Program.compile(t.allocator, "fromjson | tojson", &diagnostic);
+    defer piped.deinit();
+    output.clearRetainingCapacity();
+    try piped.run(t.allocator, "\" { \\\"ok\\\" : true } \"", &output.writer, &diagnostic);
+    try t.expectEqualStrings("\"{\\\"ok\\\":true}\"\n", output.written());
+}
+
 test "external consumer edits immutable paths and requests recursive sorted output" {
     const t = std.testing;
     var diagnostic: query.Diagnostic = .{};

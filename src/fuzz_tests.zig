@@ -10,7 +10,7 @@ const sources = [_][]const u8{
     "{x: .x? ?? null, fields: keys(.)}",      ".[-1]? ?? null",               ".[-3:]",                          "map(., {value: ., size: length(.)})",
     "filter(., . == null)",                   "map(filter(., . != null), .)", "$bound.value",                    "input_filename()",
     "all(., . == null)",                      "any(., exists(.x?))",          "mean(., 6)",                      "divide(., 3, 6)",
-    "mean(map(., divide(., 1000000, 6)), 6)",
+    "mean(map(., divide(., 1000000, 6)), 6)", "fromjson",                     "try_fromjson ?? {}",              "tojson | fromjson",
 };
 
 fn input(smith: *t.Smith, buffer: []u8) []const u8 {
@@ -65,7 +65,7 @@ fn evaluatorOne(_: void, smith: *t.Smith) !void {
 }
 
 test "fuzz parser" {
-    try t.fuzz({}, parserOne, .{ .corpus = &.{ ".", "1-2*3", "sort_by(.x) | group_by(.)", "take(0) | sum", "matches(., \"(?i)^a\")", "{x:.x? ?? 0}", "{passed, count: length(.http), fields: keys(.)}", ".[-3:][0]?", "map(filter(.rows, .ok), {name})", ".[-18446744073709551615:]", "filter(.,)", "all(.reports, any(.checks, .ok))", "input_filename()", "mean(.samples,6)", "divide(1,3,18)", "mean([],19)", "$missing", "", "[", "-" } });
+    try t.fuzz({}, parserOne, .{ .corpus = &.{ ".", "1-2*3", "sort_by(.x) | group_by(.)", "take(0) | sum", "matches(., \"(?i)^a\")", "{x:.x? ?? 0}", "{passed, count: length(.http), fields: keys(.)}", ".[-3:][0]?", "map(filter(.rows, .ok), {name})", ".[-18446744073709551615:]", "filter(.,)", "all(.reports, any(.checks, .ok))", "input_filename()", "mean(.samples,6)", "divide(1,3,18)", "mean([],19)", "fromjson(.body)", "try_fromjson(.body?) ?? {}", "tojson", "$missing", "", "[", "-" } });
 }
 
 test "fuzz evaluator" {

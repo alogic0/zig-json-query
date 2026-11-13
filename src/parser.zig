@@ -53,6 +53,7 @@ pub const Node = struct {
         length: *const Node,
         byte_length: *const Node,
         tojson: *const Node,
+        fromjson: struct { value: *const Node, fallible: bool },
         structural: struct { array: *const Node, unique: bool },
         keys: *const Node,
         sum: *const Node,
@@ -486,6 +487,8 @@ pub const Parser = struct {
                 const length = self.word("length");
                 const byte_length = self.word("byte_length");
                 const tojson = self.word("tojson");
+                const fromjson = self.word("fromjson");
+                const try_fromjson = self.word("try_fromjson");
                 const structural = self.word("sort_values") or self.word("unique");
                 const unique = self.word("unique");
                 const keys = self.word("keys");
@@ -494,13 +497,18 @@ pub const Parser = struct {
                 const filtering = self.word("filter");
                 const all = self.word("all");
                 const any = self.word("any");
-                if (!exists and !matches and !length and !byte_length and !tojson and !structural and !keys and !sum and !mapping and !filtering and !all and !any) return self.fail(offset, "unknown expression; fields start with .");
+                if (!exists and !matches and !length and !byte_length and !tojson and !fromjson and !try_fromjson and !structural and !keys and !sum and !mapping and !filtering and !all and !any) return self.fail(offset, "unknown expression; fields start with .");
                 try self.advance();
+                if ((tojson or fromjson or try_fromjson) and self.token.tag != .lparen) {
+                    const current = try self.make(offset, .current, 1);
+                    return self.make(offset, if (tojson) .{ .tojson = current } else .{ .fromjson = .{ .value = current, .fallible = try_fromjson } }, current.height + 1);
+                }
                 try self.expect(.lparen, "expected ( after function name");
                 const value = try self.expression(0);
-                if (exists or length or byte_length or tojson or structural or keys or sum) {
+                if (exists or length or byte_length or tojson or fromjson or try_fromjson or structural or keys or sum) {
                     try self.expect(.rparen, "expected ) after function argument");
                     if (structural) return self.make(offset, .{ .structural = .{ .array = value, .unique = unique } }, value.height + 1);
+                    if (fromjson or try_fromjson) return self.make(offset, .{ .fromjson = .{ .value = value, .fallible = try_fromjson } }, value.height + 1);
                     return self.make(offset, if (exists) .{ .exists = value } else if (length) .{ .length = value } else if (byte_length) .{ .byte_length = value } else if (tojson) .{ .tojson = value } else if (keys) .{ .keys = value } else .{ .sum = value }, value.height + 1);
                 }
                 if (mapping or filtering or all or any) {

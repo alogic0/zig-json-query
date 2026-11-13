@@ -181,8 +181,37 @@ test "CLI null input preserves predicate status completion and error precedence"
 
 test "CLI serializes JSON text and distinguishes Unicode bytes from characters" {
     try check(&.{ "-r", "tojson(.)" }, "{\"x\":\"é😀\",\"n\":9007199254740993}", 0, "{\"x\":\"é😀\",\"n\":9007199254740993}\n", null);
+    try check(&.{ "-r", "tojson" }, "{\"x\":\"é😀\",\"n\":9007199254740993}", 0, "{\"x\":\"é😀\",\"n\":9007199254740993}\n", null);
     try check(&.{"[length(tojson(.)),byte_length(tojson(.))]"}, "\"é😀\"", 0, "[4,8]\n", null);
     try check(&.{"byte_length(.)"}, "null", 2, "", "expects a string");
+}
+
+test "CLI parses embedded JSON strings with fromjson and try_fromjson across streams" {
+    try check(
+        &.{ "-p", ".body | fromjson" },
+        "{\"body\":\"{\\\"ok\\\":true,\\\"id\\\":9007199254740993}\"}",
+        0,
+        "{\n  \"ok\": true,\n  \"id\": 9007199254740993\n}\n",
+        null,
+    );
+    try check(
+        &.{ "--ndjson", "try_fromjson(.body?) ?? {}" },
+        "{}\n{\"body\":null}\n{\"body\":\"not-json\"}\n{\"body\":\"{\\\"ok\\\":true,\\\"id\\\":42}\"}\n",
+        0,
+        "{}\n{}\n{}\n{\"ok\":true,\"id\":42}\n",
+        null,
+    );
+    try check(
+        &.{ "--ndjson", ".body? ?? null | try_fromjson ?? {}" },
+        "{}\n{\"body\":null}\n{\"body\":\"not-json\"}\n{\"body\":\"{\\\"ok\\\":false}\"}\n",
+        0,
+        "{}\n{}\n{}\n{\"ok\":false}\n",
+        null,
+    );
+    try check(&.{ "-r", "fromjson(.body) | tojson" }, "{\"body\":\" { \\\"a\\\" : [ 1 , 2 ] } \"}", 0, "{\"a\":[1,2]}\n", null);
+    try check(&.{".body | fromjson"}, "{\"body\":\"{broken}\"}", 2, "", "fromjson requires one valid JSON value");
+    try check(&.{"fromjson(.body)"}, "{\"body\":123}", 2, "", "$[\"body\"]");
+    try check(&.{"try_fromjson(.body)"}, "{\"body\":123}", 2, "", "try_fromjson expects a string or null");
 }
 
 test "CLI immutable configuration edits preserve unknown fields and support sorted keys" {

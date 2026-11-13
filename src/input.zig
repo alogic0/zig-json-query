@@ -21,6 +21,20 @@ pub fn parse(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagn
     return .{ .arena = parsed.arena, .value = parsed.value.value };
 }
 
+/// Parse one embedded JSON value into a scalar-stage arena, enforcing the
+/// 64 MiB byte cap, 128-level container limit, duplicate-key rejection, and
+/// exact number-token preservation without mutating outer input diagnostics.
+pub fn parseEmbedded(arena: std.mem.Allocator, input: []const u8) !std.json.Value {
+    if (input.len > max_bytes) return error.InputTooLarge;
+    var ignored: Diagnostic = .{};
+    try checkDepth(input, &ignored);
+    var scanner = std.json.Scanner.initCompleteInput(arena, input);
+    defer scanner.deinit();
+    const value = try ValueBuilder.build(arena, arena, &scanner, input.len, {});
+    if ((try scanner.next()) != .end_of_document) return error.UnexpectedToken;
+    return value;
+}
+
 pub fn checkDepth(input: []const u8, diagnostic: *Diagnostic) error{InputTooDeep}!void {
     var in_string = false;
     var escaped = false;
