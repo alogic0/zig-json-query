@@ -28,7 +28,7 @@ matching; test-support supplies native CLI acceptance and benchmark helpers.
 The shared package-version CLI supplies developer version synchronization.
 
 ```sh
-cd ~/prog/zig-json-query
+cd zig-json-query
 zig build
 zig build test
 
@@ -105,24 +105,12 @@ files and bindings are still read/validated; `-n -f -` reads only the query from
 stdin and needs no data filenames. Normal completion, output options, early
 stopping and `-e` status apply. For example, `jqz -n 'count'` emits `1`, while
 `jqz -n -e '.'` emits null and exits 1. Diagnostics label synthetic input `<null>`.
-The [null-input implementation plan](docs/plans/2026-11-11-null-input.md)
-records the behavior and its workflow qualification.
 
-The [real compiler-workflow audit](docs/qualification/zllvm-usage-2026-11-11.md)
-checks translations of `z_llvm` jq usage on retained reports. The
-[compiler query examples](examples/zllvm/README.md) cover command summaries,
+The [compiler query examples](examples/zllvm/README.md) cover command summaries,
 census progress and grouped rejections, with explicit notes on raw-output and
 numeric differences.
-The [CLI output/file-binding plan](docs/plans/2026-11-11-cli-output-and-file-bindings.md)
-records joined output followed by named JSON/text file bindings.
-Its [qualification report](docs/qualification/cli-output-and-bindings-2026-11-11.md)
-records five byte-identical live checks and the unchanged 45-case corpus at
-0.30.0.
-The [cleanup workflow plan](docs/plans/2026-11-12-cleanup-workflow-improvements.md)
-adds shared-descriptor output, explicit memory controls, bounded grouped totals
-and [indexed manifest comparisons](examples/cleanup/README.md). Its
-[completion report](docs/qualification/cleanup-workflows-2026-11-12.md) records
-the 0.33.0 workflow checks, allocation study and unchanged 45-case corpus.
+The [manifest comparison examples](examples/cleanup/README.md) demonstrate
+indexed matches, changes, additions and removals.
 
 `input_filename()` returns the current input filename as supplied, or `<stdin>`
 for CLI stdin. Completion aggregates, null input and slurped input have no unique
@@ -537,11 +525,7 @@ Only distinct keys and accumulator capacity remain retained, under
 `--max-retained-bytes`; completion object scratch shares that budget. Other record
 payloads are discarded after each feed. Key/value evaluation uses scalar
 temporaries, and the output object counts toward the depth limit. Key searches
-are linear in the number of distinct groups. The
-[portable allocation study](docs/qualification/2026-11-12-cleanup-workflows.json)
-checks record/payload growth with fixed keys using requested capacity, not RSS;
-it controls in-place growth for reproducible comparisons. Reproduce with
-`zig build study-cleanup`.
+are linear in the number of distinct groups.
 
 `sort_by(array, key)` and `group_by(array, key)` provide the same key rules and
 ordering inside scalar expressions. They evaluate the array once, then evaluate
@@ -648,36 +632,20 @@ truncation; columns count bytes. Native CLI acceptance is tested on Linux.
 Array-function body errors include the source element index when the argument
 has a known source path. Slices and computed arrays clear that provenance.
 
-## Reused packages
+## Dependencies
 
-The inventory at `~/zig-inventory-2026-11-03/` identified existing providers.
-Current source and APIs were inspected before adoption.
+Dependency versions and content hashes are pinned in [build.zig.zon](build.zig.zon).
 
-| Provider | Used for | Inspected revision |
-| --- | --- | --- |
-| `zig-regex` 0.2.0 | Compiled `matches` expressions | `65e304effed8e58e5ca09a39104f8c24e28fc312` |
-| `zig-test-support` 0.2.0 | CLI stdin, output capture, exit/error assertions, temporary-file helpers | `5bb89e9cc406a1e2a0232520abec71a9ed4f91d7` |
-| `zig-package-version` 0.1.0 | Release version validation and synchronization | `3b35ef146e0308b9aa0f61f27e95ae8c7f143a15` |
+| Package | Used for |
+| --- | --- |
+| [zig-regex](https://github.com/alogic0/zig-regex) | Compiled `matches` expressions |
+| [zig-test-support](https://github.com/alogic0/zig-test-support) | CLI acceptance tests, process helpers and benchmarks |
+| [zig-package-version](https://github.com/alogic0/zig-package-version) | Release version synchronization |
 
-These revisions use pinned GitHub URLs and content hashes, with licenses and
-provenance in [docs/dependencies.md](docs/dependencies.md). Test support downloads
-its pinned `zig-process` dependency separately. Provider source was not modified.
-Scripty was considered, but its host-defined field/call grammar does not supply this
-language's pipeline and operator grammar. The parser here is
-small and language-specific. JSON tokenization and syntax validation use the
-installed standard-library Scanner. A complete-input value builder borrows plain
-token text, owns decoded escapes/containers in the parsed arena, and checks
-duplicate decoded keys. It buffers small objects before allocating their map
-once and uses a bounded 16 KiB arena reservation for documents at least 64 KiB.
+Test support downloads its pinned `zig-process` dependency separately. See
+[dependency provenance](docs/dependencies.md) for revisions, licenses and notices.
 
-## Library and checks
-
-`zig build qualify -- --repeat 5 --out .zig-cache/qualification/local.json`
-checks the sanitized session-derived workflow corpus against installed jq 1.7,
-then records native Debug wall-time and peak-RSS samples for equivalent cases.
-The [qualification report](docs/qualification/README.md) separates selected-case
-coverage, unsupported jobs, semantic differences and generated scale checks.
-Reproduction uses repository data, not private session storage.
+## Library API
 
 `build.zig` exports the `query` module. `Program.compile(allocator, source,
 &diagnostic)` owns its query text, AST and compiled regexes; call `deinit` once.
@@ -704,134 +672,67 @@ writer or diagnostic concurrently without coordination. Regex matching uses the
 program's allocator, so concurrent sessions require an allocator suitable for
 concurrent use.
 
+## Development
+
+Use the default native x86_64 Linux Debug configuration for routine checks:
+
 ```sh
-zig build test-unit
+zig build test
 zig build test-unit -Dtest-filter=stream
 zig build test-cli
 zig build test-file-bindings
 zig build test-package-version
-zig build check
-zig build fuzz -Dfuzz-target='fuzz parser' --fuzz=10000
-zig build fuzz -Dfuzz-target='fuzz evaluator' --fuzz=10000
-zig build dist
+zig build test-profile
 zig build test-verify-dist
-zig build verify-dist
 zig fmt --check build.zig build.zig.zon src tests tools
 ```
 
-Tests cover the semantic differences, shared regex behavior, exact numbers,
-query ownership, invalid input, source diagnostics, input limits, and injected
-allocation failures. Stream tests cover aggregate scope, ordered completion,
-early stopping, independent sessions, retained-value ownership, memory budgets,
-error cleanup and output failures. CLI tests execute the actual binary through
-the existing test-support package and verify early exit with stdin still open.
-Generated checks compare stream compositions, decimal comparisons, integer
-arithmetic, stable sorting and grouping order with independent reference models.
-Fault injection covers every allocation in a sorting/grouping/arithmetic handoff.
-The separate `tests/package` consumer checks the exported module boundary.
-The [scalar-aggregate plan](docs/plans/2026-11-10-scalar-aggregates.md) records
-implementation and qualification of report totals and grouped summaries.
-The [remaining-workflow plan](docs/plans/2026-11-10-remaining-workflows.md) tracks
-serialization, immutable edits, structural distinctness and Debug profiling.
+Checks cover language semantics, exact numbers, ownership, memory limits,
+allocation failures, stream completion and CLI behavior. The separate
+[public-API consumer](tests/package/README.md) checks the exported module.
 
-`zig build profile -- --repeat 10 --out .zig-cache/profile.json` measures query
-compilation, session setup, strict parsing, feed/evaluation, document release,
-stream completion/output and cleanup on sanitized small and generated scale
-inputs. It checks
-every result against ordinary public execution and requires zero tracked live
-bytes after cleanup. Per-phase allocator requests and live-byte peaks measure
-requested capacity, not RSS. Supervised null-input CLI samples include process
-launch, IO capture and scheduling. Inputs are preloaded and caches warmed; these
-native Debug measurements guide investigation and do not establish optimized
-performance. `zig build test-profile` checks the profiler and allocation meter.
-The [profile report](docs/profiling/README.md) records measurements, limits and
-the original experiments suggested by them. The completed
-[performance report](docs/profiling/performance-2026-11-11.md) records the accepted
-parser/structural improvements and matched original/current CLI comparisons.
-The [parser/runtime performance plan](docs/plans/2026-11-11-parser-and-runtime-performance.md)
-records those completed experiments and measured optimization steps.
-The [container-construction follow-up](docs/plans/2026-11-11-container-construction.md)
-records completed current-builder and materialization work; its
-[report](docs/profiling/container-construction-2026-11-11.md) separates accepted
-memory reductions from rejected sorting experiments and matched CLI results.
-`zig build profile -- --study parser --repeat 14 --out .zig-cache/parser.json`
-separates depth/scanner experiments, standard DOM allocation traffic and matched
-full-parser controls. Scanner experiments overlap full parsing; they are not
-additive timings or duplicate-key validation. Logical token/container requests
-are reported separately from backing arena capacity.
-`zig build profile -- --study builder --repeat 12 --out .zig-cache/builder.json`
-compares the frozen 0.22.0 builder and current parser with paired controls, then
-observes token/container operations with counters alone and with clocks. Narrow
-operation timings include probe overhead; acceptance uses ordinary full parses.
-Temporary caller-allocator requests are separate from parsed-arena logical
-requests; backing peaks include both owners.
-`zig build profile -- --study collections --repeat 12 --out .zig-cache/collections.json`
-compares frozen/current known-size storage and structural sorting on eight
-distributions. Models omit AST/path traversal; separate actual source/full-query
-intervals preserve those costs. Six-variant order also balances predecessors.
-`zig build profile -- --study invocation --repeat 12 --out .zig-cache/invocation.json`
-compares native Debug launch controls, repeated processes, multi-file/NDJSON
-batching and compiled-Program reuse. An optional `--reference-cli PATH` pins an
-older CLI for the null-query control. Child memory is unavailable in these
-supervised intervals and is reported as null rather than zero.
-Supplying the reference also compares the two large generated documents through
-both real CLIs, with balanced current/reference controls and exact outputs.
-Backend key-array materialization and schema uniqueness are included as well.
-`zig build profile -- --study structural --repeat 10 --out .zig-cache/structural.json`
-measures source/key materialization, comparison preparation, sorting, reservation
-and deduplication on repeated, distinct, mixed and nested inputs. Full-query
-controls check the component model against the actual evaluator.
-`zig build dist` creates a deterministic source archive in `zig-out/dist`, with
-pinned dependency URLs/hashes included and build caches excluded; it requires
-GNU tar. A fresh extracted build downloads the pinned dependencies from GitHub.
-The completed [standalone-package plan](docs/plans/2026-11-11-standalone-package.md)
-and [earlier package checkpoint](docs/qualification/2026-11-11-package-evidence.json) record
-byte-identical archive rebuilds, fresh extracted-source checks and an independent
-consumer for 0.26.2, plus practical report/configuration queries checked against jq.
-`zig build verify-dist` automates archive reproducibility/content checks, fresh
-source tests/build, a one-repetition corpus replay and the separate consumer.
-It uses native x86_64 Linux Debug and the existing Zig, Git, GNU tar/gzip/coreutils,
-jq 1.7 and GNU time tools. Evidence defaults to `zig-out/verify-dist/evidence.json`;
-each run retains its archive, CLI, manifest, corpus JSON and bounded command logs
-beside that file. Use `-- --out FILE --timeout-ms 600000` to choose another report
-or per-command deadline. Output must be under `zig-out` or outside the checkout,
-with no symlink ancestors. A failed check stops dependent work, exits nonzero and
-records the failure; cleanup errors prevent a verified result. Only its marked
-temporary workspace is removed. `zig build test` includes the focused verifier
-tests and never launches full qualification. The
-[implementation plan](docs/plans/2026-11-11-verify-dist.md) records the stages.
-The [automated checkpoint](docs/qualification/2026-11-11-verify-dist-evidence.json)
-qualifies 0.27.1: 228 source tests, all 45 corpus cases, eight consumer checks,
-identical archives and successful cleanup. The
-[qualification report](docs/qualification/README.md) records the frozen snapshot,
-artifact hashes, raw logs and an intentional timeout check.
+`zig build version` checks the release markers configured in
+[tools/versions.json](tools/versions.json). Commit and version policies are in
+[AGENTS.md](AGENTS.md).
 
-See [DESIGN.md](DESIGN.md), the completed
-[stream plan](docs/plans/2026-11-09-stream-runtime.md), the
-[follow-up plan](docs/plans/2026-11-09-followups.md), and the
-[qualification report](docs/validation-2026-11-09.md) for contracts and checks
-actually executed. Comparative measurements use pinned jq and jaq binaries;
-jaq was acquired separately because it was absent from the initial inventory.
-
-## Version workflow
+### Qualification and profiling
 
 ```sh
-zig build version
-zig build version -- get
-zig build version -- set 0.3.1
-zig build test-package-version
+zig build qualify -- --repeat 5 --out zig-out/qualification/local.json
+zig build profile -- --repeat 10 --out zig-out/profile.json
+zig build study-cleanup
 ```
 
-The `version` step runs the pinned `zig-package-version` CLI using
-[`tools/versions.json`](tools/versions.json). `build.zig.zon` is authoritative;
-reading checks that the library version, both source archive names and the
-benchmark's expected CLI version match it. Setting a canonical numeric
-`MAJOR.MINOR.PATCH` prepares all five marked replacements before writing and
-preserves dependency pins and historical benchmark/validation records. The
-shared tool owns validation, per-file atomic updates and rollback. Bump decisions
-remain in [AGENTS.md](AGENTS.md): agents use patch increments for compatible fixes
-and minor increments for compatible features; major changes belong to the user.
+Qualification compares repository fixtures against installed jq 1.7 and uses
+GNU time for peak RSS. Profiling measures execution phases, allocator requests
+and CLI launches in Debug mode. The profiler also accepts `--study parser`,
+`builder`, `collections`, `invocation` or `structural` for focused measurements.
+The cleanup study checks grouped totals and indexed manifest comparisons.
+See the [qualification notes](docs/qualification/README.md) and
+[profiling notes](docs/profiling/README.md) for methods, fixtures and results.
 
-`zig build test` includes four integration checks using temporary copies of the
-real configured files: get/set synchronization, mismatch reporting/repair,
-invalid version rejection and failed preflight without partial writes.
+Bounded parser and evaluator fuzzing:
+
+```sh
+zig build fuzz -Dfuzz-target='fuzz parser' --fuzz=10000
+zig build fuzz -Dfuzz-target='fuzz evaluator' --fuzz=10000
+```
+
+### Source packages
+
+```sh
+zig build dist
+zig build verify-dist
+```
+
+`dist` creates a deterministic source archive in `zig-out/dist`, including
+source and dependency pins. Build caches are excluded. It requires GNU tar;
+a fresh extracted build downloads the dependencies from GitHub.
+
+`verify-dist` compares rebuilt archives, runs extracted-source tests and the
+workflow corpus, and tests a separate consumer with empty caches. It uses Git,
+GNU tar/gzip/coreutils, jq 1.7 and GNU time. Reports and command logs are saved
+under `zig-out/verify-dist` by default. Use `zig build verify-dist -- --help`
+for report-path and timeout options.
+
+See [DESIGN.md](DESIGN.md) for parser and runtime architecture.
