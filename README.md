@@ -3,6 +3,9 @@
 A standalone Zig 0.17.0 prototype of a JSON query language inspired by jq.
 The executable is called `jqz`.
 
+Project code is licensed under [MIT](LICENSE). Bundled dependencies retain their
+own licenses and copyright notices; see [vendor/README.md](vendor/README.md).
+
 The language keeps field paths and pipelines and makes stream expansion
 explicit. Expressions produce one value, `each` expands an array, and
 `where(boolean)` keeps or drops the current record. There are no implicit
