@@ -20,6 +20,8 @@ pub const Options = struct {
     /// Raw strings and no separator after any output value.
     join_output: bool = false,
     sort_keys: bool = false,
+    /// Format JSON containers with 2-space indentation; conflicts with join_output.
+    pretty: bool = false,
 };
 pub const Error = error{ EvaluationFailed, OutOfMemory, StreamFailed, StreamFinished } || std.Io.Writer.Error;
 const Collector = struct { arena: std.heap.ArenaAllocator, items: std.ArrayList(Value) = .empty };
@@ -34,13 +36,18 @@ budget: Budget,
 raw_output: bool,
 join_output: bool,
 sort_keys: bool,
+pretty: bool,
 last_output: enum { none, false_or_null, other } = .none,
 lifecycle: enum { active, failed, finished } = .active,
 // Exhausting take at index i closes every stage through i. Stages after i can
 // still receive its last value and finish their own aggregates.
 closed_through: ?usize = null,
 
-pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.Compiled, writer: *std.Io.Writer, diagnostic: *Diagnostic, options: Options) error{OutOfMemory}!*Self {
+pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.Compiled, writer: *std.Io.Writer, diagnostic: *Diagnostic, options: Options) error{ InvalidOptions, OutOfMemory }!*Self {
+    if (options.pretty and options.join_output) {
+        diagnostic.set(0, "pretty output cannot be combined with join_output");
+        return error.InvalidOptions;
+    }
     const self = try allocator.create(Self);
     errdefer allocator.destroy(self);
     const states = try allocator.alloc(State, stages.len);
@@ -54,6 +61,7 @@ pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.
         .raw_output = options.raw_output or options.join_output,
         .join_output = options.join_output,
         .sort_keys = options.sort_keys,
+        .pretty = options.pretty,
     };
     // Self and states have stable addresses before an allocator can borrow them.
     for (stages, states, 0..) |stage_kind, *state, index| {
@@ -230,13 +238,14 @@ fn stageInner(self: *Self, index: usize, input: Value) Error!void {
     if (self.blocked(index)) return;
     if (index == self.stages.len) {
         if (!scalar.withinDepth(input, 0)) return self.fail(0, "output nesting exceeds 128 levels");
+        const stringify_options: std.json.Stringify.Options = if (self.pretty) .{ .whitespace = .indent_2 } else .{};
         if (self.raw_output and input == .string) {
             try self.writer.writeAll(input.string);
         } else if (self.sort_keys) {
             var arena = std.heap.ArenaAllocator.init(self.allocator);
             defer arena.deinit();
-            try std.json.Stringify.value(try json_order.ordered(arena.allocator(), input), .{}, self.writer);
-        } else try std.json.Stringify.value(input, .{}, self.writer);
+            try std.json.Stringify.value(try json_order.ordered(arena.allocator(), input), stringify_options, self.writer);
+        } else try std.json.Stringify.value(input, stringify_options, self.writer);
         if (!self.join_output) try self.writer.writeByte('\n');
         self.last_output = switch (input) {
             .null => .false_or_null,

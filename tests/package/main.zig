@@ -49,6 +49,21 @@ test "external consumer requests joined raw output with sorted JSON" {
     try t.expectEqualStrings("x\x00{\"a\":2,\"z\":1}", output.written());
 }
 
+test "external consumer formats pretty JSON with sorted keys and rejects join conflict" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "each", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    try t.expectError(error.InvalidOptions, program.start(t.allocator, &output.writer, &diagnostic, .{ .pretty = true, .join_output = true }));
+    var stream = try program.start(t.allocator, &output.writer, &diagnostic, .{ .pretty = true, .raw_output = true, .sort_keys = true });
+    defer stream.deinit();
+    _ = try stream.feed("[\"header\",{\"z\":[],\"a\":9007199254740993},{}]");
+    try stream.finish();
+    try t.expectEqualStrings("header\n{\n  \"a\": 9007199254740993,\n  \"z\": []\n}\n{}\n", output.written());
+}
+
 test "external consumer composes scalar totals and ordered groups within a report" {
     const t = std.testing;
     var diagnostic: query.Diagnostic = .{};

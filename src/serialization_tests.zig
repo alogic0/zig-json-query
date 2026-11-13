@@ -94,3 +94,44 @@ test "serialization allocation failures release encoded strings and retained res
         try t.expectEqual(failing.allocated_bytes, failing.freed_bytes);
     }
 }
+
+test "pretty stream output formats 2-space containers keeps empty containers compact and preserves exact numbers" {
+    const expected =
+        \\{
+        \\  "z": [
+        \\    null,
+        \\    false,
+        \\    9007199254740993,
+        \\    170141183460469231731687303715884105727,
+        \\    -170141183460469231731687303715884105728,
+        \\    -0,
+        \\    1.2300e+2
+        \\  ],
+        \\  "empty_obj": {},
+        \\  "empty_arr": []
+        \\}
+        \\
+    ;
+    try expectOutput(
+        ".",
+        "{\"z\":[null,false,9007199254740993,170141183460469231731687303715884105727,-170141183460469231731687303715884105728,-0,1.2300e+2],\"empty_obj\":{},\"empty_arr\":[]}",
+        expected,
+        .{ .pretty = true },
+    );
+    try expectOutput("each", "[{},[],null,false,\"hi\"]", "{}\n[]\nnull\nfalse\n\"hi\"\n", .{ .pretty = true });
+    try expectOutput(
+        "each",
+        "[\"raw\\nline\",{\"b\":2,\"a\":1},[]]",
+        "raw\nline\n{\n  \"a\": 1,\n  \"b\": 2\n}\n[]\n",
+        .{ .pretty = true, .raw_output = true, .sort_keys = true },
+    );
+    try expectOutput("{encoded:tojson({z:1,a:2})}", "null", "{\n  \"encoded\": \"{\\\"z\\\":1,\\\"a\\\":2}\"\n}\n", .{ .pretty = true, .sort_keys = true });
+
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, ".", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    try t.expectError(error.InvalidOptions, program.start(t.allocator, &output.writer, &diagnostic, .{ .pretty = true, .join_output = true }));
+    try t.expect(std.mem.indexOf(u8, diagnostic.message, "cannot be combined") != null);
+}

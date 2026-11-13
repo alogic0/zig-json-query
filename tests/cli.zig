@@ -80,8 +80,56 @@ test "CLI bundles no-argument flags and preserves option terminators" {
     try check(&.{ "-nSje", "{z:1,a:2}" }, "", 0, "{\"a\":2,\"z\":1}", null);
     try check(&.{ "-js", "--ndjson", "." }, "1\n2\n", 0, "[1,2]", null);
     try check(&.{ "-nj", "--", "-2" }, "", 0, "-2", null);
+    try check(&.{ "-np", "--", "-2" }, "", 0, "-2\n", null);
     try check(&.{ "-jx", "." }, "", 2, "", "unknown option");
+    try check(&.{ "-px", "." }, "", 2, "", "unknown option");
     try check(&.{ "-jf", "query" }, "", 2, "", "unknown option");
+}
+
+test "CLI pretty output formats containers composes with flags and rejects join-output" {
+    const nested =
+        \\{
+        \\  "a": 1,
+        \\  "b": [
+        \\    9007199254740993,
+        \\    170141183460469231731687303715884105727,
+        \\    -170141183460469231731687303715884105728
+        \\  ],
+        \\  "empty_obj": {},
+        \\  "empty_arr": []
+        \\}
+        \\
+    ;
+    try check(
+        &.{ "-p", "." },
+        "{\"a\":1,\"b\":[9007199254740993,170141183460469231731687303715884105727,-170141183460469231731687303715884105728],\"empty_obj\":{},\"empty_arr\":[]}",
+        0,
+        nested,
+        null,
+    );
+    try check(&.{ "--pretty", "." }, "{}", 0, "{}\n", null);
+    try check(&.{ "-p", "." }, "[]", 0, "[]\n", null);
+    try check(&.{ "-nSpe", "{z:[2,1],a:{}}" }, "", 0, "{\n  \"a\": {},\n  \"z\": [\n    2,\n    1\n  ]\n}\n", null);
+    try check(&.{ "-pr", "each" }, "[\"hello\\nworld\",{\"b\":2,\"a\":1},[]]", 0, "hello\nworld\n{\n  \"b\": 2,\n  \"a\": 1\n}\n[]\n", null);
+    try check(&.{ "-rpS", "each" }, "[\"raw\",{\"z\":1,\"a\":2}]", 0, "raw\n{\n  \"a\": 2,\n  \"z\": 1\n}\n", null);
+    try check(&.{ "-p", "--ndjson", "." }, "{\"a\":1}\n[]\n{\"b\":[2]}\n", 0, "{\n  \"a\": 1\n}\n[]\n{\n  \"b\": [\n    2\n  ]\n}\n", null);
+    try check(&.{ "-ps", "--ndjson", "." }, "1\n2\n", 0, "[\n  1,\n  2\n]\n", null);
+    try check(&.{ "-pe", "." }, "false", 1, "false\n", null);
+    try check(&.{ "-pe", "." }, "null", 1, "null\n", null);
+    try check(&.{ "-pe", "where(false)" }, "{}", 4, "", null);
+    try check(&.{ "-pp", "-n", "{ok:true}" }, "", 0, "{\n  \"ok\": true\n}\n", null);
+
+    for ([_][]const []const u8{
+        &.{ "-p", "-j", "." },
+        &.{ "-j", "-p", "." },
+        &.{ "--pretty", "--join-output", "." },
+        &.{ "-pj", "." },
+        &.{ "-jp", "." },
+        &.{ "-nSpje", "." },
+        &.{ "-pj", "-f", "/nonexistent-jqz-pretty-query" },
+    }) |args| {
+        try check(args, "", 2, "", "cannot be combined");
+    }
 }
 
 test "CLI joined output keeps value-based exit status and completion" {
@@ -99,7 +147,7 @@ test "CLI joined output keeps value-based exit status and completion" {
 test "CLI output failures override predicate status and informational exits" {
     const full = try std.Io.Dir.cwd().openFile(t.io, "/dev/full", .{ .mode = .write_only });
     defer full.close(t.io);
-    for ([_][]const []const u8{ &.{ exe, "-nje", "false" }, &.{ exe, "-ne", "false" }, &.{ exe, "-nre", "false" }, &.{ exe, "--help" }, &.{ exe, "--version" } }) |argv| {
+    for ([_][]const []const u8{ &.{ exe, "-nje", "false" }, &.{ exe, "-ne", "false" }, &.{ exe, "-nre", "false" }, &.{ exe, "-npe", "{a:1}" }, &.{ exe, "--help" }, &.{ exe, "--version" } }) |argv| {
         const report = try S.command.File.run(t.allocator, t.io, .{ .spawn = .{ .argv = argv, .stdout = .{ .file = full } }, .timeout_ms = 5000 });
         try t.expect(report.outcome == .completed);
         try t.expect(report.cleanup_failure == null);
