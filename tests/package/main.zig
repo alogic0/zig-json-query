@@ -1,6 +1,37 @@
 const std = @import("std");
 const query = @import("query");
 
+test "external consumer configures document admission independently of retained and slurp capacity" {
+    const t = std.testing;
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, ".", &diagnostic);
+    defer program.deinit();
+    var output = std.Io.Writer.Allocating.init(t.allocator);
+    defer output.deinit();
+    try t.expectError(error.InvalidOptions, program.start(t.allocator, &output.writer, &diagnostic, .{ .max_document_bytes = 0 }));
+    var bounded = try program.start(t.allocator, &output.writer, &diagnostic, .{ .max_document_bytes = 4, .max_collect_bytes = 0 });
+    defer bounded.deinit();
+    _ = try bounded.feed("null");
+    try t.expectError(error.InputTooLarge, bounded.feed("false"));
+    try t.expectEqualStrings("null\n", output.written());
+    output.clearRetainingCapacity();
+    var raised = try program.start(t.allocator, &output.writer, &diagnostic, .{ .max_document_bytes = 5, .max_collect_bytes = 0 });
+    defer raised.deinit();
+    _ = try raised.feed("false");
+    try raised.finish();
+    try t.expectEqualStrings("false\n", output.written());
+    output.clearRetainingCapacity();
+    const slurp = try query.Slurp.init(t.allocator, 1048576);
+    defer slurp.deinit();
+    try slurp.appendWithDocumentLimit("false", &diagnostic, 5);
+    try slurp.append("true", &diagnostic);
+    var array = try program.start(t.allocator, &output.writer, &diagnostic, .{ .max_document_bytes = 1, .max_collect_bytes = 0 });
+    defer array.deinit();
+    _ = try array.feedSlurp(slurp);
+    try array.finish();
+    try t.expectEqualStrings("[false,true]\n", output.written());
+}
+
 test "external consumer owns indexed records and looks up outer scope with typed absence" {
     const t = std.testing;
     var diagnostic: query.Diagnostic = .{};

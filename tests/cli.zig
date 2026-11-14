@@ -471,6 +471,7 @@ test "CLI arithmetic sorting and grouping share one NDJSON stream" {
 }
 
 test {
+    _ = @import("document_limit_cli.zig");
     _ = @import("batch_cli.zig");
     _ = @import("descriptor_cli.zig");
 }

@@ -14,6 +14,8 @@ const Value = std.json.Value;
 const Self = @This();
 
 pub const Options = struct {
+    /// Positive source-byte limit for each document fed to the session.
+    max_document_bytes: usize = @import("input.zig").max_bytes,
     /// Shared live retained capacity across collection, grouping and index stages.
     max_collect_bytes: usize = 64 * 1024 * 1024,
     raw_output: bool = false,
@@ -33,6 +35,7 @@ states: []State,
 evaluator: scalar.Evaluator,
 writer: *std.Io.Writer,
 budget: Budget,
+max_document_bytes: usize,
 raw_output: bool,
 join_output: bool,
 sort_keys: bool,
@@ -44,6 +47,10 @@ lifecycle: enum { active, failed, finished } = .active,
 closed_through: ?usize = null,
 
 pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.Compiled, writer: *std.Io.Writer, diagnostic: *Diagnostic, options: Options) error{ InvalidOptions, OutOfMemory }!*Self {
+    if (options.max_document_bytes == 0) {
+        diagnostic.set(0, "document input limit must be positive");
+        return error.InvalidOptions;
+    }
     if (options.pretty and options.join_output) {
         diagnostic.set(0, "pretty output cannot be combined with join_output");
         return error.InvalidOptions;
@@ -58,6 +65,7 @@ pub fn init(allocator: A, stages: []const syntax.Stage, patterns: []const regex.
         .evaluator = .{ .patterns = patterns, .diagnostic = diagnostic },
         .writer = writer,
         .budget = .{ .backing = allocator, .limit = options.max_collect_bytes },
+        .max_document_bytes = options.max_document_bytes,
         .raw_output = options.raw_output or options.join_output,
         .join_output = options.join_output,
         .sort_keys = options.sort_keys,

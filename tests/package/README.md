@@ -2,13 +2,16 @@
 
 This is an independent Zig build/package graph. In the checkout, run
 `zig build test --summary all` from `tests/package`; its dependency points at
-`../..`. Twelve tests cover the earlier stream/sort/group interface and the
+`../..`. Thirteen tests cover the earlier stream/sort/group interface and the
 expanded binding, named-feed, slurp, quantifier, decimal-statistics, scalar-array
 aggregate, JSON serialization, embedded-JSON parsing (`fromjson`/`try_fromjson`/bare `tojson`),
 Unicode byte-sizing, immutable path edits, sorted-key and 2-space pretty output,
 joined raw output, structural sorting/distinctness and predicate-status APIs,
 plus owned keyed indexes, computed lookup and outer expression scope with
 missing/null/false distinctions.
+Configurable per-document source-byte admission is exercised through
+`StreamOptions.max_document_bytes` and `Slurp.appendWithDocumentLimit`,
+independently of retained and owned-slurp capacity.
 They overwrite caller buffers and destroy the input collector
 before finishing downstream retention to check ownership through the public API.
 

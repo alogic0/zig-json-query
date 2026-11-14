@@ -21,6 +21,7 @@ const usage =
     \\  --argjson NAME JSON      Bind $NAME to one exact JSON value
     \\  --slurpfile NAME FILE    Bind $NAME to all JSON values from FILE
     \\  --rawfile NAME FILE      Bind $NAME to exact UTF-8 file text
+    \\  --max-document-bytes N   Positive document bytes (default 67108864)
     \\  --max-retained-bytes N   Shared retained capacity (default 67108864)
     \\  --max-slurp-bytes N      Separate owned slurp capacity (default 67108864)
     \\  -f, --from-file FILE      Read the query from FILE (only once)
@@ -53,11 +54,13 @@ const usage =
     \\Arithmetic: checked i128 + - * / %, unary -; division must be exact.
     \\Statistics: mean(array, PLACES), divide(a, b, PLACES); PLACES 0..18,
     \\            bounded exact decimals, nearest/ties-to-even rounding.
-    \\Limits: query 64 KiB; document 64 MiB; NDJSON line 1 MiB; nesting 128.
+    \\Limits: query 64 KiB; document 64 MiB by default; NDJSON line 1 MiB; nesting 128.
     \\        Retaining stages share 64 MiB; no disk spilling.
     \\        Slurp has a separate 64 MiB owned input-collection budget.
-    \\Budget options take unsigned decimal bytes; zero allows no allocation.
-    \\They exclude parsed input, scalar temporaries and process RSS.
+    \\Document limits take positive decimal bytes; they do not affect NDJSON,
+    \\bindings, queries, embedded JSON, retained stages or owned slurp capacity.
+    \\Retained/slurp budgets take unsigned decimal bytes; zero allows no allocation.
+    \\Those budgets exclude parsed input, scalar temporaries and process RSS.
     \\take stops upstream work; skipped records are not validated.
     \\Exit: 0 success (including no matches), 2 query/input/evaluation/IO error.
     \\With -e: last output determines 0/1/4; errors still return 2.
@@ -90,6 +93,7 @@ fn run(init: std.process.Init) !u8 {
     var exit_status = false;
     var slurp_input = false;
     var max_retained_bytes: usize = 64 * 1024 * 1024;
+    var max_document_bytes: usize = query.max_input_bytes;
     var max_slurp_bytes: usize = 64 * 1024 * 1024;
     var options = true;
     var query_file: ?[]const u8 = null;
@@ -142,6 +146,11 @@ fn run(init: std.process.Init) !u8 {
             try binding_files.append(allocator, .{ .index = bindings.items.len, .kind = if (std.mem.eql(u8, arg, "--slurpfile")) .json else .raw, .path = args[index + 2] });
             try bindings.append(allocator, .{ .name = args[index + 1], .value = .{ .string = "" } });
             index += 2;
+        } else if (options and std.mem.eql(u8, arg, "--max-document-bytes")) {
+            index += 1;
+            if (index == args.len) return argumentError(&errors.interface, "--max-document-bytes requires positive decimal bytes");
+            max_document_bytes = parseBudget(args[index]) catch return argumentError(&errors.interface, "--max-document-bytes requires positive decimal bytes within the platform usize range");
+            if (max_document_bytes == 0) return argumentError(&errors.interface, "--max-document-bytes requires positive decimal bytes");
         } else if (options and (std.mem.eql(u8, arg, "--max-retained-bytes") or std.mem.eql(u8, arg, "--max-slurp-bytes"))) {
             index += 1;
             if (index == args.len) return argumentError(&errors.interface, "budget option requires unsigned decimal bytes");
@@ -252,11 +261,12 @@ fn run(init: std.process.Init) !u8 {
     // Compilation owns the values; input IO and evaluation need no file buffers.
     for (prepared.items) |bytes| allocator.free(bytes);
     prepared.clearRetainingCapacity();
-    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .join_output = join_output, .pretty = pretty_output, .sort_keys = sort_keys, .max_collect_bytes = max_retained_bytes });
+    const document_limit = if (ndjson or null_input) query.max_input_bytes else max_document_bytes;
+    var stream = try program.start(allocator, &output.interface, &diagnostic, .{ .raw_output = raw_output, .join_output = join_output, .pretty = pretty_output, .sort_keys = sort_keys, .max_collect_bytes = max_retained_bytes, .max_document_bytes = document_limit });
     defer stream.deinit();
     const slurp = if (slurp_input and !null_input and stream.needsInput()) try query.Slurp.init(allocator, max_slurp_bytes) else null;
     defer if (slurp) |collector| collector.deinit();
-    var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = "<stdin>", .output = &output.interface, .errors = &errors.interface, .exit_status = exit_status, .slurp = slurp };
+    var runner: Runner = .{ .stream = &stream, .source = source, .query_label = query_label, .diagnostic = &diagnostic, .label = "<stdin>", .output = &output.interface, .errors = &errors.interface, .exit_status = exit_status, .slurp = slurp, .max_document_bytes = document_limit };
     if (null_input) {
         runner.label = "<null>";
         if (stream.needsInput()) _ = stream.feed("null") catch |err| return runner.report(err, "null", 1);
@@ -266,7 +276,7 @@ fn run(init: std.process.Init) !u8 {
     for (inputs) |path| {
         if (!stream.needsInput()) break;
         runner.label = if (std.mem.eql(u8, path, "-")) "<stdin>" else path;
-        const code = try readInput(io, allocator, path, ndjson, &runner);
+        const code = try readInput(io, allocator, path, ndjson, max_document_bytes, &runner);
         if (code != 0) return code;
         runner.output.flush() catch |err| return fileError(runner.errors, runner.label, "write output", err);
     }
@@ -274,7 +284,7 @@ fn run(init: std.process.Init) !u8 {
     return runner.finish();
 }
 
-fn readInput(io: std.Io, allocator: std.mem.Allocator, path: []const u8, ndjson: bool, runner: *Runner) !u8 {
+fn readInput(io: std.Io, allocator: std.mem.Allocator, path: []const u8, ndjson: bool, max_document_bytes: usize, runner: *Runner) !u8 {
     const from_stdin = std.mem.eql(u8, path, "-");
     const label = runner.label;
     const file = if (from_stdin) std.Io.File.stdin() else std.Io.Dir.cwd().openFile(io, path, .{}) catch |err| return fileError(runner.errors, label, "open input file", err);
@@ -284,7 +294,11 @@ fn readInput(io: std.Io, allocator: std.mem.Allocator, path: []const u8, ndjson:
     defer allocator.free(buffer);
     var reader = file.reader(io, buffer);
     if (!ndjson) {
-        const bytes = reader.interface.allocRemaining(allocator, .limited(query.max_input_bytes)) catch |err| return fileError(runner.errors, label, "read JSON document (limit 64 MiB)", err);
+        const bytes = reader.interface.allocRemaining(allocator, .limited(max_document_bytes)) catch |err| {
+            try runner.errors.print("{s}: cannot read JSON document (limit {d} bytes): {s}\n", .{ label, max_document_bytes, @errorName(err) });
+            try runner.errors.flush();
+            return 2;
+        };
         defer allocator.free(bytes);
         const code = try runner.evaluate(bytes, 1);
         if (code != 0) return code;
@@ -339,10 +353,11 @@ const Runner = struct {
     errors: *std.Io.Writer,
     exit_status: bool,
     slurp: ?*query.Slurp,
+    max_document_bytes: usize,
 
     fn evaluate(self: *Runner, bytes: []const u8, line: usize) !u8 {
         if (self.slurp) |collector| {
-            collector.append(bytes, self.diagnostic) catch |err| return self.report(err, bytes, line);
+            collector.appendWithDocumentLimit(bytes, self.diagnostic, self.max_document_bytes) catch |err| return self.report(err, bytes, line);
         } else _ = self.stream.feedNamed(bytes, self.label) catch |err| return self.report(err, bytes, line);
         return 0;
     }

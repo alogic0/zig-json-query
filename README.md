@@ -75,6 +75,11 @@ record; aggregates emit at stream completion. CRLF and a final line without a
 newline work. The count example emits `2`; the collection example emits
 `["Ada","Ben"]`.
 The default mode accepts exactly one JSON document per file, including multiline JSON.
+Each ordinary document, including stdin, has a 67,108,864-byte default source
+limit. Use `--max-document-bytes N` to choose a positive decimal byte limit for
+each document, including its whitespace and line terminators. The option does
+not change NDJSON, query, binding, embedded-JSON, retained-stage or owned-slurp
+limits. There is no zero/unlimited setting.
 All files feed one session, so `count`, `sum`, `collect`, sorting and grouping span
 files. Satisfied `take` skips later records and files without opening them.
 `--` ends option parsing, for example `jqz -- '-2' input.json`.
@@ -136,6 +141,9 @@ Library callers can use `Stream.feedNamed(input, filename)` for borrowed source
 metadata and `Slurp.init(allocator, max_bytes)`, `append(input, diagnostic)`, then
 `Stream.feedSlurp(collector)` for an owned array. A collector failure poisons it;
 deinit the collector after feeding, and finish/deinit the stream as usual.
+`Slurp.appendWithDocumentLimit(input, diagnostic, max_document_bytes)` admits
+each source under a positive custom byte limit while keeping the collector's
+owned-allocation budget separate. `append` keeps the 64 MiB source default.
 
 `zig build` installs only `jqz`. The repository and source archives use
 `zig-json-query`.
@@ -623,12 +631,20 @@ temporarily retains both copies within that shared budget. A limit failure
 reports the responsible stage in the query.
 System allocation failures remain `OutOfMemory`. No spill-to-disk is implemented.
 
+CLI `--max-document-bytes N` controls ordinary document source bytes before
+parsing. It accepts positive decimal bytes fitting the platform `usize`,
+defaults to 67,108,864, and validates the whole admitted document before
+evaluation. It covers ordinary stdin and every named input separately,
+including sources used with `-s`; it is ignored by `--ndjson` and `-n`.
+Parsing still owns a complete document and is not bounded by the source-byte
+limit as a process-memory quota.
+
 CLI `--max-retained-bytes N` overrides the shared retained capacity, and
 `--max-slurp-bytes N` independently overrides owned slurp capacity. Both accept
 unsigned decimal bytes fitting the platform `usize`; zero permits no allocations,
 with no unlimited sentinel or suffixes. Input text, query/bindings, parsed input,
 scalar temporaries, output buffers and allocator metadata keep their separate
-limits/lifetimes. A document below the 64 MiB text limit can exceed the slurp
+limits/lifetimes. An admitted document can exceed the slurp
 budget after parsing and copying its containers. Budget errors report the
 configured limit, live retained capacity and requested allocation size; they
 suggest raising the applicable option or avoiding unnecessary `-s`.
@@ -636,10 +652,12 @@ suggest raising the applicable option or avoiding unnecessary `-s`.
 ```sh
 jqz --max-retained-bytes 134217728 --ndjson 'sort_by(.path)' records.jsonl
 jqz --max-slurp-bytes 268435456 -s 'length(.)' first.json second.json
+jqz --max-document-bytes 134217728 '{status,total}' large-report.json
 ```
 
 Admission limits: 64 KiB query text, 4096 expression nodes, 128 pipeline stages,
-128 expression nesting levels, 128 input container levels, 64 MiB per document,
+128 expression nesting levels, 128 input container levels, 64 MiB per document
+by default (configurable independently of the other limits),
 and 1 MiB per NDJSON line. Output/comparison nesting is also checked. Numeric
 comparison exponents and their adjusted digit positions must fit signed 64-bit
 integers; numeric passthrough does not require that conversion. Regex patterns
@@ -681,6 +699,11 @@ For a stream, call `program.start(allocator, writer, &diagnostic, options)`, the
 true. `feed` returns whether another record is needed. On source EOF or an early
 stop, call `stream.finish()`. Always call `stream.deinit()` once, including on
 failure or abandonment. Deinitialization itself never emits output.
+`StreamOptions.max_document_bytes` sets a positive source-byte limit on each
+`feed`/`feedNamed` call, defaulting to `max_input_bytes` (64 MiB). Zero is an
+`InvalidOptions` error. `Program.run` retains the default, and `feedSlurp`
+accepts the collector's already validated array without another text-size cap.
+This setting leaves external-binding and embedded-JSON admission unchanged.
 
 Input bytes can be released or reused after `feed` returns. Collectors deep-copy
 containers, keys, strings and exact number tokens. Finishing twice is a no-op;

@@ -12,7 +12,7 @@ const input_json = @import("input.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = input_json.max_bytes;
-pub const version = "0.35.0";
+pub const version = "0.36.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.
@@ -152,7 +152,7 @@ pub const Stream = struct {
         self.execution.evaluator.diagnostic.* = .{};
         if (!self.needsInput()) return false;
         errdefer self.execution.abort();
-        const parsed = try parseInput(self.execution.allocator, input, self.execution.evaluator.diagnostic);
+        const parsed = try input_json.parseWithLimit(self.execution.allocator, input, self.execution.evaluator.diagnostic, self.execution.max_document_bytes);
         defer parsed.deinit();
         self.execution.evaluator.input_filename = filename;
         defer self.execution.evaluator.input_filename = null;
@@ -207,10 +207,16 @@ pub const Slurp = struct {
     }
 
     pub fn append(self: *Slurp, input: []const u8, diagnostic: *Diagnostic) !void {
+        return self.appendWithDocumentLimit(input, diagnostic, max_input_bytes);
+    }
+
+    /// Admit one document with a positive source-byte limit, independently of
+    /// the collector's owned-allocation budget. append keeps the 64 MiB default.
+    pub fn appendWithDocumentLimit(self: *Slurp, input: []const u8, diagnostic: *Diagnostic, max_document_bytes: usize) !void {
         diagnostic.* = .{};
         if (self.failed) return error.StreamFailed;
         errdefer self.failed = true;
-        const parsed = try parseInput(self.backing, input, diagnostic);
+        const parsed = try input_json.parseWithLimit(self.backing, input, diagnostic, max_document_bytes);
         defer parsed.deinit();
         if (!scalar.withinDepth(parsed.value, 1)) return error.InputTooDeep;
         self.budget.denied = false;
@@ -229,7 +235,6 @@ pub const Slurp = struct {
     }
 };
 
-const parseInput = input_json.parse;
 const checkInputDepth = input_json.checkDepth;
 
 test {
@@ -250,6 +255,7 @@ test {
     _ = @import("group_totals_tests.zig");
     _ = @import("key_index_tests.zig");
     _ = @import("input_tests.zig");
+    _ = @import("document_limit_tests.zig");
     _ = @import("property_tests.zig");
     _ = @import("fuzz_tests.zig");
 }

@@ -5,7 +5,14 @@ const ValueBuilder = @import("value_builder.zig");
 pub const max_bytes = 64 * 1024 * 1024;
 
 pub fn parse(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagnostic) !std.json.Parsed(std.json.Value) {
-    if (input.len > max_bytes) return error.InputTooLarge;
+    return parseWithLimit(allocator, input, diagnostic, max_bytes);
+}
+
+/// Admit one complete document under an explicit positive source-byte limit.
+/// Embedded JSON and external bindings retain their independent default caps.
+pub fn parseWithLimit(allocator: std.mem.Allocator, input: []const u8, diagnostic: *Diagnostic, max_document_bytes: usize) !std.json.Parsed(std.json.Value) {
+    if (max_document_bytes == 0) return error.InvalidOptions;
+    if (input.len > max_document_bytes) return error.InputTooLarge;
     try checkDepth(input, diagnostic);
     var scanner = std.json.Scanner.initCompleteInput(allocator, input);
     defer scanner.deinit();
