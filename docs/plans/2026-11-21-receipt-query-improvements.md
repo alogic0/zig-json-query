@@ -1,8 +1,8 @@
 # Receipt queries in jqz
 
-Proposed on November 21, 2026, against jqz 0.36.0 (`a809936`). The examples
-below use proposed syntax. Implement the three changes in order, starting with
-the one that helps a developer diagnose a failed receipt in a single invocation.
+Reviewed on November 21, 2026, against jqz 0.36.0 (`a809936`). Implement
+structured assertions first and strict string concatenation second. The
+examples below specify the proposed syntax. Local bindings are deferred.
 
 The `z_llvm` audit `fixed-input-quoted-scan-freezer-audit-02` exposed three
 costs. Its file verifier reduces all comparisons to one boolean. Its shell
@@ -28,63 +28,80 @@ all($receipt[0].files,
 
 Feed this expression the inventory produced by `index_by(.path)`. With a
 receipt that lists `result.json` as 12 bytes and an inventory that reports 13,
-one CLI invocation should write this detail to stderr and exit 1.
+one CLI invocation writes exactly one compact JSON object and a newline to
+stderr and exits 1. jqz owns the outer keys and the query supplies `detail`.
 
 ```json
-{"reason":"size_mismatch","path":"result.json","expected":12,"observed":13}
+{"kind":"assertion_failed","detail":{"reason":"size_mismatch","path":"result.json","expected":12,"observed":13}}
 ```
 
-Give library callers a distinct assertion failure and access to bounded,
-owned diagnostic detail after evaluation unwinds. For an oversized detail,
-emit a small valid JSON object marking truncation. Document the byte limit.
-An explicit failed assertion exits 1 with or without `-e`. Malformed input,
-a non-boolean predicate, or a detail that fails to produce an object exits 2. Keep
-the existing `-e` behavior for ordinary queries, including exit 4 for no
-output. Earlier NDJSON records may already have reached stdout.
+Cap the compact, escaped UTF-8 serialization of the detail object at 4,096
+bytes. Enforce the cap while serializing. For an oversized object emit
+`{"kind":"assertion_failed","truncated":true}` and exit 1. This bounds the
+diagnostic retained after evaluating the detail expression. A user field
+called `truncated` belongs inside `detail`. CLI output-format flags apply
+only to stdout. The failing assertion emits nothing there, and already
+emitted NDJSON results remain available.
+
+| Condition | CLI result |
+| --- | --- |
+| Reached false assertion with valid object detail | Exit 1 with or without `-e` |
+| Predicate or detail has a type or evaluation error, consumed input is malformed, allocation or I/O fails | Exit 2 through the existing error path |
+| Ordinary query with `-e` | Exit 1 when the last output is false or null, 4 for no output, otherwise 0 |
+
+Give library callers a distinct assertion error. Keep the first diagnostic
+in caller-owned storage through input release, stream teardown and return
+from `Program.run`. A subsequent `feed` or `finish` on the failed stream must
+preserve it until the caller explicitly reuses the diagnostic. Include source
+location in the API when known. Aggregated and slurped values may have no
+unique source location. [Library entry points](../../src/root.zig) · [CLI error handling](../../src/main.zig)
 
 **Acceptance.** Use a two-file inventory. Check success, an absent entry, a
-size mismatch, and an equal-size digest mismatch. Assert the first offending
-path, exact values, exit status and stdout/stderr separately. Include an
-integer above `2^53`, a failing detail expression skipped on success, and a
-detail large enough to exercise truncation. Reuse the existing diagnostic
-location machinery where the source path is known. [Diagnostics](../../src/diagnostic.zig)
+size mismatch, and an equal-size digest mismatch. Give two receipt rows bad
+sizes above `2^53` and reverse the inventory order. Require the first bad
+row in receipt order with exact integers. Check lazy detail evaluation on
+success and short-circuited branches. Test failure during `finish` after
+`index_by`, earlier NDJSON output, and diagnostic lifetime after stream
+failure and teardown. Exercise escaped details of exactly 4,096 and 4,097
+bytes. Check exit code and both output streams. A duplicate inventory key
+must still produce its located evaluation error. [Diagnostics](../../src/diagnostic.zig)
+
+Qualify these semantics at the jqz CLI and library entry points. The
+`z_llvm` publisher currently appends a prose message and maps verifier errors
+to exit 1. When that project adopts the feature, its adoption check
+should distinguish a size mismatch from a duplicate inventory key.
 
 ## 2. Construct strings explicitly
 
 Add `concat(array)` for an array of strings. For example,
 `concat([$stage, "/commands/", .name, ".stderr"])` constructs the expected
-log path for a command record. Evaluate the array once and concatenate its
+log path from a case name. Evaluate the array once and concatenate its
 UTF-8 bytes in order. Return `""` for an empty array. A non-string element
 is a type error at that element. Keep `+` as checked integer arithmetic.
 
-**Acceptance.** Compare the constructed executable, stdout and stderr paths
-with literal expectations on a portable command-record fixture. Include
-empty strings, Unicode, quotes, backslashes, and a null or numeric element.
-Check the total byte length before allocating. The proposed result limit is
-64 MiB per string. Exercise the boundary and one byte over it with a reduced
-test limit, and check that allocation failures propagate.
+**Acceptance.** The original audit launches jqz four times per case for
+50 cases. Supply a portable pair of arrays with the same fields. Cases
+carry `name` and expected `exit`. Commands carry `cwd`, `argv`, `returncode`,
+`stdout` and `stderr`. In one invocation, verify each command's argv equals
+`["/bin/bash", concat([.cwd, "/freeze.sh"])]` and compare the two ordered
+projections of exit code, stdout path and stderr path. Compare the result
+with literal expectations. Swap two distinct command rows and require
+failure. Also reject a dropped row, wrong executable and wrong log path.
 
-## 3. Give computed values local names
+Include empty strings, Unicode, quotes, backslashes, and null or numeric
+elements. Check total UTF-8 byte length before allocating. The result limit
+is 64 MiB per string, independent of retained and slurp budgets. Exercise
+the boundary and one byte over it with a reduced test limit, and check that
+allocation failures propagate.
 
-Add an immutable expression binding. The proposed form is
-`let($name, value, body)`. Evaluate `value` once in the caller's scope and
-make the name available throughout `body`, including nested array predicates.
-Keep the current item and the meaning of `root()` at each existing stage.
+## Deferred proposal for local bindings
 
-```text
-$inventory_rows[0] | each | index_by(.path)
-| let($inventory, ., all($receipt[0].files,
-    exists($inventory[.path]?)
-    and $inventory[.path].bytes == .bytes
-    and $inventory[.path].sha256 == .sha256))
-```
-
-**Acceptance.** Compare this query with its `root()` equivalent on matching,
-missing, and changed files. Test nested bindings with distinct names, access
-outside the body, and conflicts with an active local or external binding.
-Reject ambiguous names at compile time. Reuse the index across the predicate
-calls and verify its lifetime with successive NDJSON inputs and a downstream
-retaining stage. [Existing index and scope semantics](../../DESIGN.md)
+The motivating example gave `root()` the name `$inventory`. The existing
+join already builds its index once. Revisit `let($name, value, body)` when a
+real query benefits from binding a matched row once for several comparisons,
+or when a nested join needs an intermediate row. Bring that query and its
+current equivalent to design review before adding syntax or scope rules.
+[Existing index and scope semantics](../../DESIGN.md)
 
 ## Delivery
 
@@ -92,5 +109,5 @@ Keep fixtures small enough to ship in this repository. For each feature,
 exercise the public library and the CLI, document the syntax and observable
 behavior, and run the native x86_64 Linux Debug build and tests. Follow the
 repository's versioning and commit workflow for each verified feature.
-The first delivery is complete when a developer can identify a damaged
-receipt entry directly from the failed invocation. [Project workflow](../../AGENTS.md)
+Report both commits, package versions, and results for the damaged-receipt
+and swapped-command fixtures. [Project workflow](../../AGENTS.md)
