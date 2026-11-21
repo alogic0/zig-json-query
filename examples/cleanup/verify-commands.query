@@ -1,0 +1,7 @@
+all(., .argv == ["/bin/bash", concat([.cwd, "/freeze.sh"])])
+and map(., {code:.returncode, stdout, stderr})
+    == map($cases[0], {
+        code:.exit,
+        stdout:concat([$stage, "/commands/", .name, ".stdout"]),
+        stderr:concat([$stage, "/commands/", .name, ".stderr"])
+    })

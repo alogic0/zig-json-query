@@ -203,8 +203,8 @@ pub fn build(b: *std.Build) void {
     archive.addArg("-czf");
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.37.0.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.38.0.tar.gz");
     archive.addArgs(dist_layout.roots);
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.37.0.tar.gz");
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.38.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

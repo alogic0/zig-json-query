@@ -53,6 +53,7 @@ pub const Node = struct {
         exists: *const Node,
         length: *const Node,
         byte_length: *const Node,
+        concat: *const Node,
         tojson: *const Node,
         fromjson: struct { value: *const Node, fallible: bool },
         structural: struct { array: *const Node, unique: bool },
@@ -423,6 +424,13 @@ pub const Parser = struct {
             .lbrace => return self.object(),
             .lbracket => return self.array(),
             .identifier => {
+                if (self.word("concat")) {
+                    try self.advance();
+                    try self.expect(.lparen, "expected ( after concat");
+                    const parts = try self.expression(0);
+                    try self.expect(.rparen, "concat expects one array argument");
+                    return self.make(offset, .{ .concat = parts }, parts.height + 1);
+                }
                 if (self.word("assert")) {
                     try self.advance();
                     try self.expect(.lparen, "expected ( after assert");

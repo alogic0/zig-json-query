@@ -1,0 +1,4 @@
+[
+  {"cwd":"/work/one","argv":["/bin/bash","/work/one/freeze.sh"],"returncode":0,"stdout":"/run/commands/publish.stdout","stderr":"/run/commands/publish.stderr"},
+  {"cwd":"/work/two","argv":["/bin/bash","/work/two/freeze.sh"],"returncode":1,"stdout":"/run/commands/reject.stdout","stderr":"/run/commands/reject.stderr"}
+]

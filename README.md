@@ -246,6 +246,7 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `tojson`, `tojson(.value)` | Compact JSON text as a string, preserving exact number tokens |
 | `fromjson`, `fromjson(.body)` | Parse one JSON string into its structured value |
 | `try_fromjson`, `try_fromjson(.body?)` | Parse a JSON string, or return null for missing, null, or invalid JSON |
+| `concat([.dir, "/", .name])` | Join an ordered array of strings |
 | `byte_length(.text)` | UTF-8 byte count of a string |
 | `update(., .groups, filter(., .keep))` | Replace an existing path with a body evaluated on its selected value |
 | `del(., .debug)` | Remove an existing field or array item, preserving other values |
@@ -426,6 +427,14 @@ jqz --ndjson 'try_fromjson(.body?) ?? {}' events.ndjson
 Both `fromjson` and `try_fromjson` enforce the 64 MiB byte cap and 128-level
 container limit, and downstream retaining stages charge cloned results to
 `--max-retained-bytes`.
+
+`concat(array)` joins the UTF-8 bytes of its strings in order. Empty strings
+contribute zero bytes, and an empty array returns `""`. Each element must be a
+string. Type errors identify the zero-based element index. The result limit is
+64 MiB per string, independent of retained and slurp budgets. `+` continues
+to perform checked integer arithmetic. The ordered command example checks
+executable and log paths across two receipt arrays in one invocation.
+[Command receipt query](examples/cleanup/verify-commands.query)
 
 `byte_length(string)` counts UTF-8 bytes; `length(string)` counts Unicode scalar
 values. For `"é😀"`, those lengths are 6 and 2; its JSON text includes two quotes

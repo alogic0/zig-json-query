@@ -51,6 +51,7 @@ const usage =
     \\        count_by(key), sum_by(key, integer_value)
     \\        index_by(string_key); scalar root() preserves the stage input
     \\JSON strings: fromjson, try_fromjson, tojson (bare or unary call).
+    \\concat(array) joins UTF-8 strings in order (64 MiB result limit).
     \\Arithmetic: checked i128 + - * / %, unary -; division must be exact.
     \\Statistics: mean(array, PLACES), divide(a, b, PLACES); PLACES 0..18,
     \\            bounded exact decimals, nearest/ties-to-even rounding.

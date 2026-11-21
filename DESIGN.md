@@ -114,6 +114,13 @@ to 4 and all other values to 0. CLI `-e` applies this after successful completio
 and flushing, while all execution/IO errors retain status 2. Raw output does not
 affect classification or strict boolean expression semantics.
 
+`concat(array)` evaluates its operand once. It validates string elements and
+sums their UTF-8 byte lengths against a 64 MiB per-result limit before allocating
+the result in the scalar arena. It then copies the bytes in order. The diagnostic
+for a non-string includes the element index even for computed arrays whose
+elements have no unique input path. Retaining a result uses the normal
+downstream copy and budget rules.
+
 `tojson` (both unary `tojson(expr)` and bare `tojson`) uses the ordinary compact
 JSON writer with the same container-depth bound as output. It allocates encoded
 text in the scalar arena, preserving numeric tokens and insertion order.

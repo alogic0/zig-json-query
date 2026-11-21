@@ -81,6 +81,7 @@ pub const Diagnostic = struct {
     input_column: u64 = 1,
     path: Path = .{},
     path_reported: bool = false,
+    element_index: ?usize = null,
     budget: ?BudgetFailure = null,
     assertion: ?Assertion = null,
 
@@ -133,6 +134,7 @@ pub const Diagnostic = struct {
             try self.path.write(writer);
             try writer.writeByte('\n');
         }
+        if (self.element_index) |index| try writer.print("array element index: {d}\n", .{index});
         try self.writeBudget(writer);
     }
 

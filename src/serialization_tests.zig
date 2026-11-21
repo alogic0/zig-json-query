@@ -263,3 +263,12 @@ test "embedded JSON parsing releases allocations on failure and survives caller 
         try t.expectEqual(failing.allocated_bytes, failing.freed_bytes);
     }
 }
+
+test "concat preserves UTF-8 and escape bytes, empties and retained results" {
+    try expectOutput("[concat([]), concat([\"\",\"\"]), concat(.)]", "[\"é\",\"\",\"😀\",\"\\\"\",\"\\\\\",\"\\u0000\"]", "[\"\",\"\",\"é😀\\\"\\\\\\u0000\"]\n", .{ .max_collect_bytes = 0 });
+    try expectOutput("each | concat(.) | collect", "[[\"a\",\"b\"],[\"c\"]]", "[\"ab\",\"c\"]\n", .{});
+    try expectFailure("concat(.row)", "{\"row\":27}", "expects an array", "$[\"row\"]");
+    try expectFailure("concat(.row)", "{\"row\":[\"abc\",null]}", "expects a string", "$[\"row\"][1]");
+    try expectFailure("concat([\"a\",.bad])", "{\"bad\":42}", "expects a string", "$[\"bad\"]");
+    try expectFailure("\"a\" + \"b\"", "null", "integer arithmetic", "");
+}

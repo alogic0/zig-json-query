@@ -36,3 +36,13 @@ RSS bound. Increase the retained budget explicitly for a larger index.
 For NDJSON totals over `{category,size}` records, use
 `jqz --ndjson -f examples/cleanup-totals.query records.jsonl`. It keeps distinct
 category keys and checked count/sum accumulators under the retained budget.
+
+For an ordered command receipt, the cases supply names and expected exit codes.
+The commands supply their working directories, argv, observed codes and log
+paths. The query constructs each expected path with `concat` and compares the
+arrays in their recorded order. This invocation prints `true` and exits 0.
+
+```sh
+./zig-out/bin/jqz -e --arg stage /run --slurpfile cases examples/cleanup/cases.json \
+  -f examples/cleanup/verify-commands.query examples/cleanup/commands.json
+```

@@ -353,3 +353,32 @@ test "CLI assertion cap counts compact escaped detail bytes exactly" {
     try checkExact(&.{"assert(false, .)"}, inside, 1, "", "{\"kind\":\"assertion_failed\",\"detail\":" ++ inside ++ "}\n");
     try checkExact(&.{"assert(false, .)"}, outside, 1, "", "{\"kind\":\"assertion_failed\",\"truncated\":true}\n");
 }
+
+test "CLI concat verifies ordered case and command receipt projections in one invocation" {
+    const common = .{ "-e", "--arg", "stage", "/run", "--slurpfile", "cases", "examples/cleanup/cases.json" };
+    const query = "examples/cleanup/verify-commands.query";
+    const commands = "examples/cleanup/commands.json";
+    try check(&(common ++ .{ "-f", query, commands }), "", 0, "true\n", null);
+
+    const verifier = try std.Io.Dir.cwd().readFileAlloc(t.io, query, t.allocator, .limited(4096));
+    defer t.allocator.free(verifier);
+    const changes = [_][]const u8{
+        "[.[1], .[0]]",
+        ".[0:1]",
+        "update(., .[1].argv[1], \"/work/one/freeze.sh\")",
+        "update(., .[0].stdout, \"/other.stdout\")",
+        "update(., .[0].stderr, \"/run/commands/reject.stderr\")",
+        "update(., .[1].returncode, 0)",
+    };
+    for (changes) |change| {
+        const modified = try std.fmt.allocPrint(t.allocator, "{s} | {s}", .{ change, verifier });
+        defer t.allocator.free(modified);
+        try check(&(common ++ .{ modified, commands }), "", 1, "false\n", null);
+    }
+}
+
+test "CLI concat enforces string types and locates computed array elements" {
+    try check(&.{ "-nr", "--max-slurp-bytes", "0", "--max-retained-bytes", "0", "concat([\"a\",\"\",\"b\"])" }, "", 0, "ab\n", null);
+    try check(&.{ "-n", "concat(map([1, null], .))" }, "", 2, "", "array element index: 0");
+    try check(&.{"concat(.parts)"}, "{\"parts\":[\"ok\",null]}", 2, "", "input path: $[\"parts\"][1]");
+}

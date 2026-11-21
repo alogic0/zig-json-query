@@ -1,0 +1,4 @@
+[
+  {"name":"publish","exit":0},
+  {"name":"reject","exit":1}
+]

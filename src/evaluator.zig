@@ -216,6 +216,7 @@ pub const Evaluator = struct {
                 };
                 break :blk try integerValue(allocator, @intCast(length));
             },
+            .concat => |parts| try self.concatenate(allocator, parts, input, 64 * 1024 * 1024),
             .byte_length => |child| blk: {
                 const value = try self.evalRequired(allocator, child, input);
                 if (value != .string) return self.typeFailure(node, child, "byte_length expects a string");
@@ -453,6 +454,37 @@ pub const Evaluator = struct {
         };
     }
 
+    fn concatenate(self: *Evaluator, allocator: A, parts: *const Node, input: Value, limit: usize) Error!Value {
+        const array = try self.evalRequired(allocator, parts, input);
+        if (array != .array) return self.failPath(parts.offset, "concat expects an array of strings", self.pathFor(parts));
+
+        var total: usize = 0;
+        for (array.array.items, 0..) |part, index| {
+            if (part != .string) {
+                var path = self.pathFor(parts);
+                var offset = parts.offset;
+                if (parts.data == .array) {
+                    const element = parts.data.array[index];
+                    offset = element.offset;
+                    path = self.pathFor(element);
+                } else if (path.len != 0) path.index(index);
+                const err = self.failPath(offset, "concat expects a string at this element", path);
+                self.diagnostic.element_index = index;
+                return err;
+            }
+            if (part.string.len > limit - total) return self.failPath(parts.offset, "concat result exceeds the string byte limit", self.pathFor(parts));
+            total += part.string.len;
+        }
+
+        const result = try allocator.alloc(u8, total);
+        var used: usize = 0;
+        for (array.array.items) |part| {
+            @memcpy(result[used..][0..part.string.len], part.string);
+            used += part.string.len;
+        }
+        return .{ .string = result };
+    }
+
     fn keyedArray(self: *Evaluator, allocator: A, node: *const Node, input: Value, operation: syntax.KeyedArray) Error!Value {
         const source = try self.evalRequired(allocator, operation.array, input);
         if (source != .array) return self.typeFailure(node, operation.array, "scalar sort_by/group_by expects an array");
@@ -584,4 +616,20 @@ pub fn withinDepth(value: Value, depth: usize) bool {
         else => {},
     }
     return true;
+}
+
+test "concat checks its exact byte limit before allocating and propagates allocator failure" {
+    const t = std.testing;
+    var diagnostic: Diagnostic = .{};
+    var evaluator: Evaluator = .{ .patterns = &.{}, .diagnostic = &diagnostic };
+    const parts: Node = .{ .offset = 0, .height = 1, .data = .current };
+    const json = try std.json.parseFromSlice(Value, t.allocator, "[\"é\",\"金\"]", .{});
+    defer json.deinit();
+    var bytes: [5]u8 = undefined;
+    var fixed = std.heap.FixedBufferAllocator.init(&bytes);
+    const result = try evaluator.concatenate(fixed.allocator(), &parts, json.value, 5);
+    try t.expectEqualStrings("é金", result.string);
+    var exhausted = std.heap.FixedBufferAllocator.init(&.{});
+    try t.expectError(error.EvaluationFailed, evaluator.concatenate(exhausted.allocator(), &parts, json.value, 4));
+    try t.expectError(error.OutOfMemory, evaluator.concatenate(exhausted.allocator(), &parts, json.value, 5));
 }
