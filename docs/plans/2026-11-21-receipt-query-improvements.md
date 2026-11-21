@@ -1,8 +1,7 @@
 # Receipt queries in jqz
 
-Reviewed on November 21, 2026, against jqz 0.36.0 (`a809936`). Implement
-structured assertions first and strict string concatenation second. The
-examples below specify the proposed syntax. Local bindings are deferred.
+Completed on local main in jqz 0.38.0. The review used jqz 0.36.0
+(`a809936`) as its baseline. Local bindings are deferred.
 
 The `z_llvm` audit `fixed-input-quoted-scan-freezer-audit-02` exposed three
 costs. Its file verifier reduces all comparisons to one boolean. Its shell
@@ -111,3 +110,18 @@ behavior, and run the native x86_64 Linux Debug build and tests. Follow the
 repository's versioning and commit workflow for each verified feature.
 Report both commits, package versions, and results for the damaged-receipt
 and swapped-command fixtures. [Project workflow](../../AGENTS.md)
+
+## Implementation results
+
+- **Structured assertions** shipped on local main in `d13e8df` (0.37.0).
+  With the inventory in reverse order, the first bad receipt row reported
+  9007199254740993 expected bytes and 9007199254740995 observed bytes. The
+  invocation exited 1 with empty stdout and one JSON diagnostic on stderr.
+  Duplicate inventory keys and I/O failures exited 2. [Receipt query](../../examples/cleanup/verify-receipt.query)
+- **Strict concatenation** landed in `c3c7ea6` (0.38.0). One read-only query
+  verified all 50 command records from the motivating audit. The portable
+  fixture rejected reordered or dropped rows and incorrect executable paths,
+  exit codes and log paths. [Ordered command query](../../examples/cleanup/verify-commands.query)
+
+The implementer ran `zig build` and `zig build test` in native x86_64 Linux
+Debug for each version. Both passed.
