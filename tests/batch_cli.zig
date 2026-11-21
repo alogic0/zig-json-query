@@ -314,3 +314,42 @@ test "CLI decimal statistics report fractional timings and gate exact comparison
     try check(&.{"mean(.samples,6)"}, "{\"samples\":[1,null]}", 2, "", "$[\"samples\"][1]");
     try check(&.{"divide(1,3,19)"}, "", 2, "", "precision must be a constant integer");
 }
+
+test "CLI receipt assertions report the first bad receipt row after indexing" {
+    const checkExact = @import("cli.zig").checkExact;
+    const a = "{\"path\":\"a\",\"bytes\":9007199254740993,\"sha256\":\"aa\"}";
+    const b = "{\"path\":\"b\",\"bytes\":9007199254740994,\"sha256\":\"bb\"}";
+    const wrong_a = "{\"path\":\"a\",\"bytes\":9007199254740995,\"sha256\":\"aa\"}";
+    const wrong_b = "{\"path\":\"b\",\"bytes\":9007199254740996,\"sha256\":\"bb\"}";
+    const digest_b = "{\"path\":\"b\",\"bytes\":9007199254740994,\"sha256\":\"cc\"}";
+    const args: []const []const u8 = &.{ "-e", "--argjson", "receipt", "{\"files\":[" ++ a ++ "," ++ b ++ "]}", "-f", "examples/cleanup/verify-receipt.query" };
+    try checkExact(args, "[" ++ b ++ "," ++ a ++ "]", 0, "true\n", "");
+    try checkExact(args, "[" ++ a ++ "]", 1, "", "{\"kind\":\"assertion_failed\",\"detail\":{\"reason\":\"missing_file\",\"path\":\"b\"}}\n");
+    try checkExact(args, "[" ++ wrong_b ++ "," ++ wrong_a ++ "]", 1, "", "{\"kind\":\"assertion_failed\",\"detail\":{\"reason\":\"size_mismatch\",\"path\":\"a\",\"expected\":9007199254740993,\"observed\":9007199254740995}}\n");
+    try checkExact(args, "[" ++ a ++ "," ++ digest_b ++ "]", 1, "", "{\"kind\":\"assertion_failed\",\"detail\":{\"reason\":\"digest_mismatch\",\"path\":\"b\",\"expected\":\"bb\",\"observed\":\"cc\"}}\n");
+    try check(args, "[" ++ a ++ "," ++ a ++ "]", 2, "", "input path: $[1][\"path\"]");
+}
+
+test "CLI assertion framing is independent of output flags and preserves earlier writes" {
+    const checkExact = @import("cli.zig").checkExact;
+    const source = "assert(.ok, {z:.msg, truncated:true})";
+    const input = "{\"ok\":true}\n{\"ok\":false,\"msg\":\"é\\n\"}\n{\n";
+    const expected = "{\"kind\":\"assertion_failed\",\"detail\":{\"z\":\"é\\n\",\"truncated\":true}}\n";
+    try checkExact(&.{ "--ndjson", "-prS", source }, input, 1, "true\n", expected);
+    try checkExact(&.{ "--ndjson", "-je", source }, input, 1, "true", expected);
+    try check(&.{ "-n", "assert(0,{})" }, "", 2, "", "expected a boolean");
+    try check(&.{ "-n", "assert(false,.absent)" }, "", 2, "", "EvaluationFailed");
+    try check(&.{ "-n", "assert(false, null)" }, "", 2, "", "must be an object");
+    try check(&.{"assert(false,{})"}, "{", 2, "", "<stdin>:1:");
+}
+
+test "CLI assertion cap counts compact escaped detail bytes exactly" {
+    const checkExact = @import("cli.zig").checkExact;
+    const filler: [4086]u8 = @splat('a');
+    const inside = "{\"x\":\"" ++ filler ++ "\\n\"}";
+    const outside = "{\"x\":\"" ++ filler ++ "\\na\"}";
+    try t.expectEqual(4096, inside.len);
+    try t.expectEqual(4097, outside.len);
+    try checkExact(&.{"assert(false, .)"}, inside, 1, "", "{\"kind\":\"assertion_failed\",\"detail\":" ++ inside ++ "}\n");
+    try checkExact(&.{"assert(false, .)"}, outside, 1, "", "{\"kind\":\"assertion_failed\",\"truncated\":true}\n");
+}

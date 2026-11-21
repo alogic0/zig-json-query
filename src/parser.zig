@@ -49,6 +49,7 @@ pub const Node = struct {
         negate: *const Node,
         object: []const Field,
         array: []const *const Node,
+        assertion: struct { predicate: *const Node, detail: *const Node },
         exists: *const Node,
         length: *const Node,
         byte_length: *const Node,
@@ -422,6 +423,15 @@ pub const Parser = struct {
             .lbrace => return self.object(),
             .lbracket => return self.array(),
             .identifier => {
+                if (self.word("assert")) {
+                    try self.advance();
+                    try self.expect(.lparen, "expected ( after assert");
+                    const predicate = try self.expression(0);
+                    try self.expect(.comma, "assert expects a predicate and a detail object");
+                    const detail = try self.expression(0);
+                    try self.expect(.rparen, "expected ) after assertion detail");
+                    return self.make(offset, .{ .assertion = .{ .predicate = predicate, .detail = detail } }, @max(predicate.height, detail.height) + 1);
+                }
                 if (self.word("root")) {
                     try self.advance();
                     try self.expect(.lparen, "expected ( after root");

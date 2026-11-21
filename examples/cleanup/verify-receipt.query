@@ -1,0 +1,7 @@
+each | index_by(.path)
+| all($receipt.files,
+    assert(exists(root()[.path]?), {reason:"missing_file", path})
+    and assert(root()[.path].bytes == .bytes,
+        {reason:"size_mismatch", path, expected:.bytes, observed:root()[.path].bytes})
+    and assert(root()[.path].sha256 == .sha256,
+        {reason:"digest_mismatch", path, expected:.sha256, observed:root()[.path].sha256}))

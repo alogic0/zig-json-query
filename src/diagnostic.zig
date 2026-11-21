@@ -53,6 +53,25 @@ pub const Path = struct {
 };
 
 pub const Diagnostic = struct {
+    /// Compact JSON owned by the diagnostic. An oversized object has no partial detail.
+    pub const Assertion = struct {
+        pub const max_bytes = 4096;
+        bytes: [max_bytes]u8 = undefined,
+        len: ?usize = null,
+
+        pub fn detail(self: *const Assertion) ?[]const u8 {
+            const length = self.len orelse return null;
+            return self.bytes[0..length];
+        }
+
+        pub fn write(self: *const Assertion, writer: *std.Io.Writer) !void {
+            if (self.detail()) |json| {
+                try writer.writeAll("{\"kind\":\"assertion_failed\",\"detail\":");
+                try writer.writeAll(json);
+                try writer.writeAll("}\n");
+            } else try writer.writeAll("{\"kind\":\"assertion_failed\",\"truncated\":true}\n");
+        }
+    };
     pub const BudgetKind = enum { retained, slurp };
     pub const BudgetFailure = struct { kind: BudgetKind, limit: usize, retained: usize, requested: usize };
     offset: usize = 0,
@@ -63,6 +82,16 @@ pub const Diagnostic = struct {
     path: Path = .{},
     path_reported: bool = false,
     budget: ?BudgetFailure = null,
+    assertion: ?Assertion = null,
+
+    pub fn setAssertion(self: *Diagnostic, offset: usize, path: Path, object: std.json.Value) void {
+        self.* = .{ .offset = offset, .message = "assertion failed", .path = path, .path_reported = true, .assertion = .{} };
+        const failure = &self.assertion.?;
+        var writer = std.Io.Writer.fixed(&failure.bytes);
+        // This writer can only fail when its fixed storage is full.
+        std.json.Stringify.value(object, .{}, &writer) catch return;
+        failure.len = writer.end;
+    }
 
     pub fn set(self: *Diagnostic, offset: usize, message: []const u8) void {
         self.* = .{ .offset = offset, .message = message };

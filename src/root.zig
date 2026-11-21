@@ -12,7 +12,7 @@ const input_json = @import("input.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = input_json.max_bytes;
-pub const version = "0.36.0";
+pub const version = "0.37.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.
@@ -178,7 +178,6 @@ pub const Stream = struct {
     /// Finish ordered aggregates after EOF or early termination. Repeating this
     /// after success is a no-op. Failed sessions cannot emit buffered results.
     pub fn finish(self: *Stream) !void {
-        self.execution.evaluator.diagnostic.* = .{};
         try self.execution.finish();
     }
 };

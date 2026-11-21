@@ -8,6 +8,16 @@ pub fn check(args: []const []const u8, input: []const u8, code: i32, output: []c
 }
 
 pub fn checkIn(cwd: ?[]const u8, args: []const []const u8, input: []const u8, code: i32, output: []const u8, diagnostic: ?[]const u8) !void {
+    return checkStreams(cwd, args, input, code, output, if (diagnostic) |needle| .{ .contains = needle } else .{ .exact = "" });
+}
+
+pub fn checkExact(args: []const []const u8, input: []const u8, code: i32, output: []const u8, stderr: []const u8) !void {
+    return checkStreams(null, args, input, code, output, .{ .exact = stderr });
+}
+
+const Stderr = union(enum) { contains: []const u8, exact: []const u8 };
+
+fn checkStreams(cwd: ?[]const u8, args: []const []const u8, input: []const u8, code: i32, output: []const u8, stderr: Stderr) !void {
     const absolute_exe = if (cwd != null) try std.Io.Dir.cwd().realPathFileAlloc(t.io, exe, t.allocator) else null;
     defer if (absolute_exe) |path| t.allocator.free(path);
     var argv: std.ArrayList([]const u8) = .empty;
@@ -21,9 +31,10 @@ pub fn checkIn(cwd: ?[]const u8, args: []const []const u8, input: []const u8, co
     defer report.deinit(t.allocator);
     try S.Diagnostic.expectExit(report, .{ .assertion = "jqz CLI", .code = code });
     try t.expectEqualStrings(output, report.stdout);
-    if (diagnostic) |message| {
-        try t.expect(std.mem.indexOf(u8, report.stderr, message) != null);
-    } else try t.expectEqualStrings("", report.stderr);
+    switch (stderr) {
+        .contains => |message| try t.expect(std.mem.indexOf(u8, report.stderr, message) != null),
+        .exact => |bytes| try t.expectEqualStrings(bytes, report.stderr),
+    }
 }
 
 test "CLI reads stdin and emits filtered records" {
@@ -147,12 +158,18 @@ test "CLI joined output keeps value-based exit status and completion" {
 test "CLI output failures override predicate status and informational exits" {
     const full = try std.Io.Dir.cwd().openFile(t.io, "/dev/full", .{ .mode = .write_only });
     defer full.close(t.io);
-    for ([_][]const []const u8{ &.{ exe, "-nje", "false" }, &.{ exe, "-ne", "false" }, &.{ exe, "-nre", "false" }, &.{ exe, "-npe", "{a:1}" }, &.{ exe, "--help" }, &.{ exe, "--version" } }) |argv| {
+    for ([_][]const []const u8{ &.{ exe, "-n", "[true,false] | each | assert(.,{})" }, &.{ exe, "-nje", "false" }, &.{ exe, "-ne", "false" }, &.{ exe, "-nre", "false" }, &.{ exe, "-npe", "{a:1}" }, &.{ exe, "--help" }, &.{ exe, "--version" } }) |argv| {
         const report = try S.command.File.run(t.allocator, t.io, .{ .spawn = .{ .argv = argv, .stdout = .{ .file = full } }, .timeout_ms = 5000 });
         try t.expect(report.outcome == .completed);
         try t.expect(report.cleanup_failure == null);
         try t.expectEqual(@as(i32, 2), S.command.code(report.term.?));
     }
+    const diagnostic_failure = try S.command.File.run(t.allocator, t.io, .{
+        .spawn = .{ .argv = &.{ exe, "-n", "assert(false,{})" }, .stderr = .{ .file = full } },
+        .timeout_ms = 5000,
+    });
+    try t.expect(diagnostic_failure.outcome == .completed and diagnostic_failure.cleanup_failure == null);
+    try t.expectEqual(@as(i32, 2), S.command.code(diagnostic_failure.term.?));
 }
 
 test "CLI null input constructs records from typed bindings with anonymous provenance" {

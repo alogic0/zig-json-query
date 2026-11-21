@@ -12,7 +12,7 @@ const Path = @import("diagnostic.zig").Path;
 const Value = std.json.Value;
 const Node = syntax.Node;
 const A = std.mem.Allocator;
-const Error = error{ EvaluationFailed, OutOfMemory };
+pub const Error = error{ AssertionFailed, EvaluationFailed, OutOfMemory };
 
 pub const Evaluator = struct {
     patterns: []const regex.Compiled,
@@ -23,7 +23,7 @@ pub const Evaluator = struct {
     scope_root: ?Value = null,
     scope_path: Path = .{},
 
-    fn fail(self: *Evaluator, offset: usize, message: []const u8) Error {
+    fn fail(self: *Evaluator, offset: usize, message: []const u8) error{EvaluationFailed} {
         self.diagnostic.set(offset, message);
         return error.EvaluationFailed;
     }
@@ -195,6 +195,15 @@ pub const Evaluator = struct {
                 const value = try self.evalRequired(allocator, child, input);
                 const result = number.arithmetic(.subtract, 0, try self.integerAt(value, child)) catch |err| return self.integerFailure(node.offset, err);
                 break :blk try integerValue(allocator, result);
+            },
+            .assertion => |spec| blk: {
+                if (try self.booleanAt(try self.eval(allocator, spec.predicate, input), spec.predicate))
+                    break :blk Value{ .bool = true };
+                const detail = try self.evalRequired(allocator, spec.detail, input);
+                if (detail != .object) return self.typeFailure(node, spec.detail, "assert detail must be an object");
+                if (!withinDepth(detail, 0)) return self.typeFailure(node, spec.detail, "assert detail nesting exceeds 128 levels");
+                self.diagnostic.setAssertion(node.offset, self.path, detail);
+                return error.AssertionFailed;
             },
             .exists => |child| Value{ .bool = (try self.eval(allocator, child, input)) != null },
             .length => |child| blk: {
@@ -516,7 +525,7 @@ pub const Evaluator = struct {
         return number.integer(value.number_string) catch |err| self.integerFailure(offset, err);
     }
 
-    pub fn integerFailure(self: *Evaluator, offset: usize, err: number.IntegerError) Error {
+    pub fn integerFailure(self: *Evaluator, offset: usize, err: number.IntegerError) error{EvaluationFailed} {
         return self.fail(offset, switch (err) {
             error.IntegerRange => "integer arithmetic exceeds the supported signed 128-bit range",
             error.FractionalNumber => "integer arithmetic rejects fractional numbers",
@@ -525,13 +534,13 @@ pub const Evaluator = struct {
         });
     }
 
-    pub fn compare(self: *Evaluator, a: Value, b: Value, offset: usize) Error!std.math.Order {
+    pub fn compare(self: *Evaluator, a: Value, b: Value, offset: usize) error{EvaluationFailed}!std.math.Order {
         if (a == .number_string and b == .number_string) return number.compare(a.number_string, b.number_string) catch return self.fail(offset, "numeric comparison exponent is outside the supported i64 range");
         if (a == .string and b == .string) return std.mem.order(u8, a.string, b.string);
         return self.fail(offset, "ordering expects two numbers or two strings; types are not coerced");
     }
 
-    pub fn equal(self: *Evaluator, a: Value, b: Value, offset: usize, depth: usize) Error!bool {
+    pub fn equal(self: *Evaluator, a: Value, b: Value, offset: usize, depth: usize) error{EvaluationFailed}!bool {
         if (depth > 128 or (depth == 128 and (a == .array or a == .object or b == .array or b == .object))) return self.fail(offset, "comparison nesting exceeds 128 levels");
         if (std.meta.activeTag(a) != std.meta.activeTag(b)) return false;
         return switch (a) {

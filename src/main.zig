@@ -62,8 +62,8 @@ const usage =
     \\Retained/slurp budgets take unsigned decimal bytes; zero allows no allocation.
     \\Those budgets exclude parsed input, scalar temporaries and process RSS.
     \\take stops upstream work; skipped records are not validated.
-    \\Exit: 0 success (including no matches), 2 query/input/evaluation/IO error.
-    \\With -e: last output determines 0/1/4; errors still return 2.
+    \\Exit: 0 success, 1 failed assert (one JSON diagnostic), 2 query/input/evaluation/IO error.
+    \\With -e: successful queries return 0/1/4 according to the last output.
     \\
 ;
 
@@ -371,7 +371,12 @@ const Runner = struct {
 
     fn report(self: *Runner, err: anyerror, input: []const u8, line: ?usize) !u8 {
         self.output.flush() catch |write_err| return fileError(self.errors, self.label, "write output", write_err);
-        const diagnostic = self.diagnostic.*;
+        const diagnostic = self.diagnostic;
+        if (err == error.AssertionFailed) {
+            try diagnostic.assertion.?.write(self.errors);
+            try self.errors.flush();
+            return 1;
+        }
         if (line) |record_line| {
             if (diagnostic.input_offset != null) {
                 try self.errors.print("{s}:{d}:{d}: {s}\n", .{ self.label, record_line + diagnostic.input_line - 1, diagnostic.input_column, @errorName(err) });

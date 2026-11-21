@@ -76,3 +76,57 @@ test "predicates reject malformed arity and nested stream syntax" {
         try t.expectError(error.InvalidQuery, query.Program.compile(t.allocator, source, &diagnostic));
     }
 }
+
+test "assert evaluates only reached expressions and rejects invalid arguments" {
+    try expectOutput("[assert(true, .missing), false and assert(false, {}), true or assert(false, {})]", "null", "[true,false,true]\n");
+    try expectFailure("assert(.ok, {})", "{\"ok\":1}", "expected a boolean", "$[\"ok\"]");
+    try expectFailure("assert(false, .info)", "{\"info\":[]}", "must be an object", "$[\"info\"]");
+    try expectFailure("assert(false, {info:.missing})", "{}", "absent", "$[\"missing\"]");
+    for ([_][]const u8{ "assert()", "assert(true)", "assert(false,{},1)" }) |source| {
+        var diagnostic: query.Diagnostic = .{};
+        try t.expectError(error.InvalidQuery, query.Program.compile(t.allocator, source, &diagnostic));
+    }
+}
+
+test "assert failure owns exact detail and current item path after run and program teardown" {
+    var diagnostic: query.Diagnostic = .{};
+    var output: std.Io.Writer = .fixed(&.{});
+    {
+        const source = "all(.files, assert(.ok, {name, bytes}))";
+        var program = try query.Program.compile(t.allocator, source, &diagnostic);
+        defer program.deinit();
+        const input = try t.allocator.dupe(u8, "{\"files\":[{\"ok\":false,\"name\":\"x\",\"bytes\":9007199254740993}]}");
+        defer t.allocator.free(input);
+        try t.expectError(error.AssertionFailed, program.run(t.allocator, input, &output, &diagnostic));
+        try t.expectEqual(std.mem.indexOf(u8, source, "assert").?, diagnostic.offset);
+    }
+    try t.expectEqualStrings("$[\"files\"][0]", diagnostic.path.bytes[0..diagnostic.path.len]);
+    try t.expectEqualStrings("{\"name\":\"x\",\"bytes\":9007199254740993}", diagnostic.assertion.?.detail().?);
+}
+
+test "assert at finish preserves the first diagnostic across failed calls and release of the index" {
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "index_by(.path) | assert(false, .x)", &diagnostic);
+    defer program.deinit();
+    var output: std.Io.Writer = .fixed(&.{});
+    {
+        var stream = try program.start(t.allocator, &output, &diagnostic, .{});
+        defer stream.deinit();
+        _ = try stream.feed("{\"path\":\"x\",\"observed\":13}");
+        try t.expectError(error.AssertionFailed, stream.finish());
+        try t.expectError(error.StreamFailed, stream.feed("garbage"));
+        try t.expectError(error.StreamFailed, stream.finish());
+    }
+    try t.expectEqual(@as(usize, 0), diagnostic.path.len);
+    try t.expectEqualStrings("{\"path\":\"x\",\"observed\":13}", diagnostic.assertion.?.detail().?);
+}
+
+test "assert propagates allocation failure when constructing detail" {
+    var diagnostic: query.Diagnostic = .{};
+    var program = try query.Program.compile(t.allocator, "assert(false,{value:.})", &diagnostic);
+    defer program.deinit();
+    var evaluator: scalar.Evaluator = .{ .patterns = program.patterns, .diagnostic = &diagnostic };
+    var exhausted = std.heap.FixedBufferAllocator.init(&.{});
+    try t.expectError(error.OutOfMemory, evaluator.evalRequired(exhausted.allocator(), program.stages[0].expression, .null));
+    try t.expect(diagnostic.assertion == null);
+}

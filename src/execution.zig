@@ -25,7 +25,7 @@ pub const Options = struct {
     /// Format JSON containers with 2-space indentation; conflicts with join_output.
     pretty: bool = false,
 };
-pub const Error = error{ EvaluationFailed, OutOfMemory, StreamFailed, StreamFinished } || std.Io.Writer.Error;
+pub const Error = scalar.Error || error{ StreamFailed, StreamFinished } || std.Io.Writer.Error;
 const Collector = struct { arena: std.heap.ArenaAllocator, items: std.ArrayList(Value) = .empty };
 const State = union(enum) { none, count: u64, sum: i128, take: u64, collect: Collector, buffered: Buffered, totals: GroupTotals, index: KeyIndex };
 
@@ -134,6 +134,7 @@ pub fn finish(self: *Self) Error!void {
     if (self.lifecycle == .finished) return;
     try self.checkActive();
     errdefer self.abort();
+    self.evaluator.diagnostic.* = .{};
     // Earlier aggregates feed later stages before those stages receive EOF.
     for (self.stages, 0..) |stage_kind, index| {
         self.evaluator.path = .{};

@@ -148,15 +148,33 @@ owned-allocation budget separate. `append` keeps the 64 MiB source default.
 `zig build` installs only `jqz`. The repository and source archives use
 `zig-json-query`.
 
-Exit status is 0 for success (including zero matches) and 2 for any error.
+A successful invocation exits 0, including when it produces no matches. A failed
+explicit assertion exits 1. Query, data, allocation and I/O errors exit 2.
 With `-e` / `--exit-status`, successful completion returns 1 when the last
 emitted value is false or null, 4 when nothing was emitted, and 0 otherwise.
 Zero, empty strings/containers and raw strings such as `"false"` return 0.
-The status uses the JSON value before raw serialization. Errors still return 2
-and take precedence over previously emitted values. Output remains unchanged.
+The status uses the JSON value before raw serialization. A failed assertion or
+an execution error takes precedence over previously emitted values.
 For a shell gate, use `jqz -e '.passed and .cleanup_passed' report.json`.
 An error stops processing; output produced before the error remains on stdout.
 Failed streams discard buffered aggregates instead of emitting partial totals.
+
+A scalar `assert(predicate, detail)` requires a boolean predicate. On true it
+returns `true` and skips the detail expression. On false it evaluates detail
+once in the same item scope. An object produces exactly one compact JSON line
+on stderr, even under `-p`, `-S`, `-r` or `-j`. The failing expression emits
+nothing on stdout. For example, `assert(.bytes == 12, {path, observed:.bytes})`
+on `{"path":"result.json","bytes":13}` exits 1 and writes this diagnostic.
+
+```json
+{"kind":"assertion_failed","detail":{"path":"result.json","observed":13}}
+```
+
+If the compact, escaped detail exceeds 4,096 UTF-8 bytes, the line is
+`{"kind":"assertion_failed","truncated":true}`. The cap covers the detail
+alone. Predicate and detail evaluation retain their usual errors, including
+a non-object detail on failure. Short-circuiting and receipt array order
+determine the first assertion reached. [File verifier](examples/cleanup/verify-receipt.query)
 
 ## Language
 
@@ -234,6 +252,7 @@ buffers. `Program.compile` remains the convenience API without bindings.
 | `keys(.)` | Sorted object names, or ascending array indexes |
 | `map(.items, {name, id})` | One ordered array of results, evaluating the body with each item as `.` |
 | `filter(.items, .code != 0)` | One ordered array of original items whose boolean predicate is true |
+| `assert(.ok, {reason: "check_failed", path})` | Return true or stop with a structured diagnostic |
 | `all(.checks, .ok)`, `any(.checks, .ok)` | One boolean; short-circuiting quantified predicates |
 | `mean(.samples, 6)` | One bounded decimal mean with six fractional digits; null for an empty array |
 | `divide(.ns, 1000000, 6)` | Explicit bounded decimal division with six fractional digits |

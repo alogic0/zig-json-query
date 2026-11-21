@@ -66,6 +66,16 @@ wrong base/key types error. Literal array indexes/slices keep their parser path.
 Computed edit paths remain rejected. Missing-key errors append the actual key
 to a known base path; constructed values have no invented source provenance.
 
+A failed scalar assertion returns `error.AssertionFailed`. Its caller-owned
+`Diagnostic` records the query offset, the current item path when known, and
+an `assertion` whose `detail()` returns compact JSON bytes or null for
+truncation. A fixed writer caps retained detail at 4,096 encoded bytes while
+serializing. Evaluation and allocation errors propagate before capture. The
+bytes survive release of the feed, stream and program, including the internal
+stream used by `Program.run`. Further calls on a failed stream return
+`StreamFailed` and preserve the original diagnostic until the caller reuses
+it. The CLI flushes prior stdout and writes the envelope directly to stderr.
+
 Array indexes and slice bounds use a sign plus a `usize` magnitude, preserving
 the existing positive-index range and avoiding signed negation overflow.
 Negative indexes resolve from the end; slices clamp bounds and return borrowed
