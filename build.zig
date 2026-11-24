@@ -29,6 +29,15 @@ pub fn build(b: *std.Build) void {
     const unit = b.addTest(.{ .root_module = query, .filters = if (filter) |f| &.{f} else &.{} });
     const run_unit = b.addRunArtifact(unit);
     const tests = b.step("test", "Run language and CLI tests");
+    const example = b.addExecutable(.{ .name = "embedded-stream", .root_module = b.createModule(.{
+        .root_source_file = b.path("examples/embed-stream.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+        .imports = &.{.{ .name = "query", .module = query }},
+    }) });
+    const run_example = b.addRunArtifact(example);
+    b.step("example-stream", "Run the named embedded stream policy").dependOn(&run_example.step);
+    tests.dependOn(&run_example.step);
     tests.dependOn(&run_unit.step);
     b.step("test-unit", "Run language tests").dependOn(&run_unit.step);
     const fuzz_filter = b.option([]const u8, "fuzz-target", "Select fuzz parser or fuzz evaluator") orelse "fuzz ";
@@ -57,7 +66,14 @@ pub fn build(b: *std.Build) void {
     }) });
     const run_binding_input_tests = b.addRunArtifact(binding_input_tests);
     tests.dependOn(&run_binding_input_tests.step);
-    b.step("test-file-bindings", "Check bounded file reads and exact JSON sequence framing").dependOn(&run_binding_input_tests.step);
+    const focused_bindings = b.step("test-file-bindings", "Check bounded file reads, shared byte budgets and exact JSON sequence framing");
+    focused_bindings.dependOn(&run_binding_input_tests.step);
+    const sequence_tests = b.addTest(.{ .root_module = b.createModule(.{
+        .root_source_file = b.path("src/binding_sequence.zig"),
+        .target = b.graph.host,
+        .optimize = optimize,
+    }) });
+    focused_bindings.dependOn(&b.addRunArtifact(sequence_tests).step);
     b.step("check", "Compile the CLI").dependOn(&exe.step);
 
     const cleanup_study = b.addExecutable(.{ .name = "query-cleanup-study", .root_module = b.createModule(.{
@@ -203,8 +219,8 @@ pub fn build(b: *std.Build) void {
     archive.addArg("-czf");
     archive.setCwd(b.path("."));
     archive.has_side_effects = true;
-    const source_archive = archive.addOutputFileArg("zig-json-query-0.38.0.tar.gz");
+    const source_archive = archive.addOutputFileArg("zig-json-query-0.39.0.tar.gz");
     archive.addArgs(dist_layout.roots);
-    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.38.0.tar.gz");
+    const install_archive = b.addInstallFileWithDir(source_archive, .prefix, "dist/zig-json-query-0.39.0.tar.gz");
     b.step("dist", "Package deterministic standalone sources (requires GNU tar)").dependOn(&install_archive.step);
 }

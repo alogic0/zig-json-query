@@ -717,6 +717,10 @@ Test support downloads its pinned `zig-process` dependency separately. See
 
 ## Library API
 
+Run `zig build example-stream` to exercise the public `query` module on a filtered record, an exact integer result and a structured assertion failure. [Native example](examples/embed-stream.zig) · [Policy](examples/embed-stream.jqz)
+
+For captured `--slurpfile` input, create one `query.BindingBudget` per binding group. Call `chargeText` for inline and raw values and `prepareJson` for each captured JSON sequence. Empty input frames as an empty array. Pass the returned allocation as a JSON binding to `Program.compileWithBindings` for strict validation. The program copies the supplied text, so the caller can free that allocation once compilation returns.
+
 `build.zig` exports the `query` module. `Program.compile(allocator, source,
 &diagnostic)` owns its query text, AST and compiled regexes; call `deinit` once.
 `program.run(allocator, json_bytes, writer, &diagnostic)` remains a one-document

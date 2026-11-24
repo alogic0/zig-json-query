@@ -1,0 +1,1 @@
+where(.kind=="result") | where(assert(.value==$expected[0],{actual:.value,expected:$expected[0]})) | .value

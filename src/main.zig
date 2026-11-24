@@ -213,36 +213,32 @@ fn run(init: std.process.Init) !u8 {
         query_bytes = reader.interface.allocRemaining(allocator, .limited(64 * 1024)) catch |err| return fileError(&errors.interface, query_path, "read query (limit 64 KiB)", err);
         break :blk query_bytes.?;
     } else positional.items[0];
-    var source_bytes: usize = 0;
+    var budget = query.BindingBudget.init(query.max_input_bytes);
     for (bindings.items) |binding| {
         const bytes = switch (binding.value) {
             inline else => |text| text,
         };
-        if (bytes.len > query.max_input_bytes - source_bytes) return argumentError(&errors.interface, "external binding value text exceeds 64 MiB");
-        source_bytes += bytes.len;
+        budget.chargeText(bytes.len) catch return argumentError(&errors.interface, "external binding value text exceeds 64 MiB");
     }
-    var prepared_bytes = source_bytes;
     for (binding_files.items) |spec| {
-        const bytes = file_bindings.readNamed(allocator, io, spec.path, query.max_input_bytes - source_bytes) catch |err| return fileError(&errors.interface, spec.path, "read binding file (shared limit 64 MiB)", err);
-        source_bytes += bytes.len;
+        const bytes = file_bindings.readNamed(allocator, io, spec.path, budget.source_left) catch |err| return fileError(&errors.interface, spec.path, "read binding file (shared limit 64 MiB)", err);
         const value = switch (spec.kind) {
             .raw => blk: {
-                if (bytes.len > query.max_input_bytes - prepared_bytes) {
+                budget.chargeText(bytes.len) catch {
                     allocator.free(bytes);
                     return fileError(&errors.interface, spec.path, "prepare binding value (shared limit 64 MiB)", error.FileBindingTooLarge);
-                }
+                };
                 break :blk bytes;
             },
             .json => blk: {
                 defer allocator.free(bytes);
-                break :blk file_bindings.jsonArray(allocator, bytes, query.max_input_bytes - prepared_bytes) catch |err| return fileError(&errors.interface, spec.path, "parse JSON binding sequence", err);
+                break :blk budget.prepareJson(allocator, bytes) catch |err| return fileError(&errors.interface, spec.path, "parse JSON binding sequence", err);
             },
         };
         prepared.append(allocator, value) catch |err| {
             allocator.free(value);
             return err;
         };
-        prepared_bytes += value.len;
         bindings.items[spec.index].value = switch (spec.kind) {
             .raw => .{ .string = value },
             .json => .{ .json = value },

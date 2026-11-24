@@ -10,9 +10,10 @@ const Buffered = @import("buffered.zig");
 const scalar = @import("evaluator.zig");
 const input_json = @import("input.zig");
 pub const Diagnostic = @import("diagnostic.zig").Diagnostic;
+pub const BindingBudget = @import("binding_sequence.zig").BindingBudget;
 pub const StreamOptions = Execution.Options;
 pub const max_input_bytes = input_json.max_bytes;
-pub const version = "0.38.0";
+pub const version = "0.39.0";
 
 /// Owned by Program after compilation; caller buffers are only borrowed during
 /// compileWithBindings. JSON values retain exact number tokens.
@@ -237,6 +238,7 @@ pub const Slurp = struct {
 const checkInputDepth = input_json.checkDepth;
 
 test {
+    _ = @import("binding_sequence.zig");
     _ = @import("number.zig");
     _ = @import("tests.zig");
     _ = @import("stream_tests.zig");
